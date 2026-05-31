@@ -84,15 +84,16 @@ npx prisma generate                    # Client nach Schema-Änderung
 
 → Vollständige Anleitung: **[`deploy.md`](deploy.md)**
 
-**Kurzform (nach jedem Push auf `main`):**
+**Kurzform:**
 
-```bash
-cd /opt/financer && git pull && docker compose up -d --build
-```
+| Modus (`.env`) | Update |
+|---|---|
+| `FINANCER_DEPLOY_MODE=build` (Default) | `git pull && docker compose up -d --build` |
+| `FINANCER_DEPLOY_MODE=ghcr` | `compose -f docker-compose.yml -f docker-compose.prod.yml pull && up -d` |
 
-Oder: `bash /opt/financer/scripts/deploy.sh`
+Beide: `./scripts/update.sh` — Details in [`deploy.md`](deploy.md)
 
-**Nicht** `docker-compose.prod.yml` — das zieht ein altes GHCR-Image statt lokal zu bauen.
+Hard-Reset: `bash /opt/financer/scripts/deploy.sh`
 
 `docker-entrypoint.sh` führt bei Start `prisma db push` aus (Produktions-DB ohne Migrationshistorie — siehe D-01 in `README.md`). Runtime-Image: Standalone + nur Prisma-CLI/dotenv, kein Builder-`node_modules`. Lokal: `npx prisma migrate deploy` für vollständige Migrationen.
 

@@ -1,9 +1,10 @@
-# Optional: Image aus GHCR statt lokalem Build (ignoriert git pull für die App!).
-# Nur sinnvoll mit Release-Tags v* — sonst bleibt die App auf alter GHCR-Version.
+# GHCR-Overlay — in .env: FINANCER_DEPLOY_MODE=ghcr
+# Update: ./scripts/update.sh
+# Manuell:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 services:
   app:
-    image: ghcr.io/carkeyuser/financer:latest
+    image: ${FINANCER_IMAGE:-ghcr.io/carkeyuser/financer:latest}
     build: !reset null
     pull_policy: always

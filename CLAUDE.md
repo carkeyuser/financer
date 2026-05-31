@@ -100,7 +100,7 @@ Server-Pfad: `/opt/financer`. **Nach Push auf `main`:**
 cd /opt/financer && git pull && docker compose up -d --build
 ```
 
-Details, Fallstricke (kein `docker-compose.prod.yml`): **[plan/deploy.md](plan/deploy.md)**
+Details, Fallstricke: **[plan/deploy.md](plan/deploy.md)** — zwei Modi: `build` (git pull + `--build`) und `ghcr` (compose pull + up -d)
 
 `docker-compose.yml` baut das Image auf dem Server (`build: .`) und startet PostgreSQL 16 + Next.js. Beim Container-Start: `prisma db push` via `docker-entrypoint.sh`.
 
