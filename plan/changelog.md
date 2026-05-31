@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.3** — GitHub Release mit Changelog; In-App-Release-Notes erweitert |
 | 2026-05-31 | **Release v0.0.3** — Auto-Deploy entfernt, manuelles Deploy |
 | 2026-05-31 | **Deploy:** Auto-Deploy entfernt — CI nur noch lint/test/build; Deploy manuell (`git pull`, `.\push -Deploy`, `scripts/deploy.sh`) |
 | 2026-05-31 | **Release v0.0.2** — Update-Dialog, README-Vorschau |
