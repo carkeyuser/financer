@@ -23,6 +23,7 @@ export const mergeScanProgressEventSchema = z.discriminatedUnion("type", [
 ])
 
 export type MergeScanProgressEvent = z.infer<typeof mergeScanProgressEventSchema>
+export type MergeScanPhase = z.infer<typeof mergeScanPhaseSchema>
 
 export const mergeSuggestionsCompleteSchema = z.object({
   groups: z.array(
