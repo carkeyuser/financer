@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.6] - 2026-05-31
+
+### Changed
+
+- **Docker** — Slim runtime image: Prisma CLI + dotenv only (no full builder `node_modules`); `docker-entrypoint.sh` for `db push` + `node server.js`
+- **Docker build** — BuildKit cache mounts for `npm ci` and `.next/cache`; `.dockerignore`; selective builder `COPY` (plan/tests no longer invalidate the build)
+- **Next.js** — `outputFileTracingIncludes` for generated Prisma client in standalone output
+
 ## [0.0.5] - 2026-05-31
 
 ### Added
@@ -56,6 +64,7 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.0.6]: https://github.com/carkeyuser/financer/releases/tag/v0.0.6
 [0.0.5]: https://github.com/carkeyuser/financer/releases/tag/v0.0.5
 [0.0.4]: https://github.com/carkeyuser/financer/releases/tag/v0.0.4
 [0.0.3]: https://github.com/carkeyuser/financer/releases/tag/v0.0.3

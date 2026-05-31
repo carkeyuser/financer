@@ -36,8 +36,6 @@ services:
       - "3000:3000"
     networks:
       - finance_net
-    command: >
-      sh -c "npx prisma db push && node server.js"
 
 volumes:
   postgres_data:
