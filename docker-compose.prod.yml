@@ -1,0 +1,8 @@
+# Server-Deploy: Image aus GHCR statt lokalem Build.
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  app:
+    image: ghcr.io/carkeyuser/financer:latest
+    build: !reset null
+    pull_policy: always
