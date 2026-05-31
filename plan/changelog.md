@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.1:** Erstes GitHub-Release — Tag `v0.0.1`, Root-`CHANGELOG.md`, `package.json` Version 0.0.1 |
 | 2026-05-31 | **Deploy:** `docker-compose.yml` — `pull_policy: build` für `app`, damit Compose `finance-app:latest` nicht von Docker Hub pullt |
 | 2026-05-31 | **Docs:** Windows-Pfad `c:\dev\financer` in README/plan durch neutrales `financer/` ersetzt |
 | 2026-05-31 | **F-30 GitHub-ready:** `.gitignore` erweitert (`.env*` + `!.env.example`, `push.ps1`/`pack.ps1`, `.claude/`, `.cursor/`, `*.tar.gz`); IPs und persönliche Daten anonymisiert; `push.example.ps1`/`pack.example.ps1`; MIT LICENSE; GitHub Actions CI (lint, test, build); Initial Commit |
