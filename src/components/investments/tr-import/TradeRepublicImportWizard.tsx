@@ -113,7 +113,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
   const goAfterOverview = () => {
     if (conflictRows.length > 0) setStep("conflicts")
-    else if (tickerMappings.length > 0) setStep("tickers")
+    else if (tickerMappings.length > 0 || (preview?.summary.needsTicker ?? 0) > 0) setStep("tickers")
     else setStep("confirm")
   }
 
