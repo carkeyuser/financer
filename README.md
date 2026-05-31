@@ -544,7 +544,7 @@ docker compose restart app
 ## 15. Projektstruktur
 
 ```
-c:\dev\financer\
+financer/
 ├── plan/                      # Projektdokumentation, Architektur, Backlogs, Änderungslog
 ├── README.md                  # Diese Datei
 ├── .env.example               # Env-Template
