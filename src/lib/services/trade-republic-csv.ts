@@ -9,7 +9,7 @@ const HEADER_ALIASES: Record<string, string[]> = {
   type: ["type", "typ", "transaction type", "transaktionstyp", "transaction", "transaktion"],
   quantity: ["number", "anzahl", "quantity", "shares", "stück", "menge"],
   price: ["price", "kurs", "rate"],
-  totalEur: ["total eur", "eur value", "gesamt eur", "total", "betrag eur"],
+  totalEur: ["total eur", "eur value", "gesamt eur", "total", "betrag eur", "amount", "betrag", "gesamt", "value", "wert"],
   debit: ["debit", "belastung"],
   credit: ["credit", "gutschrift"],
   taxEur: ["tax amount", "steuer", "tax", "quellensteuer"],
@@ -32,8 +32,8 @@ const IGNORED_TYPES = new Set([
 
 const PURCHASE_TYPES = new Set(["buy", "kauf", "purchase", "sparplan", "savings plan"])
 const SALE_TYPES = new Set(["sell", "verkauf", "sale"])
-const DIVIDEND_TYPES = new Set(["dividend", "dividende", "coupon", "kupon"])
-const INTEREST_TYPES = new Set(["interest", "zinsen", "zins"])
+const DIVIDEND_TYPES = new Set(["dividend", "dividende", "dividends", "coupon", "kupon", "ausschüttung", "ausschuettung", "ertrag"])
+const INTEREST_TYPES = new Set(["interest", "zinsen", "zins", "interest payout", "zinsauszahlung"])
 
 export function parseTradeRepublicCsv(content: string): TrParsedRow[] {
   const text = content.replace(/^\uFEFF/, "").trim()
@@ -81,16 +81,18 @@ export function parseTradeRepublicCsv(content: string): TrParsedRow[] {
     const taxEur = parseNumber(get("taxEur"))
     const orderId = get("orderId") || null
 
-    const eventType = classifyEvent(rawType, isin, quantity, totalEur)
+    const eventType = classifyEvent(rawType, isin, quantity, price, totalEur)
     if (eventType === "ignored") continue
+
+    const normalizedAmounts = normalizeTradeAmounts(quantity, price, totalEur, eventType)
 
     const importRef = buildImportRef(orderId, {
       date,
       isin,
       eventType,
-      quantity,
-      price,
-      totalEur,
+      quantity: normalizedAmounts.quantity,
+      price: normalizedAmounts.price,
+      totalEur: normalizedAmounts.totalEur,
     })
 
     rows.push({
@@ -99,9 +101,9 @@ export function parseTradeRepublicCsv(content: string): TrParsedRow[] {
       date,
       product,
       isin,
-      quantity: quantity === null ? null : Math.abs(quantity),
-      price,
-      totalEur: totalEur === null ? null : Math.abs(totalEur),
+      quantity: normalizedAmounts.quantity === null ? null : Math.abs(normalizedAmounts.quantity),
+      price: normalizedAmounts.price,
+      totalEur: normalizedAmounts.totalEur === null ? null : Math.abs(normalizedAmounts.totalEur),
       taxEur: taxEur === null ? null : Math.abs(taxEur),
       orderId,
       importRef,
@@ -127,7 +129,10 @@ function normalizeHeader(header: string): string {
 function buildColumnMap(headers: string[]): Partial<Record<keyof typeof HEADER_ALIASES, number>> {
   const map: Partial<Record<keyof typeof HEADER_ALIASES, number>> = {}
   for (const [key, aliases] of Object.entries(HEADER_ALIASES) as [keyof typeof HEADER_ALIASES, string[]][]) {
-    const idx = headers.findIndex((h) => aliases.some((a) => h === a || h.includes(a)))
+    let idx = headers.findIndex((h) => aliases.some((a) => h === a))
+    if (idx < 0) {
+      idx = headers.findIndex((h) => aliases.some((a) => a.length >= 3 && h.includes(a)))
+    }
     if (idx >= 0) map[key] = idx
   }
   return map
@@ -230,6 +235,7 @@ function classifyEvent(
   rawType: string,
   isin: string | null,
   quantity: number | null,
+  price: number | null,
   totalEur: number | null
 ): TrImportEventType {
   const normalized = rawType.toLowerCase()
@@ -248,6 +254,9 @@ function classifyEvent(
   if (PURCHASE_TYPES.has(normalized) || [...PURCHASE_TYPES].some((t) => normalized.includes(t))) {
     return "purchase"
   }
+  if (isin && totalEur !== null && totalEur > 0 && (quantity === null || quantity === 0) && (price === null || price === 0)) {
+    return "dividend"
+  }
   if (isin && quantity !== null && quantity !== 0) {
     return quantity < 0 ? "sale" : "purchase"
   }
@@ -258,6 +267,46 @@ function classifyEvent(
     return "interest"
   }
   return "ignored"
+}
+
+/** Derive missing quantity/price for trades from total amount (common when CSV has Amount but no Rate). */
+export function normalizeTradeAmounts(
+  quantity: number | null,
+  price: number | null,
+  totalEur: number | null,
+  eventType: TrImportEventType
+): { quantity: number | null; price: number | null; totalEur: number | null } {
+  if (eventType !== "purchase" && eventType !== "sale") {
+    return { quantity, price, totalEur }
+  }
+
+  let qty = quantity
+  let prc = price
+  const total = totalEur
+
+  if ((prc === null || prc <= 0) && total !== null && total > 0 && qty !== null && qty > 0) {
+    prc = total / qty
+  } else if ((qty === null || qty <= 0) && total !== null && total > 0 && prc !== null && prc > 0) {
+    qty = total / prc
+  } else if ((qty === null || qty <= 0) && (prc === null || prc <= 0) && total !== null && total > 0) {
+    qty = 1
+    prc = total
+  }
+
+  return { quantity: qty, price: prc, totalEur: total }
+}
+
+export function resolveTradeQuantityPrice(parsed: {
+  quantity: number | null
+  price: number | null
+  totalEur: number | null
+  eventType: TrImportEventType
+}): { qty: number; price: number } {
+  const normalized = normalizeTradeAmounts(parsed.quantity, parsed.price, parsed.totalEur, parsed.eventType)
+  return {
+    qty: normalized.quantity ?? 0,
+    price: normalized.price ?? 0,
+  }
 }
 
 export function buildImportRef(

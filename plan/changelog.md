@@ -4,7 +4,9 @@
 
 | Datum | Änderung |
 |---|---|
-| 2026-05-31 | **B-33:** TR-Import — Krypto/Zeilen ohne ISIN erscheinen im Ticker-Step; Bestätigung zählt ungelöste `needs_ticker` als übersprungen; Apply bricht bei Einzelfehlern nicht mehr ab |
+| 2026-06-01 | **F-39:** Positionen zusammenführen — Merge-Wizard (Vorschläge + manuell), API `/api/assets/merge*`, Null-Filter in Investments; TR-Import ISIN-Lookup + Merge-CTA; 12 Tests |
+| 2026-06-01 | **F-39 (Plan):** Positionen zusammenführen — Spezifikation in `plan/feature-f39-merge-positions.md` |
+| 2026-05-31 | **B-34:** TR-Import — Spalten `Amount`/`Betrag`/`Gesamt`; fehlende Kurse aus Betrag÷Stück ableiten; robustere Spalten-Erkennung; mehr Dividenden-/Zins-Typen |
 | 2026-05-31 | **B-28–B-32:** TR-Import — Zod-Validierung für NDJSON-Complete-Payload; JSON.parse try/catch; toter `useImportProgressReader` entfernt; Fortschrittsbalken min. 1 % bei Phase-Start; Tests für NDJSON-Routes und `resolveIsins` parallel |
 | 2026-05-31 | **CI:** TR-Import — `streamController`-Typ in `createNdjsonResponse` (Objekt-Ref statt `let`, TS-Narrowing in async-`finally`) |
 | 2026-05-31 | **B-24–B-27:** TR-Import — ETA ab erstem Event; ISIN-Retry/Concurrency 2; NDJSON-Fehler vor Stream → HTTP 500; Tickers-Step nur bei `needsAttention` |

@@ -14,6 +14,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { SecuritySearch } from "@/components/investments/SecuritySearch"
 import { TrImportProgressPanel, type ImportProgressState } from "@/components/investments/tr-import/TrImportProgressPanel"
 import { useHousehold } from "@/hooks/useHousehold"
+import { useAssets } from "@/hooks/useAssets"
 import {
   useTradeRepublicApply,
   useTradeRepublicPreview,
@@ -37,9 +38,10 @@ type WizardStep = "intro" | "upload" | "analyze" | "overview" | "conflicts" | "t
 interface TradeRepublicImportWizardProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onOpenMerge?: () => void
 }
 
-export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicImportWizardProps) {
+export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: TradeRepublicImportWizardProps) {
   const { t, translateApiError, locale } = useI18n()
   const ti = (key: string, params?: Record<string, string | number>) => {
     const path = `investments.trImport.${key}`
@@ -60,6 +62,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
   const [tickerOverrides, setTickerOverrides] = useState<Record<string, TrTickerOverride>>({})
   const [applyResult, setApplyResult] = useState<TrImportApplyResponse | null>(null)
   const [importProgress, setImportProgress] = useState<ImportProgressState | null>(null)
+  const [checkDuplicatesAfter, setCheckDuplicatesAfter] = useState(true)
 
   const dialogContentRef = useRef<HTMLDivElement>(null)
   const stepListRef = useRef<HTMLDivElement>(null)
@@ -71,6 +74,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
     setImportProgress({ phase: event.phase, current: event.current, total: event.total })
   })
   const { data: household } = useHousehold()
+  const { data: portfolioAssets } = useAssets()
 
   const isAdmin = household?.myRole === "OWNER" || household?.myRole === "ADMIN"
 
@@ -112,9 +116,16 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
     setTickerOverrides({})
     setApplyResult(null)
     setImportProgress(null)
+    setCheckDuplicatesAfter((portfolioAssets?.length ?? 0) >= 2)
     previewMutation.reset()
     applyMutation.reset()
-  }, [previewMutation, applyMutation])
+  }, [previewMutation, applyMutation, portfolioAssets?.length])
+
+  useEffect(() => {
+    if (open && (portfolioAssets?.length ?? 0) >= 2) {
+      setCheckDuplicatesAfter(true)
+    }
+  }, [open, portfolioAssets?.length])
 
   useEffect(() => {
     if (!open) return
@@ -251,6 +262,16 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
             <p className="font-medium">{ti("introTitle")}</p>
             <p className="text-sm text-muted-foreground">{ti("introBody")}</p>
             <div className="rounded-md border bg-muted/40 p-3 text-sm">{ti("introSteps")}</div>
+            {onOpenMerge && isAdmin && (
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={checkDuplicatesAfter}
+                  onChange={(e) => setCheckDuplicatesAfter(e.target.checked)}
+                />
+                {ti("checkDuplicatesAfter")}
+              </label>
+            )}
             <Button className="w-full sm:w-auto" onClick={() => setStep("upload")}>{ti("next")}</Button>
           </div>
         )}
@@ -293,6 +314,18 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
                 />
               </label>
             </div>
+            {onOpenMerge && isAdmin && (
+              <button
+                type="button"
+                className="text-sm text-muted-foreground underline-offset-2 hover:underline"
+                onClick={() => {
+                  handleClose(false)
+                  onOpenMerge()
+                }}
+              >
+                {ti("cleanupDuplicates")}
+              </button>
+            )}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setStep("intro")}>{ti("back")}</Button>
               <Button disabled={!file} onClick={runPreview}>{ti("analyze")}</Button>
@@ -409,9 +442,21 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
                 </ul>
               </div>
             )}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => handleClose(false)}>{ti("close")}</Button>
-              <Link href="/investments" className={cn(buttonVariants())}>{ti("toPortfolio")}</Link>
+              {onOpenMerge && isAdmin && checkDuplicatesAfter && (
+                <Button
+                  onClick={() => {
+                    handleClose(false)
+                    onOpenMerge()
+                  }}
+                >
+                  {ti("mergeAfterImport")}
+                </Button>
+              )}
+              <Link href="/investments" className={cn(buttonVariants({ variant: onOpenMerge && isAdmin && checkDuplicatesAfter ? "outline" : "default" }))}>
+                {ti("toPortfolio")}
+              </Link>
             </div>
           </div>
         )}

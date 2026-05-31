@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma"
 import { INTEREST_ASSET_TICKER, INTEREST_ASSET_NAME } from "@/lib/constants/interest-asset"
 import { tickerOverrideKey } from "@/lib/services/tr-import-ticker-mapping"
+import { resolveTradeQuantityPrice } from "@/lib/services/trade-republic-csv"
 import type { TrImportPreviewCacheEntry } from "@/lib/services/tr-import-preview-cache"
 import type { TrImportResolution, TrParsedRow, TrTickerOverride } from "@/lib/services/tr-import-types"
 import type { TrImportPreviewRow } from "@/lib/services/tr-import-types"
@@ -101,6 +102,30 @@ async function getOrCreateAsset(
   const cacheKey = `${preview.targetUserId}:${tickerInfo.symbol}`
   if (assetCache.has(cacheKey)) return assetCache.get(cacheKey)!
 
+  if (parsed.isin) {
+    const isinKey = parsed.isin.trim().toUpperCase()
+    const isinCacheKey = `${preview.targetUserId}:isin:${isinKey}`
+    if (assetCache.has(isinCacheKey)) {
+      const id = assetCache.get(isinCacheKey)!
+      assetCache.set(cacheKey, id)
+      return id
+    }
+
+    const byIsin = await tx.asset.findFirst({
+      where: {
+        householdId: preview.householdId,
+        userId: preview.targetUserId,
+        isin: { equals: isinKey, mode: "insensitive" },
+      },
+    })
+
+    if (byIsin) {
+      assetCache.set(isinCacheKey, byIsin.id)
+      assetCache.set(cacheKey, byIsin.id)
+      return byIsin.id
+    }
+  }
+
   const existing = await tx.asset.findUnique({
     where: {
       householdId_userId_ticker: {
@@ -113,6 +138,9 @@ async function getOrCreateAsset(
 
   if (existing) {
     assetCache.set(cacheKey, existing.id)
+    if (parsed.isin) {
+      assetCache.set(`${preview.targetUserId}:isin:${parsed.isin.trim().toUpperCase()}`, existing.id)
+    }
     return existing.id
   }
 
@@ -130,6 +158,9 @@ async function getOrCreateAsset(
     },
   })
   assetCache.set(cacheKey, created.id)
+  if (parsed.isin) {
+    assetCache.set(`${preview.targetUserId}:isin:${parsed.isin.trim().toUpperCase()}`, created.id)
+  }
   return created.id
 }
 
@@ -173,8 +204,7 @@ async function applyTrade(
 
   const assetId = await getOrCreateAsset(tx, preview, parsed, tickerInfo, assetCache)
   const entryType = parsed.eventType === "sale" ? "SALE" : "PURCHASE"
-  const qty = parsed.quantity ?? 0
-  const price = parsed.price ?? (parsed.totalEur && qty ? parsed.totalEur / qty : 0)
+  const { qty, price } = resolveTradeQuantityPrice(parsed)
   if (qty <= 0 || price <= 0) {
     throw new Error("Ungültige Menge oder Preis")
   }

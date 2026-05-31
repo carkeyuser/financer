@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react"
 import Link from "next/link"
-import { ArrowDownUp, Plus, TrendingUp, GripVertical, LayoutGrid, List, TrendingDown, Minus, Landmark, User, Upload } from "lucide-react"
+import { ArrowDownUp, Plus, TrendingUp, GripVertical, LayoutGrid, List, TrendingDown, Minus, Landmark, User, Upload, GitMerge } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -38,6 +38,10 @@ import { CSS } from "@dnd-kit/utilities"
 import { hasMarketPrice, positionGlowRowClass } from "@/lib/utils/position-display"
 import { useI18n } from "@/i18n/context"
 import { TradeRepublicImportWizard } from "@/components/investments/tr-import/TradeRepublicImportWizard"
+import { PositionMergeWizard } from "@/components/investments/merge/PositionMergeWizard"
+import { isEmptyPosition } from "@/lib/services/asset-merge-suggestions"
+
+const HIDE_ZERO_STORAGE_KEY = "financer.hideZeroPositions"
 
 type SortMode = "depot" | "owner" | "value" | null
 const ACCOUNT_FILTER_ALL = "__all_accounts__"
@@ -206,7 +210,15 @@ function SortButton({
   )
 }
 
-function InvestmentsInner({ onOpenImport }: { onOpenImport: () => void }) {
+function InvestmentsInner({
+  onOpenImport,
+  hideZeroPositions,
+  onHideZeroPositionsChange,
+}: {
+  onOpenImport: () => void
+  hideZeroPositions: boolean
+  onHideZeroPositionsChange: (value: boolean) => void
+}) {
   const { t, compareLocale } = useI18n()
   const { data: rawAssets, isLoading, error } = useAssets()
   const reorder = useReorderAssets()
@@ -221,9 +233,18 @@ function InvestmentsInner({ onOpenImport }: { onOpenImport: () => void }) {
     [baseAssets, compareLocale]
   )
   const effectiveAccountFilter = accountOptions.includes(accountFilter) ? accountFilter : ACCOUNT_FILTER_ALL
-  const filteredAssets = effectiveAccountFilter === ACCOUNT_FILTER_ALL
+  const accountFiltered = effectiveAccountFilter === ACCOUNT_FILTER_ALL
     ? baseAssets
     : baseAssets.filter((asset) => asset.account === effectiveAccountFilter)
+
+  const zeroHiddenCount = hideZeroPositions
+    ? accountFiltered.filter((asset) => isEmptyPosition(asset, asset.entries, asset.eurRate ?? 1)).length
+    : 0
+
+  const filteredAssets = hideZeroPositions
+    ? accountFiltered.filter((asset) => !isEmptyPosition(asset, asset.entries, asset.eurRate ?? 1))
+    : accountFiltered
+
   const assets = applySortMode(filteredAssets, sortMode, compareLocale)
 
   const sensors = useSensors(
@@ -288,6 +309,17 @@ function InvestmentsInner({ onOpenImport }: { onOpenImport: () => void }) {
   }, 0)
   const gainLossPct = costBasis === 0 ? 0 : (gainLoss / costBasis) * 100
 
+  if (filteredAssets.length === 0 && baseAssets.length > 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+        <p className="text-muted-foreground">{t("investments.merge.allFilteredEmpty")}</p>
+        <Button variant="outline" onClick={() => onHideZeroPositionsChange(false)}>
+          {t("investments.merge.hideZeroPositions")}
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <PortfolioHeader total={total} gainLoss={gainLoss} gainLossPct={gainLossPct} />
@@ -295,11 +327,30 @@ function InvestmentsInner({ onOpenImport }: { onOpenImport: () => void }) {
 
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
-          <p className="text-sm text-muted-foreground">{assets.length} {t("common.positions")}</p>
+          <p className="text-sm text-muted-foreground">
+            {assets.length} {t("common.positions")}
+            {zeroHiddenCount > 0 && (
+              <button
+                type="button"
+                className="ml-1 underline-offset-2 hover:underline"
+                onClick={() => onHideZeroPositionsChange(false)}
+              >
+                {t("investments.merge.hiddenZeroCount", { n: zeroHiddenCount })}
+              </button>
+            )}
+          </p>
           <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:overflow-visible sm:pb-0">
             <SortButton label={t("investments.sortAccount")} active={sortMode === "depot"} onClick={() => handleSort("depot")} />
             <SortButton label={t("investments.sortOwner")} active={sortMode === "owner"} onClick={() => handleSort("owner")} />
             <SortButton label={t("investments.sortValue")} active={sortMode === "value"} onClick={() => handleSort("value")} />
+            <Button
+              size="sm"
+              variant={hideZeroPositions ? "default" : "outline"}
+              className="h-10 px-3 text-xs sm:h-7 sm:px-2"
+              onClick={() => onHideZeroPositionsChange(!hideZeroPositions)}
+            >
+              {t("investments.merge.hideZeroPositions")}
+            </Button>
             <Select value={effectiveAccountFilter} onValueChange={(value) => setAccountFilter(value ?? ACCOUNT_FILTER_ALL)}>
               <SelectTrigger size="sm" className="h-10 w-[180px] sm:h-7" aria-label={t("investments.filterAccount")}>
                 <SelectValue />
@@ -369,6 +420,30 @@ function InvestmentsInner({ onOpenImport }: { onOpenImport: () => void }) {
 export function InvestmentsContent() {
   const { t } = useI18n()
   const [importOpen, setImportOpen] = useState(false)
+  const [mergeOpen, setMergeOpen] = useState(false)
+  const [hideZeroPositions, setHideZeroPositions] = useState(true)
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(HIDE_ZERO_STORAGE_KEY)
+      if (stored !== null) setHideZeroPositions(stored === "true")
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  function handleHideZeroChange(value: boolean) {
+    setHideZeroPositions(value)
+    try {
+      localStorage.setItem(HIDE_ZERO_STORAGE_KEY, String(value))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function openMergeWizard() {
+    setMergeOpen(true)
+  }
 
   return (
     <div className="space-y-6">
@@ -378,13 +453,25 @@ export function InvestmentsContent() {
           <Button variant="outline" onClick={() => setImportOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />{t("investments.trImport.button")}
           </Button>
+          <Button variant="outline" onClick={openMergeWizard}>
+            <GitMerge className="h-4 w-4 mr-2" />{t("investments.merge.button")}
+          </Button>
           <Link href="/investments/new" className={cn(buttonVariants())}>
             <Plus className="h-4 w-4 mr-2" />{t("investments.add")}
           </Link>
         </div>
       </div>
-      <InvestmentsInner onOpenImport={() => setImportOpen(true)} />
-      <TradeRepublicImportWizard open={importOpen} onOpenChange={setImportOpen} />
+      <InvestmentsInner
+        onOpenImport={() => setImportOpen(true)}
+        hideZeroPositions={hideZeroPositions}
+        onHideZeroPositionsChange={handleHideZeroChange}
+      />
+      <TradeRepublicImportWizard
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onOpenMerge={openMergeWizard}
+      />
+      <PositionMergeWizard open={mergeOpen} onOpenChange={setMergeOpen} />
     </div>
   )
 }

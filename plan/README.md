@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf einem Proxmox LXC.
 
-**Stand:** 2026-05-31 (Release v0.0.8)
+**Stand:** 2026-06-01 (Release v0.0.8, F-39 Merge)
 
 ---
 
@@ -35,7 +35,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | **8** Feature-Backlog | 🟡 teilweise offen | DevOps F-31, Kalender F-34 |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
-| **Tests** | ✅ Unit-Tests | Vitest, **148 Tests** in 17 Dateien, alle grün |
+| **Tests** | ✅ Unit-Tests | Vitest, **165 Tests** in 18 Dateien, alle grün |
 
 ---
 
@@ -59,6 +59,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | [`setup.md`](setup.md) | UI-Seiten, Dev-Setup, Docker, Tests, Self-hosted |
 | [`deploy.md`](deploy.md) | **Server-Update nach Push** — `git pull` + `compose up --build` |
 | [`features.md`](features.md) | Feature-Backlog (offen) |
+| [`feature-f39-merge-positions.md`](feature-f39-merge-positions.md) | F-39 Spezifikation: Merge-Wizard + Null-Filter |
 | [`aenderungen.md`](aenderungen.md) | Änderungs-Backlog (offen) |
 | [`bugs.md`](bugs.md) | Bug-Backlog (offen) |
 | [`archive.md`](archive.md) | Archiv erledigter Backlog-Einträge |
