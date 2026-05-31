@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.9",
+    date: "2026-06-01",
+    highlights: {
+      de: [
+        "Positionen zusammenführen: Duplikate erkennen und per Wizard zu einer Position mergen",
+        "TR-Import: Depot leeren — alle Positionen eines Kontos vor Neuimport löschen",
+        "Merge-Wizard UX: durchsuchbare Auswahl, leere Positionen ausblenden, breiterer Dialog",
+      ],
+      en: [
+        "Merge positions: detect duplicates and combine into one position via wizard",
+        "TR import: clear depot — delete all positions for an account before re-import",
+        "Merge wizard UX: searchable picker, hide empty positions, wider dialog",
+      ],
+    },
+  },
+  {
     version: "0.0.8",
     date: "2026-05-31",
     highlights: {
