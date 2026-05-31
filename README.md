@@ -298,7 +298,24 @@ Die App ist erreichbar unter: `http://YOUR_SERVER:3000` (oder der in `NEXTAUTH_U
 
 ### Updates einspielen
 
-**Server (Git-Deploy):**
+**Server (Pull aus GHCR — empfohlen nach CI-Setup):**
+
+Einmalig GHCR-Login (PAT mit `read:packages`, falls Repo privat):
+
+```bash
+echo "ghp_..." | docker login ghcr.io -u YOUR_GITHUB_USER --password-stdin
+```
+
+```bash
+cd /opt/financer
+git pull   # nur docker-compose*.yml + .env aktuell halten
+docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+Image: `ghcr.io/carkeyuser/financer:latest` (wird bei jedem Push auf `main` von GitHub Actions gebaut).
+
+**Server (lokaler Build — Fallback):**
 
 ```bash
 cd /opt/financer
@@ -306,7 +323,7 @@ git pull
 docker compose up -d --build
 ```
 
-> `finance-app:latest` wird lokal gebaut (`pull_policy: build` in `docker-compose.yml`) — kein Docker-Hub-Login nötig.
+> Standard-`docker-compose.yml` baut `finance-app:latest` lokal (`pull_policy: build`).
 
 **Von Windows (optional, mit `push.ps1`):**
 

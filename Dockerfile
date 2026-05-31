@@ -13,7 +13,7 @@ COPY package.json package-lock.json prisma.config.ts ./
 COPY prisma ./prisma
 COPY public ./public
 COPY src ./src
-COPY next.config.ts next-env.d.ts tsconfig.json postcss.config.mjs components.json ./
+COPY next.config.ts tsconfig.json postcss.config.mjs components.json ./
 RUN npx prisma generate
 RUN --mount=type=cache,target=/app/.next/cache \
     npm run build
