@@ -34,22 +34,16 @@ export async function applyTradeRepublicImport(
   let current = 0
 
   for (const parsed of sortedParsed) {
-    const previewRow = previewById.get(parsed.rowId)
-    if (!previewRow) {
-      current++
-      onProgress?.(current, total)
-      continue
-    }
-
-    const resolution = resolveAction(previewRow, resolutions)
-    if (resolution === "skip") {
-      result.skipped++
-      current++
-      onProgress?.(current, total)
-      continue
-    }
-
     try {
+      const previewRow = previewById.get(parsed.rowId)
+      if (!previewRow) continue
+
+      const resolution = resolveAction(previewRow, resolutions)
+      if (resolution === "skip") {
+        result.skipped++
+        continue
+      }
+
       if (parsed.eventType === "interest") {
         await applyInterest(tx, preview, parsed, previewRow, resolution, result)
         continue
@@ -70,10 +64,10 @@ export async function applyTradeRepublicImport(
     } catch (err) {
       result.errors.push(`Zeile ${parsed.lineNumber}: ${err instanceof Error ? err.message : "Unbekannter Fehler"}`)
       throw err
+    } finally {
+      current++
+      onProgress?.(current, total)
     }
-
-    current++
-    onProgress?.(current, total)
   }
 
   return result

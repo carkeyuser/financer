@@ -46,31 +46,63 @@ export function formatImportEta(seconds: number | null, locale: "de" | "en" = "d
 
 export function createNdjsonResponse(
   handler: (emit: (event: TrImportProgressEvent) => void) => Promise<void>
-): Response {
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder()
-      const emit = (event: TrImportProgressEvent) => {
-        controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`))
+): Promise<Response> {
+  return new Promise((resolve) => {
+    let settled = false
+    let streamController: ReadableStreamDefaultController<Uint8Array> | null = null
+    const encoder = new TextEncoder()
+    let streamStarted = false
+
+    const settle = (response: Response) => {
+      if (settled) return
+      settled = true
+      resolve(response)
+    }
+
+    const emit = (event: TrImportProgressEvent) => {
+      const line = encoder.encode(`${JSON.stringify(event)}\n`)
+      if (!streamStarted) {
+        if (event.type === "error") {
+          settle(Response.json({ error: event.error }, { status: 500 }))
+          return
+        }
+        streamStarted = true
+        const stream = new ReadableStream({
+          start(controller) {
+            streamController = controller
+            controller.enqueue(line)
+          },
+        })
+        settle(
+          new Response(stream, {
+            headers: {
+              "Content-Type": "application/x-ndjson",
+              "Cache-Control": "no-cache",
+            },
+          })
+        )
+        return
       }
+      streamController?.enqueue(line)
+    }
+
+    void (async () => {
       try {
         await handler(emit)
+        if (!streamStarted) {
+          settle(Response.json({ error: "Stream ohne Ergebnis" }, { status: 500 }))
+        }
       } catch (err) {
-        emit({
-          type: "error",
-          error: err instanceof Error ? err.message : "Unbekannter Fehler",
-        })
+        const message = err instanceof Error ? err.message : "Unbekannter Fehler"
+        if (!streamStarted) {
+          settle(Response.json({ error: message }, { status: 500 }))
+        } else {
+          emit({ type: "error", error: message })
+        }
       } finally {
-        controller.close()
+        streamController?.close()
       }
-    },
-  })
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "application/x-ndjson",
-      "Cache-Control": "no-cache",
-    },
+    })()
   })
 }
 
