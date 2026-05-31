@@ -2,8 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { Upload, AlertTriangle, CheckCircle2, FileSpreadsheet, ChevronDown } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { Upload, AlertTriangle, CheckCircle2, FileSpreadsheet, ChevronDown, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +26,7 @@ import { SecuritySearch } from "@/components/investments/SecuritySearch"
 import { TrImportProgressPanel, type ImportProgressState } from "@/components/investments/tr-import/TrImportProgressPanel"
 import { useHousehold } from "@/hooks/useHousehold"
 import { useAssets } from "@/hooks/useAssets"
+import { useDeleteInvestmentAccount } from "@/hooks/useInvestmentAccount"
 import {
   useTradeRepublicApply,
   useTradeRepublicPreview,
@@ -63,6 +75,8 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
   const [applyResult, setApplyResult] = useState<TrImportApplyResponse | null>(null)
   const [importProgress, setImportProgress] = useState<ImportProgressState | null>(null)
   const [checkDuplicatesAfter, setCheckDuplicatesAfter] = useState(true)
+  const [clearBeforeImport, setClearBeforeImport] = useState(false)
+  const [clearAccountOpen, setClearAccountOpen] = useState(false)
 
   const dialogContentRef = useRef<HTMLDivElement>(null)
   const stepListRef = useRef<HTMLDivElement>(null)
@@ -73,10 +87,21 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
   const applyMutation = useTradeRepublicApply((event) => {
     setImportProgress({ phase: event.phase, current: event.current, total: event.total })
   })
+  const { data: session } = useSession()
   const { data: household } = useHousehold()
   const { data: portfolioAssets } = useAssets()
+  const deleteAccount = useDeleteInvestmentAccount()
 
   const isAdmin = household?.myRole === "OWNER" || household?.myRole === "ADMIN"
+  const accountName = account.trim() || ti("accountDefault")
+  const effectiveTargetUserId = targetUserId || session?.user?.id || ""
+  const existingAccountAssets = useMemo(
+    () =>
+      (portfolioAssets ?? []).filter(
+        (asset) => asset.account === accountName && asset.userId === effectiveTargetUserId
+      ),
+    [portfolioAssets, accountName, effectiveTargetUserId]
+  )
 
   const conflictRows = useMemo(
     () => preview?.rows.filter((r) => r.status === "conflict" || r.status === "skip_soft") ?? [],
@@ -117,9 +142,12 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
     setApplyResult(null)
     setImportProgress(null)
     setCheckDuplicatesAfter((portfolioAssets?.length ?? 0) >= 2)
+    setClearBeforeImport(false)
+    setClearAccountOpen(false)
     previewMutation.reset()
     applyMutation.reset()
-  }, [previewMutation, applyMutation, portfolioAssets?.length])
+    deleteAccount.reset()
+  }, [previewMutation, applyMutation, deleteAccount, portfolioAssets?.length])
 
   useEffect(() => {
     if (open && (portfolioAssets?.length ?? 0) >= 2) {
@@ -138,14 +166,33 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
     onOpenChange(o)
   }
 
+  const clearDepot = async () => {
+    try {
+      const result = await deleteAccount.mutateAsync({
+        account: accountName,
+        targetUserId: targetUserId || undefined,
+      })
+      toast.success(ti("clearAccountDone", { n: result.deletedAssets }))
+      setClearAccountOpen(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : ti("clearAccountFailed"))
+    }
+  }
+
   const runPreview = async () => {
     if (!file) return
     setImportProgress(null)
     setStep("analyze")
     try {
+      if (clearBeforeImport && existingAccountAssets.length > 0) {
+        await deleteAccount.mutateAsync({
+          account: accountName,
+          targetUserId: targetUserId || undefined,
+        })
+      }
       const result = await previewMutation.mutateAsync({
         file,
-        account: account.trim() || ti("accountDefault"),
+        account: accountName,
         targetUserId: targetUserId || undefined,
       })
       setPreview(result)
@@ -257,6 +304,30 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
           </div>
         )}
 
+        <AlertDialog open={clearAccountOpen} onOpenChange={setClearAccountOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{ti("clearAccountTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {ti("clearAccountBody", { n: existingAccountAssets.length, account: accountName })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{ti("back")}</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={deleteAccount.isPending}
+                onClick={(e) => {
+                  e.preventDefault()
+                  void clearDepot()
+                }}
+              >
+                {ti("clearAccountConfirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         {step === "intro" && (
           <div className="space-y-4">
             <p className="font-medium">{ti("introTitle")}</p>
@@ -281,7 +352,35 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
             <div className="space-y-2">
               <Label htmlFor="tr-account">{ti("accountLabel")}</Label>
               <Input id="tr-account" value={account} onChange={(e) => setAccount(e.target.value)} />
+              {existingAccountAssets.length > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {ti("existingAccountHint", { n: existingAccountAssets.length, account: accountName })}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 shrink-0"
+                    disabled={deleteAccount.isPending}
+                    onClick={() => setClearAccountOpen(true)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    {ti("clearAccount")}
+                  </Button>
+                </div>
+              )}
             </div>
+            {existingAccountAssets.length > 0 && (
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={clearBeforeImport}
+                  onChange={(e) => setClearBeforeImport(e.target.checked)}
+                />
+                {ti("clearBeforeImport")}
+              </label>
+            )}
             {isAdmin && household?.members && household.members.length > 1 && (
               <div className="space-y-2">
                 <Label>{ti("ownerLabel")}</Label>
