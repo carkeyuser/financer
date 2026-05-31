@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
-# Server-Deploy: GHCR pull + restart (kein lokaler Build).
+# Server-Deploy: git pull + lokaler Docker-Build (Code aus /opt/financer).
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/financer}"
-COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 cd "$APP_DIR"
 
 echo "→ Fetch origin/main …"
 git fetch origin main
 git reset --hard origin/main
 
-echo "→ Pull images …"
-$COMPOSE pull
-
-echo "→ Start containers …"
-$COMPOSE up -d
+echo "→ Build & start …"
+docker compose up -d --build
 
 echo "→ Health check …"
 for i in 1 2 3 4 5 6 7 8 9 10; do
@@ -26,5 +22,5 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
 done
 
 echo "✗ Health check fehlgeschlagen"
-$COMPOSE logs app --tail 30
+docker compose logs app --tail 30
 exit 1
