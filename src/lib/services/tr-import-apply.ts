@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma"
 import { INTEREST_ASSET_TICKER, INTEREST_ASSET_NAME } from "@/lib/constants/interest-asset"
+import { tickerOverrideKey } from "@/lib/services/tr-import-ticker-mapping"
 import type { TrImportPreviewCacheEntry } from "@/lib/services/tr-import-preview-cache"
 import type { TrImportResolution, TrParsedRow, TrTickerOverride } from "@/lib/services/tr-import-types"
 import type { TrImportPreviewRow } from "@/lib/services/tr-import-types"
@@ -63,7 +64,7 @@ export async function applyTradeRepublicImport(
       }
     } catch (err) {
       result.errors.push(`Zeile ${parsed.lineNumber}: ${err instanceof Error ? err.message : "Unbekannter Fehler"}`)
-      throw err
+      result.skipped++
     } finally {
       current++
       onProgress?.(current, total)
@@ -84,8 +85,7 @@ function resolveTicker(
   previewRow: TrImportPreviewRow,
   overrides: Record<string, TrTickerOverride>
 ): TrTickerOverride | null {
-  if (!parsed.isin) return null
-  const key = parsed.isin.toUpperCase()
+  const key = tickerOverrideKey(parsed)
   if (overrides[key]) return overrides[key]
   if (previewRow.suggestedTicker) return previewRow.suggestedTicker
   return null
@@ -175,7 +175,9 @@ async function applyTrade(
   const entryType = parsed.eventType === "sale" ? "SALE" : "PURCHASE"
   const qty = parsed.quantity ?? 0
   const price = parsed.price ?? (parsed.totalEur && qty ? parsed.totalEur / qty : 0)
-  if (qty <= 0 || price <= 0) throw new Error("Ungültige Menge oder Preis")
+  if (qty <= 0 || price <= 0) {
+    throw new Error("Ungültige Menge oder Preis")
+  }
 
   await tx.assetEntry.create({
     data: {

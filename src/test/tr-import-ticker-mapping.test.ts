@@ -4,6 +4,7 @@ import {
   buildTickerMappings,
   countUnresolvedTickers,
   initialTickerOverrides,
+  tickerOverrideKey,
 } from "@/lib/services/tr-import-ticker-mapping"
 import type { TrParsedRow } from "@/lib/services/tr-import-types"
 
@@ -58,5 +59,20 @@ describe("buildTickerMappings", () => {
     )
     const map = buildIsinResolutionMap(mappings)
     expect(map.get("IE00BK5BQT8V")?.symbol).toBe("VWCE.DE")
+  })
+
+  it("includes product-only mappings for crypto rows without ISIN", () => {
+    const parsed = [
+      baseRow({ isin: null, product: "Bitcoin", eventType: "purchase" }),
+      baseRow({ rowId: "row-2", isin: null, product: "Bitcoin", eventType: "purchase" }),
+      baseRow({ rowId: "row-3", isin: null, product: "XRP", eventType: "purchase" }),
+    ]
+    const mappings = buildTickerMappings(parsed, [], new Map())
+    expect(mappings).toHaveLength(2)
+    const btc = mappings.find((m) => m.productName === "Bitcoin")
+    expect(btc?.transactionCount).toBe(2)
+    expect(btc?.requiresManual).toBe(true)
+    expect(btc?.isin).toBe("__product__:bitcoin")
+    expect(tickerOverrideKey({ isin: null, product: "Bitcoin" })).toBe("__product__:bitcoin")
   })
 })

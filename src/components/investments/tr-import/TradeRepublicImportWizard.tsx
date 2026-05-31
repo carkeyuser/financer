@@ -29,7 +29,7 @@ import {
   sortOverviewRows,
 } from "@/lib/services/tr-import-sort"
 import type { TrImportPreviewRow, TrImportResolution, TrImportRowStatus, TrTickerOverride } from "@/lib/services/tr-import-types"
-import { countUnresolvedTickers, initialTickerOverrides, type TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
+import { countUnresolvedTickers, initialTickerOverrides, isProductOnlyKey, tickerOverrideKey, type TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
 import { cn } from "@/lib/utils"
 
 type WizardStep = "intro" | "upload" | "analyze" | "overview" | "conflicts" | "tickers" | "confirm" | "applying" | "result"
@@ -206,12 +206,19 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
         continue
       }
       const action = resolutions[row.rowId] ?? row.defaultResolution
-      if (action === "skip") skipped++
-      else if (action === "link") linked++
+      if (action === "skip") {
+        skipped++
+        continue
+      }
+      if (row.status === "needs_ticker" && !tickerOverrides[tickerOverrideKey(row)]?.symbol) {
+        skipped++
+        continue
+      }
+      if (action === "link") linked++
       else if (row.status === "import_new" || action === "import" || action === "replace") created++
     }
     return { created, linked, skipped }
-  }, [preview, resolutions])
+  }, [preview, resolutions, tickerOverrides])
 
   const stepLabels: { id: WizardStep; label: string }[] = [
     { id: "intro", label: ti("stepIntro") },
@@ -804,7 +811,9 @@ function TickerCard({
     >
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-medium">{mapping.productName}</p>
-        <Badge variant="outline">{mapping.isin}</Badge>
+        {!isProductOnlyKey(mapping.isin) && (
+          <Badge variant="outline">{mapping.isin}</Badge>
+        )}
         <Badge variant={mapping.requiresManual ? "destructive" : "secondary"}>
           {sourceLabel(mapping.source)}
         </Badge>
