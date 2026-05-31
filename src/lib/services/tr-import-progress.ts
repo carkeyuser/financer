@@ -1,4 +1,17 @@
+import { z } from "zod"
+
 export type TrImportPhase = "parse" | "tickers" | "database" | "dedup" | "import"
+
+const trImportProgressEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("progress"),
+    phase: z.enum(["parse", "tickers", "database", "dedup", "import"]),
+    current: z.number(),
+    total: z.number(),
+  }),
+  z.object({ type: z.literal("complete"), data: z.unknown() }),
+  z.object({ type: z.literal("error"), error: z.string() }),
+])
 
 export type TrImportProgressEvent =
   | { type: "progress"; phase: TrImportPhase; current: number; total: number }
@@ -16,13 +29,21 @@ const PREVIEW_PHASE_ORDER: Exclude<TrImportPhase, "import">[] = ["parse", "ticke
 
 export function computeWeightedProgress(phase: TrImportPhase, current: number, total: number): number {
   if (phase === "import") {
-    return total > 0 ? current / total : 0
+    if (total <= 0) return 0
+    return current === 0 ? 0.02 : current / total
   }
 
   let base = 0
   for (const p of PREVIEW_PHASE_ORDER) {
     if (p === phase) {
-      const fraction = total > 0 ? current / total : phase === "parse" || phase === "database" || phase === "dedup" ? 1 : 0
+      const fraction =
+        total > 0
+          ? current === 0
+            ? 0.05
+            : current / total
+          : phase === "parse" || phase === "database" || phase === "dedup"
+            ? 1
+            : 0
       return Math.min(1, base + PREVIEW_PHASE_WEIGHTS[p] * fraction)
     }
     base += PREVIEW_PHASE_WEIGHTS[p]
@@ -110,7 +131,8 @@ export function createNdjsonResponse(
 
 export async function readNdjsonStream<T>(
   response: Response,
-  onProgress?: (event: Extract<TrImportProgressEvent, { type: "progress" }>) => void
+  onProgress?: (event: Extract<TrImportProgressEvent, { type: "progress" }>) => void,
+  resultSchema?: z.ZodType<T>
 ): Promise<T> {
   if (!response.ok) {
     const contentType = response.headers.get("Content-Type") ?? ""
@@ -130,10 +152,29 @@ export async function readNdjsonStream<T>(
 
   const handleLine = (line: string) => {
     if (!line.trim()) return
-    const event = JSON.parse(line) as TrImportProgressEvent
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(line)
+    } catch {
+      throw new Error("Ungültige Antwort vom Server")
+    }
+    const eventResult = trImportProgressEventSchema.safeParse(parsed)
+    if (!eventResult.success) {
+      throw new Error("Ungültige Antwort vom Server")
+    }
+    const event = eventResult.data
     if (event.type === "progress") onProgress?.(event)
-    else if (event.type === "complete") result = event.data as T
-    else if (event.type === "error") throw new Error(event.error)
+    else if (event.type === "complete") {
+      if (resultSchema) {
+        const dataResult = resultSchema.safeParse(event.data)
+        if (!dataResult.success) {
+          throw new Error("Ungültiges Ergebnis vom Server")
+        }
+        result = dataResult.data
+      } else {
+        result = event.data as T
+      }
+    } else if (event.type === "error") throw new Error(event.error)
   }
 
   while (true) {

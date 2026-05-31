@@ -1,14 +1,12 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useRef } from "react"
 import { Progress, ProgressLabel } from "@/components/ui/progress"
 import {
   computeWeightedProgress,
   estimateRemainingSeconds,
   formatImportEta,
-  readNdjsonStream,
   type TrImportPhase,
-  type TrImportProgressEvent,
 } from "@/lib/services/tr-import-progress"
 
 export interface ImportProgressState {
@@ -61,10 +59,11 @@ export function TrImportProgressPanel({
   if (!progress) return null
 
   const showCount = progress.total > 0
+  const displayPercent = percent === null ? null : Math.max(percent, 1)
 
   return (
     <div className="flex flex-col gap-3 py-8">
-      <Progress value={percent ?? null}>
+      <Progress value={displayPercent}>
         <ProgressLabel>{phaseLabel(progress.phase)}</ProgressLabel>
         {showCount && (
           <span className="ml-auto text-sm text-muted-foreground tabular-nums">
@@ -74,28 +73,8 @@ export function TrImportProgressPanel({
       </Progress>
       <p className="text-center text-xs text-muted-foreground">
         {eta ? etaLabel(eta) : etaCalculatingLabel}
-        {percent !== null && ` · ${percent}%`}
+        {displayPercent !== null && ` · ${displayPercent}%`}
       </p>
     </div>
   )
-}
-
-export function useImportProgressReader() {
-  const [progress, setProgress] = useState<ImportProgressState | null>(null)
-
-  const onProgress = useCallback((event: Extract<TrImportProgressEvent, { type: "progress" }>) => {
-    setProgress({ phase: event.phase, current: event.current, total: event.total })
-  }, [])
-
-  const resetProgress = useCallback(() => setProgress(null), [])
-
-  const readStream = useCallback(
-    async <T,>(response: Response): Promise<T> => {
-      setProgress(null)
-      return readNdjsonStream<T>(response, onProgress)
-    },
-    [onProgress]
-  )
-
-  return { progress, resetProgress, readStream }
 }
