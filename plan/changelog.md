@@ -4,7 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
-| 2026-05-31 | **Bug TR-Import:** CSV-Parser erkennt Portfolio-Downloader-Format (`Instrument`→ISIN, `Name`→Produkt, `Timestamp`/`Debit`/`Credit`); fehlende ISINs als `needs_ticker`; Apply zählt Ticker-Fehler als übersprungen |
+| 2026-05-31 | **Deploy:** `scripts/deploy.sh` baut lokal (`git pull` + `compose up --build`); GHCR-Overlay nur noch optional — kein Versions-Rückschritt mehr nach `git pull` |
 | 2026-05-31 | **Release v0.0.8** — Trade-Republic-CSV-Import (F-38), Ticker-Abgleich, 126 Tests |
 | 2026-05-31 | **F-38 Ticker-Abgleich:** Import-Wizard zeigt alle ISINs; Portfolio-Ticker vor Yahoo; manuelle Zuweisung bei unbekannten ISINs; Konflikt-Hinweis bei abweichenden Tickern |
 | 2026-05-31 | **F-38 Trade-Republic-Import:** 7-Schritte-Wizard, CSV-Parser, Hard/Soft-Dedup (`importRef`), Preview/Apply-API, ISIN→Ticker, Konflikt-Aktionen; Migration; Backup; 5 Tests; i18n de/en |
