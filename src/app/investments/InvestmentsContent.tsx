@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo, useEffect } from "react"
+import { useState, useCallback, useMemo } from "react"
 import Link from "next/link"
 import { ArrowDownUp, Plus, TrendingUp, GripVertical, LayoutGrid, List, TrendingDown, Minus, Landmark, User, Upload, GitMerge } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import { AssetCard } from "@/components/investments/AssetCard"
 import { AssetLogo } from "@/components/investments/AssetLogo"
 import { PortfolioChartPanel } from "@/components/investments/PortfolioChartPanel"
 import { useAssets, useReorderAssets, type Asset } from "@/hooks/useAssets"
+import { useHousehold } from "@/hooks/useHousehold"
 import {
   getCurrentValue,
   getTotalGainLoss,
@@ -40,6 +41,7 @@ import { useI18n } from "@/i18n/context"
 import { TradeRepublicImportWizard } from "@/components/investments/tr-import/TradeRepublicImportWizard"
 import { PositionMergeWizard } from "@/components/investments/merge/PositionMergeWizard"
 import { isEmptyPosition } from "@/lib/services/asset-merge-suggestions"
+import { useHousehold } from "@/hooks/useHousehold"
 
 const HIDE_ZERO_STORAGE_KEY = "financer.hideZeroPositions"
 
@@ -309,21 +311,19 @@ function InvestmentsInner({
   }, 0)
   const gainLossPct = costBasis === 0 ? 0 : (gainLoss / costBasis) * 100
 
-  if (filteredAssets.length === 0 && baseAssets.length > 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-        <p className="text-muted-foreground">{t("investments.merge.allFilteredEmpty")}</p>
-        <Button variant="outline" onClick={() => onHideZeroPositionsChange(false)}>
-          {t("investments.merge.hideZeroPositions")}
-        </Button>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <PortfolioHeader total={total} gainLoss={gainLoss} gainLossPct={gainLossPct} />
       <PortfolioChartPanel assets={baseAssets} />
+
+      {filteredAssets.length === 0 && baseAssets.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+          <p className="text-muted-foreground">{t("investments.merge.allFilteredEmpty")}</p>
+          <Button variant="outline" size="sm" onClick={() => onHideZeroPositionsChange(false)}>
+            {t("investments.merge.hideZeroPositions")}
+          </Button>
+        </div>
+      )}
 
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
@@ -417,20 +417,24 @@ function InvestmentsInner({
   )
 }
 
+type MergeWizardContext = { source?: "tr-import"; trAccount?: string }
+
 export function InvestmentsContent() {
   const { t } = useI18n()
+  const { data: household } = useHousehold()
+  const isAdmin = household?.myRole === "OWNER" || household?.myRole === "ADMIN"
   const [importOpen, setImportOpen] = useState(false)
   const [mergeOpen, setMergeOpen] = useState(false)
-  const [hideZeroPositions, setHideZeroPositions] = useState(true)
-
-  useEffect(() => {
+  const [mergeContext, setMergeContext] = useState<MergeWizardContext>({})
+  const [hideZeroPositions, setHideZeroPositions] = useState(() => {
     try {
       const stored = localStorage.getItem(HIDE_ZERO_STORAGE_KEY)
-      if (stored !== null) setHideZeroPositions(stored === "true")
+      if (stored !== null) return stored === "true"
     } catch {
       /* ignore */
     }
-  }, [])
+    return true
+  })
 
   function handleHideZeroChange(value: boolean) {
     setHideZeroPositions(value)
@@ -441,7 +445,8 @@ export function InvestmentsContent() {
     }
   }
 
-  function openMergeWizard() {
+  function openMergeWizard(ctx?: MergeWizardContext) {
+    setMergeContext(ctx ?? {})
     setMergeOpen(true)
   }
 
@@ -453,9 +458,11 @@ export function InvestmentsContent() {
           <Button variant="outline" onClick={() => setImportOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />{t("investments.trImport.button")}
           </Button>
-          <Button variant="outline" onClick={openMergeWizard}>
-            <GitMerge className="h-4 w-4 mr-2" />{t("investments.merge.button")}
-          </Button>
+          {isAdmin && (
+            <Button variant="outline" onClick={() => openMergeWizard()}>
+              <GitMerge className="h-4 w-4 mr-2" />{t("investments.merge.button")}
+            </Button>
+          )}
           <Link href="/investments/new" className={cn(buttonVariants())}>
             <Plus className="h-4 w-4 mr-2" />{t("investments.add")}
           </Link>
@@ -469,9 +476,14 @@ export function InvestmentsContent() {
       <TradeRepublicImportWizard
         open={importOpen}
         onOpenChange={setImportOpen}
-        onOpenMerge={openMergeWizard}
+        onOpenMerge={(trAccount) => openMergeWizard({ source: "tr-import", trAccount })}
       />
-      <PositionMergeWizard open={mergeOpen} onOpenChange={setMergeOpen} />
+      <PositionMergeWizard
+        open={mergeOpen}
+        onOpenChange={setMergeOpen}
+        source={mergeContext.source}
+        trAccount={mergeContext.trAccount}
+      />
     </div>
   )
 }

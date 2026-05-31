@@ -9,6 +9,21 @@ export const assetMergeBatchSchema = z.object({
   merges: z.array(assetMergeSchema).min(1).max(20),
 })
 
+export const mergeScanPhaseSchema = z.enum(["load_assets", "load_rates", "analyze"])
+
+export const mergeScanProgressEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("progress"),
+    phase: mergeScanPhaseSchema,
+    current: z.number(),
+    total: z.number(),
+  }),
+  z.object({ type: z.literal("complete"), data: z.unknown() }),
+  z.object({ type: z.literal("error"), error: z.string() }),
+])
+
+export type MergeScanProgressEvent = z.infer<typeof mergeScanProgressEventSchema>
+
 export const mergeSuggestionsCompleteSchema = z.object({
   groups: z.array(
     z.object({
@@ -17,6 +32,7 @@ export const mergeSuggestionsCompleteSchema = z.object({
       score: z.number(),
       reasonKey: z.string(),
       suggestedTargetId: z.string(),
+      trImportRelevant: z.boolean(),
       assets: z.array(
         z.object({
           id: z.string(),

@@ -137,6 +137,10 @@ async function getOrCreateAsset(
   })
 
   if (existing) {
+    if (parsed.isin && !existing.isin) {
+      const isinKey = parsed.isin.trim().toUpperCase()
+      await tx.asset.update({ where: { id: existing.id }, data: { isin: isinKey } })
+    }
     assetCache.set(cacheKey, existing.id)
     if (parsed.isin) {
       assetCache.set(`${preview.targetUserId}:isin:${parsed.isin.trim().toUpperCase()}`, existing.id)

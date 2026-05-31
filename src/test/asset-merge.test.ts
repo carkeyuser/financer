@@ -49,6 +49,23 @@ describe("matchAssetPair", () => {
     const b = asset({ id: "b", ticker: "VUAA", name: "B" })
     expect(matchAssetPair(a, b)?.reasonKey).toBe("merge.reasonSameTicker")
   })
+
+  it("matches one ISIN with similar name and same account", () => {
+    const a = asset({
+      id: "a",
+      ticker: "EUNL.DE",
+      name: "iShares Core MSCI World UCITS ETF",
+      isin: "IE00B4L5Y983",
+    })
+    const b = asset({
+      id: "b",
+      ticker: "IWDA.AS",
+      name: "iShares Core MSCI World UCITS ETF USD",
+      isin: null,
+    })
+    expect(matchAssetPair(a, b)?.reasonKey).toBe("merge.reasonNameAndAccount")
+    expect(matchAssetPair(a, b)?.confidence).toBe("medium")
+  })
 })
 
 describe("buildMergeSuggestionGroups", () => {
@@ -60,6 +77,7 @@ describe("buildMergeSuggestionGroups", () => {
     expect(groups).toHaveLength(1)
     expect(groups[0]!.assets).toHaveLength(2)
     expect(groups[0]!.confidence).toBe("high")
+    expect(groups[0]!.trImportRelevant).toBe(false)
   })
 
   it("keeps different users separate", () => {
@@ -68,6 +86,40 @@ describe("buildMergeSuggestionGroups", () => {
       asset({ id: "b", ticker: "EUNL", name: "X", isin: "IE00B4L5Y983", userId: "user-2" }),
     ])
     expect(groups).toHaveLength(0)
+  })
+
+  it("splits transitive false positives into maximal cliques", () => {
+    const groups = buildMergeSuggestionGroups([
+      asset({ id: "a", ticker: "AAA.DE", name: "Alpha Fund" }),
+      asset({ id: "b", ticker: "AAA", name: "Beta Fund" }),
+      asset({
+        id: "c",
+        ticker: "CCC",
+        name: "Beta Fund Extended",
+        entries: [{ id: "e3", type: "PURCHASE", price: "10", quantity: "1", date: "2024-01-01T00:00:00.000Z" }],
+      }),
+    ])
+    const ids = groups.map((g) => g.assets.map((a) => a.id).sort().join(","))
+    expect(ids).toContain("a,b")
+    expect(ids.some((s) => s.includes("c") && s.includes("a"))).toBe(false)
+  })
+
+  it("marks trImportRelevant when tr account and tr importRef match", () => {
+    const groups = buildMergeSuggestionGroups(
+      [
+        asset({
+          id: "a",
+          ticker: "EUNL.DE",
+          name: "MSCI World",
+          isin: "IE00B4L5Y983",
+          account: "Trade Republic",
+          entries: [{ id: "e1", type: "PURCHASE", price: "100", quantity: "10", date: "2024-01-01T00:00:00.000Z", importRef: "tr:abc" }],
+        }),
+        asset({ id: "b", ticker: "EUNL", name: "MSCI World UCITS", isin: "IE00B4L5Y983", account: "Trade Republic", entries: [] }),
+      ],
+      { trAccount: "Trade Republic" }
+    )
+    expect(groups[0]!.trImportRelevant).toBe(true)
   })
 })
 
@@ -92,6 +144,14 @@ describe("recalculateQuantityFromEntries", () => {
       { type: "QUANTITY_UPDATE", quantity: "5", date: new Date("2024-06-01") },
     ])
     expect(qty).toBe(5)
+  })
+
+  it("applies VWAP_UPDATE absolutely", () => {
+    const qty = recalculateQuantityFromEntries([
+      { type: "PURCHASE", quantity: "10", date: new Date("2024-01-01"), price: "100" },
+      { type: "VWAP_UPDATE", quantity: "8", date: new Date("2024-03-01"), price: "95" },
+    ])
+    expect(qty).toBe(8)
   })
 })
 

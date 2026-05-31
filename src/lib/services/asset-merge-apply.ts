@@ -70,7 +70,7 @@ export async function mergeAssets(tx: Tx, input: MergeAssetsInput): Promise<{ ta
 
   const allEntries = await tx.assetEntry.findMany({
     where: { assetId: targetAssetId },
-    select: { type: true, quantity: true, date: true },
+    select: { type: true, quantity: true, date: true, price: true },
   })
 
   const newQty = recalculateQuantityFromEntries(
@@ -78,6 +78,7 @@ export async function mergeAssets(tx: Tx, input: MergeAssetsInput): Promise<{ ta
       type: e.type,
       quantity: e.quantity?.toString() ?? null,
       date: e.date,
+      price: e.price?.toString() ?? null,
     }))
   )
   if (newQty < -1e-6) {

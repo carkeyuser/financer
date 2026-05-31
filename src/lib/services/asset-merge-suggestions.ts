@@ -4,6 +4,10 @@ import { getCurrentValue, type CalcEntry } from "@/lib/utils/calculations"
 
 export type MergeConfidence = "high" | "medium" | "low"
 
+export interface MergeScanEntry extends CalcEntry {
+  importRef?: string | null
+}
+
 export interface MergeSuggestionAsset {
   id: string
   ticker: string
@@ -25,6 +29,7 @@ export interface MergeSuggestionGroup {
   reasonKey: string
   assets: MergeSuggestionAsset[]
   suggestedTargetId: string
+  trImportRelevant: boolean
 }
 
 export interface AssetForMergeScan {
@@ -38,7 +43,7 @@ export interface AssetForMergeScan {
   quantity: string
   order: number
   ownerName: string
-  entries: CalcEntry[]
+  entries: MergeScanEntry[]
   eurRate: number
 }
 
@@ -101,15 +106,16 @@ export function matchAssetPair(a: AssetForMergeScan, b: AssetForMergeScan): Pair
     return { reasonKey: "merge.reasonSameIsin", score: 95, confidence: "high" }
   }
 
+  const nameSim = nameSimilarity(a.name, b.name)
+  const oneIsin = (isinA && !isinB) || (!isinA && isinB)
+  if (oneIsin && nameSim >= 0.85 && a.account === b.account) {
+    return { reasonKey: "merge.reasonNameAndAccount", score: 75, confidence: "medium" }
+  }
+
   const normTickerA = normalizeTicker(a.ticker)
   const normTickerB = normalizeTicker(b.ticker)
   if (normTickerA.length >= 2 && normTickerA === normTickerB) {
     return { reasonKey: "merge.reasonSameTicker", score: 70, confidence: "medium" }
-  }
-
-  const nameSim = nameSimilarity(a.name, b.name)
-  if (isinA && isinB && nameSim >= 0.85 && a.account === b.account) {
-    return { reasonKey: "merge.reasonNameAndAccount", score: 75, confidence: "medium" }
   }
 
   if (nameSim >= 0.9 && a.type === b.type && a.account === b.account) {
@@ -140,6 +146,43 @@ class UnionFind {
     const rb = this.find(b)
     if (ra !== rb) this.parent.set(rb, ra)
   }
+}
+
+function pairKey(idA: string, idB: string): string {
+  return [idA, idB].sort().join(":")
+}
+
+function allPairsMatch(members: AssetForMergeScan[], pairMeta: Map<string, PairMatch>): boolean {
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      if (!pairMeta.has(pairKey(members[i]!.id, members[j]!.id))) return false
+    }
+  }
+  return true
+}
+
+function splitIntoMaximalCliques(
+  members: AssetForMergeScan[],
+  pairMeta: Map<string, PairMatch>
+): AssetForMergeScan[][] {
+  const remaining = [...members]
+  const cliques: AssetForMergeScan[][] = []
+
+  while (remaining.length > 0) {
+    const clique: AssetForMergeScan[] = [remaining[0]!]
+    for (let i = 1; i < remaining.length; i++) {
+      const candidate = remaining[i]!
+      const fits = clique.every((m) => pairMeta.has(pairKey(m.id, candidate.id)))
+      if (fits) clique.push(candidate)
+    }
+    cliques.push(clique)
+    const cliqueIds = new Set(clique.map((m) => m.id))
+    for (let i = remaining.length - 1; i >= 0; i--) {
+      if (cliqueIds.has(remaining[i]!.id)) remaining.splice(i, 1)
+    }
+  }
+
+  return cliques.filter((c) => c.length >= 2)
 }
 
 function toSuggestionAsset(asset: AssetForMergeScan): MergeSuggestionAsset {
@@ -173,7 +216,45 @@ function pickSuggestedTarget(assets: AssetForMergeScan[]): string {
   return scored[0]!.id
 }
 
-export function buildMergeSuggestionGroups(assets: AssetForMergeScan[]): MergeSuggestionGroup[] {
+function isTrImportRelevant(members: AssetForMergeScan[], trAccount?: string): boolean {
+  if (!trAccount) return false
+  return members.some(
+    (a) =>
+      a.account === trAccount &&
+      a.entries.some((e) => typeof e.importRef === "string" && e.importRef.startsWith("tr:"))
+  )
+}
+
+function buildGroupFromMembers(
+  members: AssetForMergeScan[],
+  pairMeta: Map<string, PairMatch>,
+  trAccount?: string
+): MergeSuggestionGroup {
+  let bestMeta: PairMatch = { reasonKey: "merge.reasonSimilarName", score: 55, confidence: "low" }
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      const meta = pairMeta.get(pairKey(members[i]!.id, members[j]!.id))
+      if (meta && meta.score > bestMeta.score) bestMeta = meta
+    }
+  }
+
+  const suggestedTargetId = pickSuggestedTarget(members)
+  return {
+    id: members.map((m) => m.id).sort().join("-"),
+    confidence: bestMeta.confidence,
+    score: bestMeta.score,
+    reasonKey: bestMeta.reasonKey,
+    assets: members.map(toSuggestionAsset).sort((a, b) => b.valueEur - a.valueEur),
+    suggestedTargetId,
+    trImportRelevant: isTrImportRelevant(members, trAccount),
+  }
+}
+
+export function buildMergeSuggestionGroups(
+  assets: AssetForMergeScan[],
+  options?: { trAccount?: string }
+): MergeSuggestionGroup[] {
+  const trAccount = options?.trAccount
   const eligible = assets.filter((a) => !isInterestAsset(a))
   const uf = new UnionFind()
   const pairMeta = new Map<string, PairMatch>()
@@ -183,7 +264,7 @@ export function buildMergeSuggestionGroups(assets: AssetForMergeScan[]): MergeSu
       const match = matchAssetPair(eligible[i]!, eligible[j]!)
       if (match) {
         uf.union(eligible[i]!.id, eligible[j]!.id)
-        const key = [eligible[i]!.id, eligible[j]!.id].sort().join(":")
+        const key = pairKey(eligible[i]!.id, eligible[j]!.id)
         const existing = pairMeta.get(key)
         if (!existing || match.score > existing.score) {
           pairMeta.set(key, match)
@@ -204,24 +285,15 @@ export function buildMergeSuggestionGroups(assets: AssetForMergeScan[]): MergeSu
   for (const [, members] of components) {
     if (members.length < 2) continue
 
-    let bestMeta: PairMatch = { reasonKey: "merge.reasonSimilarName", score: 55, confidence: "low" }
-    for (let i = 0; i < members.length; i++) {
-      for (let j = i + 1; j < members.length; j++) {
-        const key = [members[i]!.id, members[j]!.id].sort().join(":")
-        const meta = pairMeta.get(key)
-        if (meta && meta.score > bestMeta.score) bestMeta = meta
-      }
-    }
+    const subgroups =
+      members.length >= 3 && !allPairsMatch(members, pairMeta)
+        ? splitIntoMaximalCliques(members, pairMeta)
+        : [members]
 
-    const suggestedTargetId = pickSuggestedTarget(members)
-    groups.push({
-      id: members.map((m) => m.id).sort().join("-"),
-      confidence: bestMeta.confidence,
-      score: bestMeta.score,
-      reasonKey: bestMeta.reasonKey,
-      assets: members.map(toSuggestionAsset).sort((a, b) => b.valueEur - a.valueEur),
-      suggestedTargetId,
-    })
+    for (const subgroup of subgroups) {
+      if (subgroup.length < 2) continue
+      groups.push(buildGroupFromMembers(subgroup, pairMeta, trAccount))
+    }
   }
 
   return groups.sort((a, b) => b.score - a.score)

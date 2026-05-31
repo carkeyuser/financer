@@ -128,4 +128,51 @@ describe("applyTradeRepublicImport progress", () => {
     expect(result.created).toBe(1)
     expect(assetEntryCreate).toHaveBeenCalledTimes(1)
   })
+
+  it("backfills ISIN when existing asset matched by ticker has no ISIN", async () => {
+    const parsedRows = [baseParsed({ rowId: "good-row", lineNumber: 1, isin: "IE00BK5BQT8V" })]
+    const previewRows = [
+      basePreviewRow({
+        rowId: "good-row",
+        suggestedTicker: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" },
+      }),
+    ]
+
+    const preview: TrImportPreviewCacheEntry = {
+      previewId: "p1",
+      householdId: "hh1",
+      userId: "u1",
+      targetUserId: "u1",
+      account: "Trade Republic",
+      parsedRows,
+      previewRows,
+      createdAt: Date.now(),
+    }
+
+    const assetUpdate = vi.fn().mockResolvedValue({})
+    const assetFindFirst = vi.fn().mockResolvedValue(null)
+    const assetFindUnique = vi.fn().mockResolvedValue({ id: "asset-1", isin: null })
+    const assetEntryCreate = vi.fn().mockResolvedValue({ id: "entry-1" })
+    const tx = {
+      asset: {
+        findFirst: assetFindFirst,
+        findUnique: assetFindUnique,
+        create: vi.fn(),
+        update: assetUpdate,
+      },
+      assetEntry: { create: assetEntryCreate, findUnique: vi.fn(), delete: vi.fn(), update: vi.fn() },
+    } as unknown as Parameters<typeof applyTradeRepublicImport>[0]
+
+    await applyTradeRepublicImport(tx, {
+      preview,
+      resolutions: {},
+      tickerOverrides: { IE00BK5BQT8V: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" } },
+    })
+
+    expect(assetUpdate).toHaveBeenCalledWith({
+      where: { id: "asset-1" },
+      data: { isin: "IE00BK5BQT8V" },
+    })
+    expect(assetEntryCreate).toHaveBeenCalledTimes(1)
+  })
 })
