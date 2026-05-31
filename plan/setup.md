@@ -162,7 +162,7 @@ Bei jedem Release (Version-Bump + Deploy):
 2. [`CHANGELOG.md`](../CHANGELOG.md) — Abschnitt für neue Version
 3. [`src/data/release-notes.ts`](../src/data/release-notes.ts) — kuratierte Highlights (de/en, 3–8 Bullets)
 4. Git-Tag `vX.Y.Z` + GitHub Release
-5. Deploy: GHCR-Pull (`docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && up -d`) oder lokaler Build (`git pull && docker compose up -d --build`) oder `.\push -Deploy`
+5. Deploy: GHCR-Pull nach **Git-Tag `v*`** (CI baut/pusht Image nur bei Tags) oder lokaler Build (`git pull && docker compose up -d --build`) oder `.\push -Deploy`
 
 Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frischer Installation bleibt stumm.
 

@@ -328,7 +328,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-Image: `ghcr.io/carkeyuser/financer:latest` (wird bei jedem Push auf `main` von GitHub Actions gebaut).
+Image: `ghcr.io/carkeyuser/financer:latest` (wird bei **Version-Tags** `v*` von GitHub Actions gebaut — nach Release taggen, dann `pull`).
 
 **Server (lokaler Build — Fallback):**
 
