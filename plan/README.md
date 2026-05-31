@@ -57,7 +57,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | [`architecture.md`](architecture.md) | Tech Stack, Projektstruktur, Datenmodell, externe APIs |
 | [`phases.md`](phases.md) | Implementierungsphasen und Feature-Architektur |
 | [`setup.md`](setup.md) | UI-Seiten, Dev-Setup, Docker, Tests, Self-hosted |
-| [`deploy.md`](deploy.md) | **Server-Update nach Push** — `git pull` + `compose up --build` |
+| [`deploy.md`](deploy.md) | **Server-Update** — Modus `build` oder `ghcr`, `./scripts/update.sh` |
 | [`features.md`](features.md) | Feature-Backlog (offen) |
 | [`feature-f39-merge-positions.md`](feature-f39-merge-positions.md) | F-39 Spezifikation: Merge-Wizard + Null-Filter |
 | [`aenderungen.md`](aenderungen.md) | Änderungs-Backlog (offen) |
