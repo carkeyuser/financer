@@ -1,6 +1,8 @@
 ﻿import { NextResponse } from "next/server"
+import { isInterestAsset } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
 import { requireSession } from "@/lib/household-auth"
+import { ensureInterestAsset } from "@/lib/services/interest-asset"
 import {
   buildManualDividendEvent,
   buildMonthlyDividendSeries,
@@ -22,6 +24,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const year = isValidYear(searchParams.get("year"))
 
+  await ensureInterestAsset(ctx.householdId, ctx.userId)
+
   const assets = await prisma.asset.findMany({
     where: { householdId: ctx.householdId },
     include: {
@@ -30,15 +34,22 @@ export async function GET(request: Request) {
     orderBy: { order: "asc" },
   })
 
-  const assetOptions: DividendAssetOption[] = assets.map((asset) => ({
-    id: asset.id,
-    ticker: asset.ticker,
-    name: asset.name,
-    type: asset.type,
-    account: asset.account,
-    ownerName: asset.user?.name ?? asset.user?.username ?? null,
-    quantity: asset.quantity.toString(),
-  }))
+  const assetOptions: DividendAssetOption[] = assets
+    .map((asset) => ({
+      id: asset.id,
+      ticker: asset.ticker,
+      name: asset.name,
+      type: asset.type,
+      account: asset.account,
+      ownerName: asset.user?.name ?? asset.user?.username ?? null,
+      quantity: asset.quantity.toString(),
+    }))
+    .sort((a, b) => {
+      const aInterest = isInterestAsset(a) ? 0 : 1
+      const bInterest = isInterestAsset(b) ? 0 : 1
+      if (aInterest !== bInterest) return aInterest - bInterest
+      return a.name.localeCompare(b.name)
+    })
 
   const assetsById = new Map(assetOptions.map((asset) => [asset.id, asset]))
   const payments = await prisma.dividendPayment.findMany({

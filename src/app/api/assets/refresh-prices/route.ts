@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { excludeInterestTicker } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
 import {
   fetchSecurityPriceFromYahoo,
@@ -15,7 +16,7 @@ export async function POST() {
   const householdId = session.user.householdId
 
   const assets = await prisma.asset.findMany({
-    where: { householdId },
+    where: { householdId, ticker: excludeInterestTicker },
     select: { id: true, ticker: true, currency: true },
   })
 

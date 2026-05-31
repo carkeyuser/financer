@@ -4,6 +4,9 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.4** — Bankzinsen als Dividenden-Position `Interest` (F-35) |
+| 2026-05-31 | **F-35:** Bankzinsen als Dividenden-Position `Interest` — auto-provisioniert pro User, nur in Dividenden sichtbar, nicht im Portfolio |
+| 2026-05-31 | **F-36** (Backlog): Mandantenfähige User-Verwaltung — User in eigenem Haushalt, Investments nur eigene Positionen pro Tenant |
 | 2026-05-31 | **Release v0.0.3** — GitHub Release mit Changelog; In-App-Release-Notes erweitert |
 | 2026-05-31 | **Release v0.0.3** — Auto-Deploy entfernt, manuelles Deploy |
 | 2026-05-31 | **Deploy:** Auto-Deploy entfernt — CI nur noch lint/test/build; Deploy manuell (`git pull`, `.\push -Deploy`, `scripts/deploy.sh`) |

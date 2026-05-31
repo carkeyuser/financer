@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf einem Proxmox LXC.
 
-**Stand:** 2026-05-31 (Release v0.0.3)
+**Stand:** 2026-05-31 (Release v0.0.4)
 
 ---
 
@@ -32,10 +32,10 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | **5** Multi-User | ✅ erledigt | Invites, accept-invite, Switcher, Rollen, User anlegen, 2FA (TOTP) |
 | **6** Haushaltskasse | ✅ erledigt | Ausgaben raus, Haushaltskasse + Simulationen (F-33) |
 | **7** EUR-Konvertierung | ✅ erledigt | Alle Investment-Werte in € via Yahoo Forex; FX-Fehler → 503 statt falscher EUR-Werte |
-| **8** Feature-Backlog | 🟡 teilweise offen | App-Features weitgehend umgesetzt; DevOps F-31, Kalender F-34, Zinsen F-35 |
+| **8** Feature-Backlog | 🟡 teilweise offen | App-Features weitgehend umgesetzt; DevOps F-31, Kalender F-34, Multi-Tenant F-36 |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
-| **Tests** | ✅ Unit-Tests | Vitest, **112 Tests** in 9 Dateien, alle grün |
+| **Tests** | ✅ Unit-Tests | Vitest, **114 Tests** in 10 Dateien, alle grün |
 
 ---
 

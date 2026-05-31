@@ -323,7 +323,7 @@ export const deMessages = {
   },
   dividends: {
     title: "Dividenden",
-    pageDescription: "Manuell erfassen, welche Dividenden für bestehende Positionen eingegangen oder geplant sind.",
+    pageDescription: "Manuell erfassen, welche Dividenden für Positionen eingegangen oder geplant sind — inkl. Bankzinsen über die Position „Interest“.",
     previousYear: "Vorheriges Jahr",
     nextYear: "Nächstes Jahr",
     loading: "Lade Dividenden…",
@@ -351,10 +351,12 @@ export const deMessages = {
     paymentDeleteFailed: "Löschen fehlgeschlagen",
     deletePaymentConfirm: "Dividendenbuchung wirklich löschen?",
     eventsTitle: "Buchungen",
-    eventsDescription: "Alle Dividenden werden manuell erfasst. Automatische Quellen werden nicht verwendet.",
+    eventsDescription: "Alle Dividenden und Bankzinsen werden manuell erfasst. Automatische Quellen werden nicht verwendet.",
     noEvents: "Keine Dividenden für dieses Jahr erfasst.",
     latestPayment: "Letzte Buchung",
     manualDetails: "Optionale Details",
+    interestPosition: "Interest",
+    interestPositionHint: "Bankzinsen auf Guthaben — nur Gesamtsumme und optional Datum/Steuer nötig.",
   },
   householdFinance: {
     title: "Haushaltskasse",

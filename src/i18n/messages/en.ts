@@ -325,7 +325,7 @@ export const enMessages = {
   },
   dividends: {
     title: "Dividends",
-    pageDescription: "Manually record dividends received or planned for existing positions.",
+    pageDescription: "Manually record dividends received or planned for positions — including bank interest via the “Interest” position.",
     previousYear: "Previous year",
     nextYear: "Next year",
     loading: "Loading dividends…",
@@ -353,10 +353,12 @@ export const enMessages = {
     paymentDeleteFailed: "Delete failed",
     deletePaymentConfirm: "Delete dividend payment?",
     eventsTitle: "Payments",
-    eventsDescription: "All dividends are recorded manually. Automatic sources are not used.",
+    eventsDescription: "All dividends and bank interest are recorded manually. Automatic sources are not used.",
     noEvents: "No dividends recorded for this year.",
     latestPayment: "Latest payment",
     manualDetails: "Optional details",
+    interestPosition: "Interest",
+    interestPositionHint: "Bank interest on cash balances — only total amount and optional date/tax needed.",
   },
   householdFinance: {
     title: "Household finance",
