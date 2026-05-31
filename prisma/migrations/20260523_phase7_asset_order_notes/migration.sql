@@ -1,0 +1,3 @@
+-- Phase 7: Add notes and order to Asset
+ALTER TABLE "Asset" ADD COLUMN IF NOT EXISTS "notes" TEXT;
+ALTER TABLE "Asset" ADD COLUMN IF NOT EXISTS "order" INTEGER NOT NULL DEFAULT 0;
