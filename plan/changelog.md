@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **F-38 UX:** TR-Import — Fortschrittsbalken mit ETA (NDJSON-Streaming bei Analyse + Apply); Konflikte/Ticker in Folge-Steps oben („Zu prüfen"), auto-zugeordnete ISINs eingeklappt; Scroll-Reset bei Step-Wechsel |
 | 2026-05-31 | **F-38 UX:** TR-Import-Wizard — Zeilen sortiert (Fehler oben, Auto-Zuordnung unten), problematische Einträge leicht rot markiert |
 | 2026-05-31 | **Deploy:** `scripts/deploy.sh` baut lokal (`git pull` + `compose up --build`); GHCR-Overlay nur noch optional — kein Versions-Rückschritt mehr nach `git pull` |
 | 2026-05-31 | **Release v0.0.8** — Trade-Republic-CSV-Import (F-38), Ticker-Abgleich, 126 Tests |

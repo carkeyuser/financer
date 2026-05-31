@@ -1,8 +1,8 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { Upload, Loader2, AlertTriangle, CheckCircle2, FileSpreadsheet } from "lucide-react"
+import { Upload, AlertTriangle, CheckCircle2, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -10,7 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { SecuritySearch } from "@/components/investments/SecuritySearch"
+import { TrImportProgressPanel, type ImportProgressState } from "@/components/investments/tr-import/TrImportProgressPanel"
 import { useHousehold } from "@/hooks/useHousehold"
 import {
   useTradeRepublicApply,
@@ -19,72 +21,19 @@ import {
   type TrImportPreviewResponse,
 } from "@/hooks/useTradeRepublicImport"
 import { useI18n } from "@/i18n/context"
+import type { TrImportPhase } from "@/lib/services/tr-import-progress"
+import {
+  partitionConflictRows,
+  partitionTickerMappings,
+  mappingsNeedingReview,
+  rowNeedsAttention,
+  sortOverviewRows,
+} from "@/lib/services/tr-import-sort"
 import type { TrImportPreviewRow, TrImportResolution, TrImportRowStatus, TrTickerOverride } from "@/lib/services/tr-import-types"
 import { countUnresolvedTickers, initialTickerOverrides, type TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
 import { cn } from "@/lib/utils"
 
-type WizardStep = "intro" | "upload" | "analyze" | "overview" | "conflicts" | "tickers" | "confirm" | "result"
-
-/** Lower = further up — errors first, auto-assigned last. */
-const ROW_STATUS_PRIORITY: Record<TrImportRowStatus, number> = {
-  conflict: 0,
-  needs_ticker: 1,
-  skip_hard: 2,
-  skip_soft: 3,
-  ignored: 4,
-  import_new: 5,
-}
-
-function sortPreviewRows(rows: TrImportPreviewRow[]): TrImportPreviewRow[] {
-  return [...rows].sort((a, b) => {
-    const diff = ROW_STATUS_PRIORITY[a.status] - ROW_STATUS_PRIORITY[b.status]
-    if (diff !== 0) return diff
-    return a.lineNumber - b.lineNumber
-  })
-}
-
-function rowNeedsAttention(status: TrImportRowStatus): boolean {
-  return status === "conflict" || status === "needs_ticker"
-}
-
-function sortConflictRows(
-  rows: TrImportPreviewRow[],
-  resolutions: Record<string, TrImportResolution>
-): TrImportPreviewRow[] {
-  const priority = (row: TrImportPreviewRow) => {
-    if (row.status === "conflict" && !resolutions[row.rowId]) return 0
-    if (row.status === "conflict") return 1
-    return 2
-  }
-  return [...rows].sort((a, b) => {
-    const diff = priority(a) - priority(b)
-    if (diff !== 0) return diff
-    return a.lineNumber - b.lineNumber
-  })
-}
-
-function sortTickerMappings(
-  mappings: TrTickerMapping[],
-  overrides: Record<string, TrTickerOverride>
-): TrTickerMapping[] {
-  const priority = (m: TrTickerMapping) => {
-    if (m.requiresManual && !overrides[m.isin]?.symbol) return 0
-    if (m.hasTickerConflict) return 1
-    return 2
-  }
-  return [...mappings].sort((a, b) => {
-    const diff = priority(a) - priority(b)
-    if (diff !== 0) return diff
-    return a.isin.localeCompare(b.isin)
-  })
-}
-
-function tickerMappingNeedsAttention(
-  mapping: TrTickerMapping,
-  override: TrTickerOverride | undefined
-): boolean {
-  return (mapping.requiresManual && !override?.symbol) || mapping.hasTickerConflict
-}
+type WizardStep = "intro" | "upload" | "analyze" | "overview" | "conflicts" | "tickers" | "confirm" | "applying" | "result"
 
 interface TradeRepublicImportWizardProps {
   open: boolean
@@ -92,7 +41,7 @@ interface TradeRepublicImportWizardProps {
 }
 
 export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicImportWizardProps) {
-  const { t, translateApiError } = useI18n()
+  const { t, translateApiError, locale } = useI18n()
   const ti = (key: string, params?: Record<string, string | number>) => {
     const path = `investments.trImport.${key}`
     let s = t(path as "investments.trImport.button")
@@ -111,9 +60,17 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
   const [resolutions, setResolutions] = useState<Record<string, TrImportResolution>>({})
   const [tickerOverrides, setTickerOverrides] = useState<Record<string, TrTickerOverride>>({})
   const [applyResult, setApplyResult] = useState<TrImportApplyResponse | null>(null)
+  const [importProgress, setImportProgress] = useState<ImportProgressState | null>(null)
 
-  const previewMutation = useTradeRepublicPreview()
-  const applyMutation = useTradeRepublicApply()
+  const dialogContentRef = useRef<HTMLDivElement>(null)
+  const stepListRef = useRef<HTMLDivElement>(null)
+
+  const previewMutation = useTradeRepublicPreview((event) => {
+    setImportProgress({ phase: event.phase, current: event.current, total: event.total })
+  })
+  const applyMutation = useTradeRepublicApply((event) => {
+    setImportProgress({ phase: event.phase, current: event.current, total: event.total })
+  })
   const { data: household } = useHousehold()
 
   const isAdmin = household?.myRole === "OWNER" || household?.myRole === "ADMIN"
@@ -128,16 +85,21 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
   const filteredRows = useMemo(() => {
     if (!preview) return []
     const rows = filter === "all" ? preview.rows : preview.rows.filter((r) => r.status === filter)
-    return sortPreviewRows(rows)
+    return sortOverviewRows(rows)
   }, [preview, filter])
 
-  const sortedConflictRows = useMemo(
-    () => sortConflictRows(conflictRows, resolutions),
+  const conflictPartition = useMemo(
+    () => partitionConflictRows(conflictRows, resolutions),
     [conflictRows, resolutions]
   )
 
-  const sortedTickerMappings = useMemo(
-    () => sortTickerMappings(tickerMappings, tickerOverrides),
+  const tickerPartition = useMemo(
+    () => partitionTickerMappings(tickerMappings, tickerOverrides),
+    [tickerMappings, tickerOverrides]
+  )
+
+  const reviewTickerMappings = useMemo(
+    () => mappingsNeedingReview(tickerMappings, tickerOverrides),
     [tickerMappings, tickerOverrides]
   )
 
@@ -155,9 +117,16 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
     setResolutions({})
     setTickerOverrides({})
     setApplyResult(null)
+    setImportProgress(null)
     previewMutation.reset()
     applyMutation.reset()
   }, [previewMutation, applyMutation])
+
+  useEffect(() => {
+    if (!open) return
+    dialogContentRef.current?.scrollTo({ top: 0 })
+    stepListRef.current?.scrollTo({ top: 0 })
+  }, [step, open])
 
   const handleClose = (o: boolean) => {
     if (!o) reset()
@@ -166,6 +135,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
   const runPreview = async () => {
     if (!file) return
+    setImportProgress(null)
     setStep("analyze")
     try {
       const result = await previewMutation.mutateAsync({
@@ -175,8 +145,10 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
       })
       setPreview(result)
       setTickerOverrides(initialTickerOverrides(result.tickerMappings))
+      setImportProgress(null)
       setStep("overview")
     } catch (err) {
+      setImportProgress(null)
       toast.error(err instanceof Error ? err.message : ti("analyzeFailed"))
       setStep("upload")
     }
@@ -184,17 +156,19 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
   const goAfterOverview = () => {
     if (conflictRows.length > 0) setStep("conflicts")
-    else if (tickerMappings.length > 0 || (preview?.summary.needsTicker ?? 0) > 0) setStep("tickers")
+    else if (reviewTickerMappings.length > 0 || (preview?.summary.needsTicker ?? 0) > 0) setStep("tickers")
     else setStep("confirm")
   }
 
   const goAfterConflicts = () => {
-    if (tickerMappings.length > 0) setStep("tickers")
+    if (reviewTickerMappings.length > 0) setStep("tickers")
     else setStep("confirm")
   }
 
   const runApply = async () => {
     if (!preview) return
+    setImportProgress(null)
+    setStep("applying")
     try {
       const result = await applyMutation.mutateAsync({
         previewId: preview.previewId,
@@ -202,6 +176,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
         tickerOverrides,
       })
       setApplyResult(result)
+      setImportProgress(null)
       setStep("result")
       if (result.errors.length > 0) {
         toast.warning(result.errors[0])
@@ -209,8 +184,21 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
         toast.success(ti("resultTitle"))
       }
     } catch (err) {
+      setImportProgress(null)
       toast.error(err instanceof Error ? err.message : translateApiError({ error: "Import fehlgeschlagen" }))
+      setStep("confirm")
     }
+  }
+
+  const phaseLabel = (phase: TrImportPhase) => {
+    const keys: Record<TrImportPhase, string> = {
+      parse: "progressPhaseParse",
+      tickers: "progressPhaseTickers",
+      database: "progressPhaseDatabase",
+      dedup: "progressPhaseDedup",
+      import: "progressPhaseImport",
+    }
+    return ti(keys[phase])
   }
 
   const applyCounts = useMemo(() => {
@@ -242,12 +230,12 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent ref={dialogContentRef} className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{ti("title")}</DialogTitle>
         </DialogHeader>
 
-        {step !== "analyze" && step !== "result" && (
+        {step !== "analyze" && step !== "applying" && step !== "result" && (
           <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
             {stepLabels.map((s) => (
               <Badge key={s.id} variant={step === s.id ? "default" : "outline"} className="font-normal">
@@ -312,10 +300,25 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
         )}
 
         {step === "analyze" && (
-          <div className="flex flex-col items-center gap-3 py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{ti("analyzing")}</p>
-          </div>
+          <TrImportProgressPanel
+            progress={importProgress ?? { phase: "parse", current: 0, total: 1 }}
+            phaseLabel={phaseLabel}
+            countLabel={(current, total) => ti("progressCount", { current, total })}
+            etaCalculatingLabel={ti("progressEtaCalculating")}
+            etaLabel={(time) => ti("progressEta", { time })}
+            locale={locale}
+          />
+        )}
+
+        {step === "applying" && (
+          <TrImportProgressPanel
+            progress={importProgress ?? { phase: "import", current: 0, total: 1 }}
+            phaseLabel={phaseLabel}
+            countLabel={(current, total) => ti("progressCount", { current, total })}
+            etaCalculatingLabel={ti("progressEtaCalculating")}
+            etaLabel={(time) => ti("progressEta", { time })}
+            locale={locale}
+          />
         )}
 
         {step === "overview" && preview && (
@@ -332,7 +335,9 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
         {step === "conflicts" && preview && (
           <ConflictsStep
-            rows={sortedConflictRows}
+            needsAttention={conflictPartition.needsAttention}
+            resolved={conflictPartition.resolved}
+            listRef={stepListRef}
             resolutions={resolutions}
             setResolutions={setResolutions}
             unresolved={unresolvedConflicts}
@@ -352,7 +357,9 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
         {step === "tickers" && preview && (
           <TickersStep
-            mappings={sortedTickerMappings}
+            needsAttention={tickerPartition.needsAttention}
+            resolved={tickerPartition.resolved}
+            listRef={stepListRef}
             tickerOverrides={tickerOverrides}
             setTickerOverrides={setTickerOverrides}
             unresolved={unresolvedTickers}
@@ -370,11 +377,11 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
             </p>
             <SummaryCards summary={preview.summary} ti={ti} />
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep(tickerMappings.length > 0 ? "tickers" : conflictRows.length > 0 ? "conflicts" : "overview")}>
+              <Button variant="outline" onClick={() => setStep(reviewTickerMappings.length > 0 ? "tickers" : conflictRows.length > 0 ? "conflicts" : "overview")}>
                 {ti("back")}
               </Button>
-              <Button disabled={applyMutation.isPending || unresolvedTickers > 0} onClick={runApply}>
-                {applyMutation.isPending ? ti("applying") : ti("apply")}
+              <Button disabled={unresolvedTickers > 0} onClick={runApply}>
+                {ti("apply")}
               </Button>
             </div>
           </div>
@@ -514,7 +521,9 @@ function OverviewStep({
 }
 
 function ConflictsStep({
-  rows,
+  needsAttention,
+  resolved,
+  listRef,
   resolutions,
   setResolutions,
   unresolved,
@@ -524,7 +533,9 @@ function ConflictsStep({
   onNext,
   onSkipAllSoft,
 }: {
-  rows: TrImportPreviewRow[]
+  needsAttention: TrImportPreviewRow[]
+  resolved: TrImportPreviewRow[]
+  listRef: React.RefObject<HTMLDivElement | null>
   resolutions: Record<string, TrImportResolution>
   setResolutions: (r: Record<string, TrImportResolution>) => void
   unresolved: number
@@ -534,7 +545,8 @@ function ConflictsStep({
   onNext: () => void
   onSkipAllSoft: () => void
 }) {
-  if (rows.length === 0) {
+  const allRows = [...needsAttention, ...resolved]
+  if (allRows.length === 0) {
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">{ti("noConflicts")}</p>
@@ -543,27 +555,55 @@ function ConflictsStep({
     )
   }
 
-  const resolved = rows.filter((r) => r.status === "skip_soft" || resolutions[r.rowId]).length
+  const resolvedCount = allRows.filter((r) => r.status === "skip_soft" || resolutions[r.rowId]).length
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-medium">{ti("conflictsTitle")}</p>
-        <p className="text-xs text-muted-foreground">{ti("conflictsProgress", { resolved, total: rows.length })}</p>
+        <p className="text-xs text-muted-foreground">{ti("conflictsProgress", { resolved: resolvedCount, total: allRows.length })}</p>
       </div>
       <Button size="sm" variant="outline" onClick={onSkipAllSoft}>{ti("conflictsBulkSkipSoft")}</Button>
-      <div className="max-h-80 space-y-3 overflow-y-auto">
-        {rows.map((row) => (
-          <ConflictCard
-            key={row.rowId}
-            row={row}
-            resolution={resolutions[row.rowId] ?? (row.status === "skip_soft" ? "skip" : undefined)}
-            onChange={(action) => setResolutions({ ...resolutions, [row.rowId]: action })}
-            ti={ti}
-            t={t}
-          />
-        ))}
-      </div>
+
+      {needsAttention.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-destructive">{ti("sectionNeedsReview")}</p>
+          <div ref={listRef} className="max-h-80 space-y-3 overflow-y-auto">
+            {needsAttention.map((row) => (
+              <ConflictCard
+                key={row.rowId}
+                row={row}
+                resolution={resolutions[row.rowId]}
+                onChange={(action) => setResolutions({ ...resolutions, [row.rowId]: action })}
+                ti={ti}
+                t={t}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {resolved.length > 0 && (
+        <Collapsible defaultOpen={needsAttention.length === 0}>
+          <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-xs font-medium text-muted-foreground hover:bg-muted/50">
+            <ChevronDown className="h-4 w-4 shrink-0" />
+            {ti("sectionResolved", { n: resolved.length })}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 max-h-48 space-y-3 overflow-y-auto">
+            {resolved.map((row) => (
+              <ConflictCard
+                key={row.rowId}
+                row={row}
+                resolution={resolutions[row.rowId] ?? (row.status === "skip_soft" ? "skip" : undefined)}
+                onChange={(action) => setResolutions({ ...resolutions, [row.rowId]: action })}
+                ti={ti}
+                t={t}
+              />
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
       <div className="flex gap-2">
         <Button variant="outline" onClick={onBack}>{ti("back")}</Button>
         <Button disabled={unresolved > 0} onClick={onNext}>{ti("next")}</Button>
@@ -643,7 +683,9 @@ function ConflictCard({
 }
 
 function TickersStep({
-  mappings,
+  needsAttention,
+  resolved,
+  listRef,
   tickerOverrides,
   setTickerOverrides,
   unresolved,
@@ -651,7 +693,9 @@ function TickersStep({
   onBack,
   onNext,
 }: {
-  mappings: TrTickerMapping[]
+  needsAttention: TrTickerMapping[]
+  resolved: TrTickerMapping[]
+  listRef: React.RefObject<HTMLDivElement | null>
   tickerOverrides: Record<string, TrTickerOverride>
   setTickerOverrides: (v: Record<string, TrTickerOverride>) => void
   unresolved: number
@@ -659,7 +703,8 @@ function TickersStep({
   onBack: () => void
   onNext: () => void
 }) {
-  if (mappings.length === 0) {
+  const allMappings = [...needsAttention, ...resolved]
+  if (allMappings.length === 0) {
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">{ti("noTickersNeeded")}</p>
@@ -669,13 +714,7 @@ function TickersStep({
   }
 
   const acceptAll = () => {
-    setTickerOverrides(initialTickerOverrides(mappings))
-  }
-
-  const sourceLabel = (source: TrTickerMapping["source"]) => {
-    if (source === "portfolio") return ti("tickerSourcePortfolio")
-    if (source === "yahoo") return ti("tickerSourceYahoo")
-    return ti("tickerSourceManual")
+    setTickerOverrides(initialTickerOverrides(allMappings))
   }
 
   return (
@@ -687,88 +726,148 @@ function TickersStep({
           <p className="text-sm text-amber-600">{ti("tickersUnresolved", { n: unresolved })}</p>
         )}
       </div>
-      <Button size="sm" variant="outline" onClick={acceptAll}>{ti("tickersBulk")}</Button>
-      <div className="max-h-80 space-y-4 overflow-y-auto">
-        {mappings.map((mapping) => {
-          const override = tickerOverrides[mapping.isin]
-          const needsAttention = tickerMappingNeedsAttention(mapping, override)
-          return (
-            <div
-              key={mapping.isin}
-              className={cn(
-                "rounded-lg border p-3 space-y-2",
-                needsAttention && "border-destructive/40 bg-destructive/5",
-                !needsAttention && override?.symbol && "opacity-90"
-              )}
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-sm font-medium">{mapping.productName}</p>
-                <Badge variant="outline">{mapping.isin}</Badge>
-                <Badge variant={mapping.requiresManual ? "destructive" : "secondary"}>
-                  {sourceLabel(mapping.source)}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {mapping.transactionCount}×
-                </span>
-              </div>
+      {needsAttention.length > 0 && (
+        <Button size="sm" variant="outline" onClick={acceptAll}>{ti("tickersBulk")}</Button>
+      )}
 
-              {mapping.hasTickerConflict && (
-                <p className="text-xs text-amber-600">{ti("tickerConflictHint")}</p>
-              )}
-
-              {override?.symbol ? (
-                <Badge variant="default">{override.symbol} — {override.name}</Badge>
-              ) : (
-                <p className="text-xs text-muted-foreground">{ti("tickerManualRequired")}</p>
-              )}
-
-              <div className="flex flex-wrap gap-1">
-                {mapping.portfolioTicker && (
-                  <Button
-                    size="sm"
-                    variant={override?.symbol === mapping.portfolioTicker.symbol ? "default" : "outline"}
-                    onClick={() =>
-                      setTickerOverrides({ ...tickerOverrides, [mapping.isin]: mapping.portfolioTicker! })
-                    }
-                  >
-                    {ti("tickerUsePortfolio")}: {mapping.portfolioTicker.symbol}
-                  </Button>
-                )}
-                {mapping.yahooTicker && mapping.yahooTicker.symbol !== mapping.portfolioTicker?.symbol && (
-                  <Button
-                    size="sm"
-                    variant={override?.symbol === mapping.yahooTicker.symbol ? "default" : "outline"}
-                    onClick={() =>
-                      setTickerOverrides({ ...tickerOverrides, [mapping.isin]: mapping.yahooTicker! })
-                    }
-                  >
-                    {ti("tickerUseYahoo")}: {mapping.yahooTicker.symbol}
-                  </Button>
-                )}
-              </div>
-
-              <SecuritySearch
-                selectedSymbol={override?.symbol}
-                onSelect={(s) =>
-                  setTickerOverrides({
-                    ...tickerOverrides,
-                    [mapping.isin]: {
-                      symbol: s.symbol,
-                      name: s.name,
-                      type: s.assetType,
-                      currency: s.currency,
-                    },
-                  })
-                }
+      {needsAttention.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-destructive">{ti("sectionNeedsReview")}</p>
+          <div ref={listRef} className="max-h-80 space-y-4 overflow-y-auto">
+            {needsAttention.map((mapping) => (
+              <TickerCard
+                key={mapping.isin}
+                mapping={mapping}
+                override={tickerOverrides[mapping.isin]}
+                tickerOverrides={tickerOverrides}
+                setTickerOverrides={setTickerOverrides}
+                ti={ti}
+                needsAttention
               />
-            </div>
-          )
-        })}
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {resolved.length > 0 && (
+        <Collapsible defaultOpen={needsAttention.length === 0}>
+          <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-xs font-medium text-muted-foreground hover:bg-muted/50">
+            <ChevronDown className="h-4 w-4 shrink-0" />
+            {ti("sectionAutoMapped", { n: resolved.length })}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 max-h-48 space-y-4 overflow-y-auto">
+            {resolved.map((mapping) => (
+              <TickerCard
+                key={mapping.isin}
+                mapping={mapping}
+                override={tickerOverrides[mapping.isin]}
+                tickerOverrides={tickerOverrides}
+                setTickerOverrides={setTickerOverrides}
+                ti={ti}
+                needsAttention={false}
+              />
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
       <div className="flex gap-2">
         <Button variant="outline" onClick={onBack}>{ti("back")}</Button>
         <Button disabled={unresolved > 0} onClick={onNext}>{ti("next")}</Button>
       </div>
+    </div>
+  )
+}
+
+function TickerCard({
+  mapping,
+  override,
+  tickerOverrides,
+  setTickerOverrides,
+  ti,
+  needsAttention,
+}: {
+  mapping: TrTickerMapping
+  override: TrTickerOverride | undefined
+  tickerOverrides: Record<string, TrTickerOverride>
+  setTickerOverrides: (v: Record<string, TrTickerOverride>) => void
+  ti: (key: string, params?: Record<string, string | number>) => string
+  needsAttention: boolean
+}) {
+  const sourceLabel = (source: TrTickerMapping["source"]) => {
+    if (source === "portfolio") return ti("tickerSourcePortfolio")
+    if (source === "yahoo") return ti("tickerSourceYahoo")
+    return ti("tickerSourceManual")
+  }
+
+  return (
+    <div
+      className={cn(
+        "rounded-lg border p-3 space-y-2",
+        needsAttention && "border-destructive/40 bg-destructive/5",
+        !needsAttention && override?.symbol && "opacity-90"
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-medium">{mapping.productName}</p>
+        <Badge variant="outline">{mapping.isin}</Badge>
+        <Badge variant={mapping.requiresManual ? "destructive" : "secondary"}>
+          {sourceLabel(mapping.source)}
+        </Badge>
+        <span className="text-xs text-muted-foreground">
+          {mapping.transactionCount}×
+        </span>
+      </div>
+
+      {mapping.hasTickerConflict && (
+        <p className="text-xs text-amber-600">{ti("tickerConflictHint")}</p>
+      )}
+
+      {override?.symbol ? (
+        <Badge variant="default">{override.symbol} — {override.name}</Badge>
+      ) : (
+        <p className="text-xs text-muted-foreground">{ti("tickerManualRequired")}</p>
+      )}
+
+      <div className="flex flex-wrap gap-1">
+        {mapping.portfolioTicker && (
+          <Button
+            size="sm"
+            variant={override?.symbol === mapping.portfolioTicker.symbol ? "default" : "outline"}
+            onClick={() =>
+              setTickerOverrides({ ...tickerOverrides, [mapping.isin]: mapping.portfolioTicker! })
+            }
+          >
+            {ti("tickerUsePortfolio")}: {mapping.portfolioTicker.symbol}
+          </Button>
+        )}
+        {mapping.yahooTicker && mapping.yahooTicker.symbol !== mapping.portfolioTicker?.symbol && (
+          <Button
+            size="sm"
+            variant={override?.symbol === mapping.yahooTicker.symbol ? "default" : "outline"}
+            onClick={() =>
+              setTickerOverrides({ ...tickerOverrides, [mapping.isin]: mapping.yahooTicker! })
+            }
+          >
+            {ti("tickerUseYahoo")}: {mapping.yahooTicker.symbol}
+          </Button>
+        )}
+      </div>
+
+      <SecuritySearch
+        selectedSymbol={override?.symbol}
+        onSelect={(s) =>
+          setTickerOverrides({
+            ...tickerOverrides,
+            [mapping.isin]: {
+              symbol: s.symbol,
+              name: s.name,
+              type: s.assetType,
+              currency: s.currency,
+            },
+          })
+        }
+      />
     </div>
   )
 }

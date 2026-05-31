@@ -29,15 +29,35 @@ export async function resolveIsin(isin: string, productName?: string): Promise<R
 }
 
 export async function resolveIsins(
-  items: Array<{ isin: string; productName?: string }>
+  items: Array<{ isin: string; productName?: string }>,
+  onProgress?: (current: number, total: number) => void
 ): Promise<Map<string, ResolvedSecurity | null>> {
-  const map = new Map<string, ResolvedSecurity | null>()
+  const productByIsin = new Map<string, string | undefined>()
   for (const item of items) {
     const key = item.isin.trim().toUpperCase()
-    if (!map.has(key)) {
-      map.set(key, await resolveIsin(key, item.productName))
+    if (!productByIsin.has(key)) productByIsin.set(key, item.productName)
+  }
+
+  const uniqueKeys = [...productByIsin.keys()]
+  const map = new Map<string, ResolvedSecurity | null>()
+  const total = uniqueKeys.length
+  if (total === 0) return map
+
+  let completed = 0
+  let index = 0
+  const concurrency = Math.min(3, total)
+
+  async function worker() {
+    while (index < uniqueKeys.length) {
+      const i = index++
+      const key = uniqueKeys[i]
+      map.set(key, await resolveIsin(key, productByIsin.get(key)))
+      completed++
+      onProgress?.(completed, total)
     }
   }
+
+  await Promise.all(Array.from({ length: concurrency }, () => worker()))
   return map
 }
 
