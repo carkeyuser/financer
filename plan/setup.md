@@ -82,6 +82,14 @@ npx prisma generate                    # Client nach Schema-Änderung
 
 ### Deploy auf LXC (Proxmox)
 
+**Manuell (Git):**
+```bash
+cd /opt/financer && git pull && docker compose up -d --build
+```
+
+**Automatisch (nach grünem CI auf `main`):** Self-hosted GitHub Actions Runner — siehe Abschnitt [Auto-Deploy (GitHub Actions)](#auto-deploy-github-actions) unten.
+
+**Von Windows (optional, `push.ps1`):**
 ```powershell
 # push.example.ps1 nach push.ps1 kopieren, YOUR_SERVER anpassen
 .\push -Deploy
@@ -164,6 +172,42 @@ npm run test:watch    # vitest (watch-Modus)
 | `security-price.test.ts` | `resolveStoredPrice` (EUR vs. Fremdwährung) | 5 |
 | `nasdaq-calendar.test.ts` | Symbol-Filter, Datum, Env-Schalter | 5 |
 | `currency.test.ts` | `getEurRate` (EUR, FX, Fehler) | 3 |
+
+---
+
+## Auto-Deploy (GitHub Actions)
+
+GitHub-Hosted Runner erreichen **keine private IP** (`10.x`). Lösung: **Self-hosted Runner** auf dem LXC — der `deploy`-Job in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) läuft dort nach erfolgreichem CI auf `main`.
+
+### Einmalige Runner-Installation (auf dem LXC)
+
+1. GitHub → Repo **financer** → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux → Befehle kopieren.
+
+2. Auf dem Server (als root):
+
+```bash
+mkdir -p /opt/actions-runner && cd /opt/actions-runner
+# curl + tar aus GitHub-Anleitung (Version aus UI)
+./config.sh --url https://github.com/carkeyuser/financer --token <TOKEN_AUS_UI>
+# Labels bestätigen oder ergänzen: financer
+./run.sh   # Test — danach als Service:
+./svc.sh install
+./svc.sh start
+```
+
+3. Deploy-Skript ausführbar:
+
+```bash
+chmod +x /opt/financer/scripts/deploy.sh
+```
+
+### Ablauf
+
+```text
+git push main → CI (ubuntu): test + build → deploy (self-hosted): git pull + docker compose up -d --build
+```
+
+Pull Requests: nur CI, **kein** Deploy.
 
 ---
 
