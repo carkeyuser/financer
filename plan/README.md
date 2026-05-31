@@ -57,6 +57,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | [`architecture.md`](architecture.md) | Tech Stack, Projektstruktur, Datenmodell, externe APIs |
 | [`phases.md`](phases.md) | Implementierungsphasen und Feature-Architektur |
 | [`setup.md`](setup.md) | UI-Seiten, Dev-Setup, Docker, Tests, Self-hosted |
+| [`deploy.md`](deploy.md) | **Server-Update nach Push** — `git pull` + `compose up --build` |
 | [`features.md`](features.md) | Feature-Backlog (offen) |
 | [`aenderungen.md`](aenderungen.md) | Änderungs-Backlog (offen) |
 | [`bugs.md`](bugs.md) | Bug-Backlog (offen) |
