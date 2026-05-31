@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf einem Proxmox LXC.
 
-**Stand:** 2026-05-31 (Release v0.0.2)
+**Stand:** 2026-05-31 (Release v0.0.3)
 
 ---
 
