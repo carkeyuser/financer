@@ -1,18 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRef } from "react"
 import { readNdjsonStream, type TrImportProgressEvent } from "@/lib/services/tr-import-progress"
-import { trImportApplyResultSchema, trImportPreviewCompleteSchema } from "@/lib/validations/tr-import"
-import type { TrImportPreviewRow, TrImportResolution, TrImportSummary, TrTickerOverride } from "@/lib/services/tr-import-types"
-import type { TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
+import { trImportApplyResultSchema, trImportPreviewCompleteSchema, type TrImportPreviewComplete } from "@/lib/validations/tr-import"
+import type { TrImportResolution, TrTickerOverride } from "@/lib/services/tr-import-types"
 
-export interface TrImportPreviewResponse {
-  previewId: string
-  account: string
-  targetUserId: string
-  summary: TrImportSummary
-  tickerMappings: TrTickerMapping[]
-  rows: TrImportPreviewRow[]
-}
+export type TrImportPreviewResponse = TrImportPreviewComplete
 
 export interface TrImportApplyResponse {
   created: number
