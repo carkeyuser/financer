@@ -94,9 +94,17 @@ External: Yahoo Finance → /api/securities/search + /api/securities/price (prox
 
 ## Deployment
 
-`docker-compose.yml` baut das Image auf dem Server (`build: .`) und startet PostgreSQL 16 + Next.js. `next.config.ts` hat `output: 'standalone'` (Pflicht für Docker). DB-Migrationen laufen automatisch beim Container-Start via `npx prisma migrate deploy`.
+Server-Pfad: `/opt/financer`. **Nach Push auf `main`:**
 
-`push.example.ps1` (lokal als `push.ps1` kopieren) kopiert den Source per robocopy + scp nach `/opt/financer`; `-Deploy` startet danach `docker compose up -d --build` per SSH.
+```bash
+cd /opt/financer && git pull && docker compose up -d --build
+```
+
+Details, Fallstricke (kein `docker-compose.prod.yml`): **[plan/deploy.md](plan/deploy.md)**
+
+`docker-compose.yml` baut das Image auf dem Server (`build: .`) und startet PostgreSQL 16 + Next.js. Beim Container-Start: `prisma db push` via `docker-entrypoint.sh`.
+
+`push.example.ps1` (lokal als `push.ps1` kopieren) kopiert Source per robocopy + scp nach `/opt/financer`; `-Deploy` startet danach `docker compose up -d --build` per SSH.
 
 ## Implementation Phases
 

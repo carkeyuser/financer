@@ -82,21 +82,17 @@ npx prisma generate                    # Client nach Schema-Änderung
 
 ### Deploy auf LXC (Proxmox)
 
-**Manuell (Git):**
+→ Vollständige Anleitung: **[`deploy.md`](deploy.md)**
+
+**Kurzform (nach jedem Push auf `main`):**
+
 ```bash
 cd /opt/financer && git pull && docker compose up -d --build
 ```
 
-Oder mit Hilfsskript:
-```bash
-bash /opt/financer/scripts/deploy.sh
-```
+Oder: `bash /opt/financer/scripts/deploy.sh`
 
-**Von Windows (optional, `push.ps1`):**
-```powershell
-# push.example.ps1 nach push.ps1 kopieren, YOUR_SERVER anpassen
-.\push -Deploy
-```
+**Nicht** `docker-compose.prod.yml` — das zieht ein altes GHCR-Image statt lokal zu bauen.
 
 `docker-entrypoint.sh` führt bei Start `prisma db push` aus (Produktions-DB ohne Migrationshistorie — siehe D-01 in `README.md`). Runtime-Image: Standalone + nur Prisma-CLI/dotenv, kein Builder-`node_modules`. Lokal: `npx prisma migrate deploy` für vollständige Migrationen.
 
@@ -162,7 +158,7 @@ Bei jedem Release (Version-Bump + Deploy):
 2. [`CHANGELOG.md`](../CHANGELOG.md) — Abschnitt für neue Version
 3. [`src/data/release-notes.ts`](../src/data/release-notes.ts) — kuratierte Highlights (de/en, 3–8 Bullets)
 4. Git-Tag `vX.Y.Z` + GitHub Release
-5. Deploy: GHCR-Pull nach **Git-Tag `v*`** (CI baut/pusht Image nur bei Tags) oder lokaler Build (`git pull && docker compose up -d --build`) oder `.\push -Deploy`
+5. Deploy auf Server: `git pull && docker compose up -d --build` (siehe [`plan/deploy.md`](plan/deploy.md)) — Release-Tag nur für sichtbare Versionsnummer/Update-Dialog, nicht für Code-Deploy
 
 Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frischer Installation bleibt stumm.
 
