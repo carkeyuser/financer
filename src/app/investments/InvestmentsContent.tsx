@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react"
 import Link from "next/link"
-import { ArrowDownUp, Plus, TrendingUp, GripVertical, LayoutGrid, List, TrendingDown, Minus, Landmark, User } from "lucide-react"
+import { ArrowDownUp, Plus, TrendingUp, GripVertical, LayoutGrid, List, TrendingDown, Minus, Landmark, User, Upload } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -37,6 +37,7 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { hasMarketPrice, positionGlowRowClass } from "@/lib/utils/position-display"
 import { useI18n } from "@/i18n/context"
+import { TradeRepublicImportWizard } from "@/components/investments/tr-import/TradeRepublicImportWizard"
 
 type SortMode = "depot" | "owner" | "value" | null
 const ACCOUNT_FILTER_ALL = "__all_accounts__"
@@ -205,7 +206,7 @@ function SortButton({
   )
 }
 
-function InvestmentsInner() {
+function InvestmentsInner({ onOpenImport }: { onOpenImport: () => void }) {
   const { t, compareLocale } = useI18n()
   const { data: rawAssets, isLoading, error } = useAssets()
   const reorder = useReorderAssets()
@@ -264,9 +265,14 @@ function InvestmentsInner() {
       <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
         <TrendingUp className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">{t("investments.empty")}</p>
-        <Link href="/investments/new" className={cn(buttonVariants())}>
-          <Plus className="h-4 w-4 mr-2" />{t("investments.addFirst")}
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button variant="outline" onClick={onOpenImport}>
+            <Upload className="h-4 w-4 mr-2" />{t("investments.trImport.button")}
+          </Button>
+          <Link href="/investments/new" className={cn(buttonVariants())}>
+            <Plus className="h-4 w-4 mr-2" />{t("investments.addFirst")}
+          </Link>
+        </div>
       </div>
     )
   }
@@ -362,16 +368,23 @@ function InvestmentsInner() {
 
 export function InvestmentsContent() {
   const { t } = useI18n()
+  const [importOpen, setImportOpen] = useState(false)
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{t("investments.title")}</h1>
-        <Link href="/investments/new" className={cn(buttonVariants())}>
-          <Plus className="h-4 w-4 mr-2" />{t("investments.add")}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />{t("investments.trImport.button")}
+          </Button>
+          <Link href="/investments/new" className={cn(buttonVariants())}>
+            <Plus className="h-4 w-4 mr-2" />{t("investments.add")}
+          </Link>
+        </div>
       </div>
-      <InvestmentsInner />
+      <InvestmentsInner onOpenImport={() => setImportOpen(true)} />
+      <TradeRepublicImportWizard open={importOpen} onOpenChange={setImportOpen} />
     </div>
   )
 }

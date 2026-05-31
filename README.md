@@ -20,7 +20,7 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 | **Sicherheit** | Username + Passwort, JSON-Backup/Restore (inkl. Dividenden & Simulationen) |
 | **Sprache** | Deutsch / Englisch (pro User in Einstellungen) |
 
-**Release:** v0.0.7 · Kein Ausgaben-/Budget-Modul (entfernt — passt nicht zum Nutzungsmodell).
+**Release:** v0.0.8 · Kein Ausgaben-/Budget-Modul (entfernt — passt nicht zum Nutzungsmodell).
 
 **Tech-Stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
 **Deployment:** Docker Compose auf Proxmox LXC (Debian 12)  
