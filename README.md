@@ -2,6 +2,14 @@
 
 Self-hosted Finance-Dashboard für kleine Haushalte (Paar/WG). Manuelle Datenerfassung — keine Bank- oder Broker-APIs.
 
+## Vorschau
+
+Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Positionen (Light/Dark):
+
+| Light | Dark |
+|---|---|
+| ![Dashboard — Light Mode](docs/screenshots/dashboard-light.png) | ![Dashboard — Dark Mode](docs/screenshots/dashboard-dark.png) |
+
 | Bereich | Inhalt |
 |---|---|
 | **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven |
@@ -19,21 +27,22 @@ Self-hosted Finance-Dashboard für kleine Haushalte (Paar/WG). Manuelle Datenerf
 
 ## Inhaltsverzeichnis
 
-1. [Funktionen im Überblick](#1-funktionen-im-überblick)
-2. [Tech-Stack & Architektur](#2-tech-stack--architektur)
-3. [Proxmox LXC einrichten](#3-proxmox-lxc-einrichten)
-4. [Docker auf Debian 12 installieren](#4-docker-auf-debian-12-installieren)
-5. [Projekt aufspielen](#5-projekt-aufspielen)
-6. [Konfiguration (.env)](#6-konfiguration-env)
-7. [Starten & Updates](#7-starten--updates)
-8. [Erster Login & Demo-Daten](#8-erster-login--demo-daten)
-9. [Datensicherung](#9-datensicherung)
-10. [Nützliche Befehle (Server)](#10-nützliche-befehle-server)
-11. [Lokale Entwicklung](#11-lokale-entwicklung)
-12. [Tests](#12-tests)
-13. [Troubleshooting](#13-troubleshooting)
-14. [Bekannte Einschränkungen](#14-bekannte-einschränkungen)
-15. [Projektstruktur](#15-projektstruktur)
+1. [Vorschau](#vorschau)
+2. [Funktionen im Überblick](#1-funktionen-im-überblick)
+3. [Tech-Stack & Architektur](#2-tech-stack--architektur)
+4. [Proxmox LXC einrichten](#3-proxmox-lxc-einrichten)
+5. [Docker auf Debian 12 installieren](#4-docker-auf-debian-12-installieren)
+6. [Projekt aufspielen](#5-projekt-aufspielen)
+7. [Konfiguration (.env)](#6-konfiguration-env)
+8. [Starten & Updates](#7-starten--updates)
+9. [Erster Login & Demo-Daten](#8-erster-login--demo-daten)
+10. [Datensicherung](#9-datensicherung)
+11. [Nützliche Befehle (Server)](#10-nützliche-befehle-server)
+12. [Lokale Entwicklung](#11-lokale-entwicklung)
+13. [Tests](#12-tests)
+14. [Troubleshooting](#13-troubleshooting)
+15. [Bekannte Einschränkungen](#14-bekannte-einschränkungen)
+16. [Projektstruktur](#15-projektstruktur)
 
 ---
 
@@ -557,6 +566,8 @@ docker compose restart app
 
 ```
 financer/
+├── docs/
+│   └── screenshots/           # README-Vorschau (Dashboard Light/Dark)
 ├── plan/                      # Projektdokumentation, Architektur, Backlogs, Änderungslog
 ├── README.md                  # Diese Datei
 ├── .env.example               # Env-Template

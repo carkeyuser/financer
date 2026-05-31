@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.2] - 2026-05-31
+
+### Added
+
+- **Update-Dialog** — After deploy, one-time “What's New” dialog with curated release notes (de/en); manual view in Settings
+- **Auto-Deploy** — Self-hosted GitHub Actions runner deploys to production after green CI on `main`
+- **README preview** — Dashboard screenshots (Light/Dark) in `docs/screenshots/`
+
 ## [0.0.1] - 2026-05-31
 
 First public release — self-hosted finance dashboard for small households.
@@ -25,4 +33,5 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.0.2]: https://github.com/carkeyuser/financer/releases/tag/v0.0.2
 [0.0.1]: https://github.com/carkeyuser/financer/releases/tag/v0.0.1
