@@ -490,3 +490,14 @@ model DashboardWidget {
 | `api.nasdaq.com` | Marktkalender-Widget | `MARKET_CALENDAR_EXTERNAL=false` → kein Abruf; sonst Fail-fast + leere Liste |
 
 **Multi-Tenant:** `householdId` immer aus Session/JWT — nie aus Request-Body akzeptieren.
+
+**Tenant-Provisioning (F-36, Hybrid):** Haushalts-`OWNER` kann unter **Benutzer → Benutzer anlegen** wählen:
+
+| `tenancy` | Verhalten |
+|---|---|
+| `household` | User wird `MEMBER` im aktiven Haushalt des Owners (bisheriges Verhalten). |
+| `tenant` | Neuer `Household` (optionaler Name, sonst `Haushalt {username}`), User wird `OWNER` dort, Standard-Fixkosten wie bei Register; **keine** `HouseholdMember`-Zeile im Admin-Haushalt. |
+
+Cross-Tenant-Zugriff ist durch Session-Grenzen verhindert (alle Daten-APIs filtern `householdId`). Im **gemeinsamen** Haushalt mit mehreren Mitgliedern bleibt das **gemeinsame** Investment-Portfolio (`GET /api/assets` ohne `userId`-Filter); Einpersonen-Tenant-Haushalte sehen nur eigene Daten.
+
+**Provisionierte Benutzer:** `User.provisionedByUserId` wird bei `POST /api/admin/users` gesetzt. Der Owner sieht Tenant-User, die nicht im aktiven Haushalt sind, unter **Benutzer → Angelegte Benutzer (eigene Haushalte)** (`GET /api/household` → `provisionedUsers`). Bearbeiten/2FA für diese User nur durch den anlegenden Owner.

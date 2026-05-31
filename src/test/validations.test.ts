@@ -6,6 +6,7 @@ import {
   createSimulationSchema,
   updateSimulationMonthSchema,
 } from "@/lib/validations/household-finance-simulation"
+import { buildCreateUserSchema } from "@/lib/validations/household"
 
 describe("registerSchema", () => {
   const validBase = {
@@ -58,6 +59,37 @@ describe("registerSchema", () => {
     const { householdName: _, ...noHousehold } = validBase
     const result = registerSchema.safeParse({ ...noHousehold, inviteToken: "tok123" })
     expect(result.success).toBe(true)
+  })
+})
+
+describe("buildCreateUserSchema", () => {
+  const schema = buildCreateUserSchema("de")
+  const validBase = {
+    name: "Tenant User",
+    username: "tenantuser",
+    password: "geheim123",
+  }
+
+  it("accepts household tenancy by default", () => {
+    expect(schema.safeParse(validBase).success).toBe(true)
+    const parsed = schema.safeParse(validBase)
+    if (parsed.success) expect(parsed.data.tenancy).toBe("household")
+  })
+
+  it("accepts tenant tenancy without householdName", () => {
+    expect(schema.safeParse({ ...validBase, tenancy: "tenant" }).success).toBe(true)
+  })
+
+  it("accepts tenant tenancy with householdName", () => {
+    expect(
+      schema.safeParse({ ...validBase, tenancy: "tenant", householdName: "Firma A" }).success
+    ).toBe(true)
+  })
+
+  it("rejects tenant tenancy with empty householdName string", () => {
+    expect(
+      schema.safeParse({ ...validBase, tenancy: "tenant", householdName: "   " }).success
+    ).toBe(false)
   })
 })
 

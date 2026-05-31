@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Copy, Home, Link, Pencil, ShieldCheck, ShieldOff, Trash2, UserPlus } from "lucide-react"
@@ -171,10 +171,14 @@ export function HouseholdContent() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateUserInput>({
     resolver: zodResolver(userSchema),
+    defaultValues: { tenancy: "household" },
   })
+
+  const createTenancy = useWatch({ control, name: "tenancy" })
 
   const {
     register: registerHouseholdName,
@@ -202,9 +206,20 @@ export function HouseholdContent() {
 
   async function onCreateUser(form: CreateUserInput) {
     try {
-      const result = await createUser.mutateAsync(form)
-      toast.success(t("household.userCreated", { username: result.username }))
-      reset()
+      const payload: CreateUserInput = {
+        ...form,
+        householdName:
+          form.tenancy === "tenant" && form.householdName?.trim()
+            ? form.householdName.trim()
+            : undefined,
+      }
+      const result = await createUser.mutateAsync(payload)
+      if (result.tenancy === "tenant") {
+        toast.success(t("household.tenantUserCreated", { username: result.username }))
+      } else {
+        toast.success(t("household.userCreated", { username: result.username }))
+      }
+      reset({ tenancy: "household" })
     } catch (err: unknown) {
       toast.error(mapErr(err) || t("household.createFailed"))
     }
@@ -286,6 +301,42 @@ export function HouseholdContent() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onCreateUser)} className="space-y-4">
+              <fieldset className="space-y-2">
+                <legend className="text-sm font-medium">{t("household.tenancyLabel")}</legend>
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      value="household"
+                      className="size-4"
+                      {...register("tenancy")}
+                    />
+                    {t("household.tenancyHousehold")}
+                  </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      value="tenant"
+                      className="size-4"
+                      {...register("tenancy")}
+                    />
+                    {t("household.tenancyTenant")}
+                  </label>
+                </div>
+              </fieldset>
+              {createTenancy === "tenant" && (
+                <div className="space-y-1 max-w-md">
+                  <Label htmlFor="tenant-household-name">{t("household.tenantHouseholdName")}</Label>
+                  <Input
+                    id="tenant-household-name"
+                    placeholder={t("household.tenantHouseholdNamePlaceholder")}
+                    {...register("householdName")}
+                  />
+                  {errors.householdName && (
+                    <p className="text-xs text-destructive">{errors.householdName.message}</p>
+                  )}
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="name">{t("household.displayName")}</Label>
@@ -631,6 +682,162 @@ export function HouseholdContent() {
           </div>
         </CardContent>
       </Card>
+
+      {isOwner && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("household.provisionedUsers")}</CardTitle>
+            <p className="text-xs text-muted-foreground font-normal">
+              {t("household.provisionedUsersDescription")}
+            </p>
+          </CardHeader>
+          <CardContent>
+            {(data?.provisionedUsers.length ?? 0) === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("household.provisionedUsersEmpty")}</p>
+            ) : (
+              <>
+                <div className="space-y-3 md:hidden">
+                  {data?.provisionedUsers.map((p) => (
+                    <div key={p.userId} className="rounded-lg border p-3">
+                      <div className="mb-2 flex items-start gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="text-xs">
+                            {initials(p.name, p.username)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium">{p.name ?? t("common.dash")}</p>
+                          <p className="truncate text-sm text-muted-foreground">{p.username}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("household.tableHousehold")}: {p.householdName ?? t("common.dash")}
+                          </p>
+                        </div>
+                        <Badge variant="outline">{t("household.tenantBadge")}</Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() =>
+                            setEditingMember({
+                              id: p.userId,
+                              userId: p.userId,
+                              name: p.name,
+                              email: p.username,
+                              image: null,
+                              role: "OWNER",
+                              joinedAt: p.createdAt,
+                              twoFactorEnabled: p.twoFactorEnabled,
+                              twoFactorConfigured: false,
+                            })
+                          }
+                        >
+                          <Pencil className="h-4 w-4" />
+                          {t("common.edit")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleToggle2FA(p.userId, p.twoFactorEnabled)}
+                          disabled={toggle2FA.isPending}
+                        >
+                          {p.twoFactorEnabled ? (
+                            <ShieldCheck className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <ShieldOff className="h-4 w-4" />
+                          )}
+                          2FA
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t("household.tableName")}</TableHead>
+                        <TableHead>{t("household.tableUsername")}</TableHead>
+                        <TableHead>{t("household.tableHousehold")}</TableHead>
+                        <TableHead>{t("household.table2fa")}</TableHead>
+                        <TableHead>{t("household.tableJoined")}</TableHead>
+                        <TableHead className="w-20" />
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data?.provisionedUsers.map((p) => (
+                        <TableRow key={p.userId}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback className="text-xs">
+                                  {initials(p.name, p.username)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span>{p.name ?? t("common.dash")}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">{p.username}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <span>{p.householdName ?? t("common.dash")}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {t("household.tenantBadge")}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              type="button"
+                              className="flex items-center gap-1 text-xs"
+                              onClick={() => handleToggle2FA(p.userId, p.twoFactorEnabled)}
+                              disabled={toggle2FA.isPending}
+                            >
+                              {p.twoFactorEnabled ? (
+                                <ShieldCheck className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <ShieldOff className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </button>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-xs">
+                            {fmtDate(p.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8"
+                              onClick={() =>
+                                setEditingMember({
+                                  id: p.userId,
+                                  userId: p.userId,
+                                  name: p.name,
+                                  email: p.username,
+                                  image: null,
+                                  role: "OWNER",
+                                  joinedAt: p.createdAt,
+                                  twoFactorEnabled: p.twoFactorEnabled,
+                                  twoFactorConfigured: false,
+                                })
+                              }
+                              title={t("household.editUserTooltip")}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {canManage && (data?.pendingInvites.length ?? 0) > 0 && (
         <Card>
