@@ -34,6 +34,19 @@ const API_ERROR_MAP: Record<string, { de: string; en: string }> = {
   "Die Rolle des Eigentümers kann nicht geändert werden": { de: "Die Rolle des Eigentümers kann nicht geändert werden", en: "The owner's role cannot be changed" },
   "Du kannst dich nicht selbst entfernen": { de: "Du kannst dich nicht selbst entfernen", en: "You cannot remove yourself" },
   "Der Eigentümer kann nicht entfernt werden": { de: "Der Eigentümer kann nicht entfernt werden", en: "The owner cannot be removed" },
+  "Du kannst dich nicht selbst löschen": { de: "Du kannst dich nicht selbst löschen", en: "You cannot delete yourself" },
+  "Nur angelegte Tenant-Benutzer können hier gelöscht werden": {
+    de: "Nur angelegte Tenant-Benutzer können hier gelöscht werden",
+    en: "Only provisioned tenant users can be deleted here",
+  },
+  "Haushaltsmitglieder über die Mitgliederverwaltung entfernen": {
+    de: "Haushaltsmitglieder über die Mitgliederverwaltung entfernen",
+    en: "Remove household members via member management",
+  },
+  "Benutzer hat selbst angelegte Tenant-Benutzer — zuerst diese löschen": {
+    de: "Benutzer hat selbst angelegte Tenant-Benutzer — zuerst diese löschen",
+    en: "User has provisioned tenant users — delete those first",
+  },
   "Benutzername bereits vergeben": { de: "Benutzername bereits vergeben", en: "Username already taken" },
   Unauthorized: { de: "Nicht autorisiert", en: "Unauthorized" },
   "User not in household": { de: "Benutzer nicht im Haushalt", en: "User not in household" },

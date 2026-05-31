@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { getMembership } from "@/lib/household-auth"
+import { canManageHousehold, getMembership } from "@/lib/household-auth"
 import { updateHouseholdNameSchema } from "@/lib/validations/household"
 
 export async function GET() {
@@ -40,6 +40,19 @@ export async function GET() {
     return NextResponse.json({ error: "Kein Zugriff auf diesen Haushalt" }, { status: 403 })
   }
 
+  let provisionerId: string | null = null
+  if (canManageHousehold(myMembership.role)) {
+    if (myMembership.role === "OWNER") {
+      provisionerId = userId
+    } else {
+      const owner = await prisma.householdMember.findFirst({
+        where: { householdId, role: "OWNER" },
+        select: { userId: true },
+      })
+      provisionerId = owner?.userId ?? null
+    }
+  }
+
   const [household, members, pendingInvites, provisionedUsers] = await Promise.all([
     prisma.household.findUnique({
       where: { id: householdId },
@@ -57,10 +70,10 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       select: { id: true, email: true, token: true, expiresAt: true, createdAt: true },
     }),
-    myMembership.role === "OWNER"
+    canManageHousehold(myMembership.role) && provisionerId
       ? prisma.user.findMany({
           where: {
-            provisionedByUserId: userId,
+            provisionedByUserId: provisionerId,
             NOT: { householdMemberships: { some: { householdId } } },
           },
           include: {
