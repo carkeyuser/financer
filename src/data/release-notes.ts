@@ -8,17 +8,27 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.3",
+    date: "2026-05-31",
+    highlights: {
+      de: [
+        "Auto-Deploy entfernt — CI prüft nur noch Build/Tests, Deploy manuell auf dem Server",
+      ],
+      en: [
+        "Auto-deploy removed — CI only runs build/tests; deploy manually on the server",
+      ],
+    },
+  },
+  {
     version: "0.0.2",
     date: "2026-05-31",
     highlights: {
       de: [
         "Update-Dialog: Nach Deploy einmalig Release-Notes (de/en), auch manuell in Einstellungen",
-        "Auto-Deploy: Self-hosted GitHub Actions Runner deployt nach grünem CI auf main",
         "README-Vorschau mit Dashboard-Screenshots (Light/Dark)",
       ],
       en: [
         "Update dialog: one-time release notes (de/en) after deploy, also in Settings",
-        "Auto-deploy: self-hosted GitHub Actions runner deploys after green CI on main",
         "README preview with dashboard screenshots (light/dark)",
       ],
     },

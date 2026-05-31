@@ -87,7 +87,10 @@ npx prisma generate                    # Client nach Schema-Änderung
 cd /opt/financer && git pull && docker compose up -d --build
 ```
 
-**Automatisch (nach grünem CI auf `main`):** Self-hosted GitHub Actions Runner — siehe Abschnitt [Auto-Deploy (GitHub Actions)](#auto-deploy-github-actions) unten.
+Oder mit Hilfsskript:
+```bash
+bash /opt/financer/scripts/deploy.sh
+```
 
 **Von Windows (optional, `push.ps1`):**
 ```powershell
@@ -159,7 +162,7 @@ Bei jedem Release (Version-Bump + Deploy):
 2. [`CHANGELOG.md`](../CHANGELOG.md) — Abschnitt für neue Version
 3. [`src/data/release-notes.ts`](../src/data/release-notes.ts) — kuratierte Highlights (de/en, 3–8 Bullets)
 4. Git-Tag `vX.Y.Z` + GitHub Release
-5. Deploy (Auto-Deploy via CI oder `.\push -Deploy`)
+5. Deploy manuell (`git pull && docker compose up -d --build` oder `.\push -Deploy`)
 
 Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frischer Installation bleibt stumm.
 
@@ -185,43 +188,6 @@ npm run test:watch    # vitest (watch-Modus)
 | `nasdaq-calendar.test.ts` | Symbol-Filter, Datum, Env-Schalter | 5 |
 | `currency.test.ts` | `getEurRate` (EUR, FX, Fehler) | 3 |
 | `release-notes.test.ts` | Version-Vergleich, unseen Release-Notes | 8 |
-
----
-
-## Auto-Deploy (GitHub Actions)
-
-GitHub-Hosted Runner erreichen **keine private IP** (`10.x`). Lösung: **Self-hosted Runner** auf dem LXC — der `deploy`-Job in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) läuft dort nach erfolgreichem CI auf `main`.
-
-### Einmalige Runner-Installation (auf dem LXC)
-
-1. GitHub → Repo **financer** → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux → Befehle kopieren.
-
-2. Auf dem Server — Runner entpacken (`curl` + `tar` aus GitHub-Anleitung), dann:
-
-```bash
-cd /opt/actions-runner
-echo 'RUNNER_ALLOW_RUNASROOT=1' > .env   # nur nötig wenn als root
-./config.sh --url https://github.com/carkeyuser/financer --token ECHTER_TOKEN_HIER
-# Labels: financer ergänzen (Enter für Rest)
-./svc.sh install && ./svc.sh start
-```
-
-> **Token:** Frischen Registration Token aus GitHub kopieren — **nicht** `<TOKEN>` tippen. Token ist ~1 h gültig und Einmalgebrauch.  
-> **Root:** GitHub verbietet root ohne `RUNNER_ALLOW_RUNASROOT=1` in `.env`. Alternativ: eigener User `github-runner` in Gruppe `docker`.
-
-3. Deploy-Skript ausführbar:
-
-```bash
-chmod +x /opt/financer/scripts/deploy.sh
-```
-
-### Ablauf
-
-```text
-git push main → CI (ubuntu): test + build → deploy (self-hosted): git pull + docker compose up -d --build
-```
-
-Pull Requests: nur CI, **kein** Deploy.
 
 ---
 

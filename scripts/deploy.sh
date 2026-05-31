@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Server-Deploy: git pull + docker rebuild. Wird vom GitHub Actions Self-hosted Runner aufgerufen.
+# Server-Deploy: git pull + docker rebuild (manuell auf dem LXC ausführen).
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/financer}"
