@@ -102,5 +102,6 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | B-30 | TR-Import / UI | **Toter Code `useImportProgressReader`:** Hook entfernt; Fortschritt weiter über `useTradeRepublicImport`. | ✅ behoben 2026-05-31 |
 | B-31 | TR-Import / UI | **Balken bei `current: 0` leer:** `computeWeightedProgress` zeigt 5 % Phasenanteil bei Start; Panel mindestens 1 % Anzeige. | ✅ behoben 2026-05-31 |
 | B-32 | TR-Import / Tests | **Fehlende Tests:** `tr-import-routes.test.ts` (Preview/Apply NDJSON); `isin-resolver.test.ts` (parallel + `onProgress`). | ✅ behoben 2026-05-31 |
+| B-33 | TR-Import / Wizard | **Krypto ohne ISIN:** Ticker-Step übersprungen (nicht in `tickerMappings`); Bestätigung zählte `needs_ticker` fälschlich als Import; Apply brach bei erster Fehlerzeile ab. | ✅ behoben 2026-05-31 |
 
 | B-09 | Investments | **G/V-Historie nach Verkäufen/Mengenkorrekturen falsch:** `getGainLossHistory()` nutzt jetzt eine chronologische Positions-Replay-Logik, die `SALE`, `QUANTITY_UPDATE` und `VWAP_UPDATE` in Menge und Kostenbasis berücksichtigt. | ✅ behoben 2026-05-27 |

@@ -24,6 +24,22 @@ export interface TrTickerMapping {
   hasTickerConflict: boolean
 }
 
+const PRODUCT_KEY_PREFIX = "__product__:"
+
+/** Override key for tickerMappings / tickerOverrides — ISIN or synthetic product key (no ISIN, e.g. crypto). */
+export function tickerOverrideKey(row: { isin: string | null; product: string }): string {
+  if (row.isin) return row.isin.trim().toUpperCase()
+  return `${PRODUCT_KEY_PREFIX}${normalizeProductKey(row.product)}`
+}
+
+export function isProductOnlyKey(key: string): boolean {
+  return key.startsWith(PRODUCT_KEY_PREFIX)
+}
+
+function normalizeProductKey(product: string): string {
+  return product.trim().toLowerCase().replace(/\s+/g, "_")
+}
+
 export function buildTickerMappings(
   parsed: TrParsedRow[],
   existingAssets: TrExistingAssetByIsin[],
@@ -42,19 +58,30 @@ export function buildTickerMappings(
     }
   }
 
-  const grouped = new Map<string, { productName: string; count: number }>()
+  const groupedByIsin = new Map<string, { productName: string; count: number }>()
+  const groupedByProduct = new Map<string, { productName: string; count: number }>()
   for (const row of parsed) {
-    if (!row.isin || row.eventType === "interest" || row.eventType === "ignored") continue
-    const key = row.isin.toUpperCase()
-    const current = grouped.get(key)
-    if (current) {
-      current.count++
+    if (row.eventType === "interest" || row.eventType === "ignored") continue
+    if (row.isin) {
+      const key = row.isin.toUpperCase()
+      const current = groupedByIsin.get(key)
+      if (current) {
+        current.count++
+      } else {
+        groupedByIsin.set(key, { productName: row.product, count: 1 })
+      }
     } else {
-      grouped.set(key, { productName: row.product, count: 1 })
+      const key = `${PRODUCT_KEY_PREFIX}${normalizeProductKey(row.product)}`
+      const current = groupedByProduct.get(key)
+      if (current) {
+        current.count++
+      } else {
+        groupedByProduct.set(key, { productName: row.product, count: 1 })
+      }
     }
   }
 
-  return [...grouped.entries()]
+  const isinMappings = [...groupedByIsin.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([isin, meta]) => {
       const portfolioTicker = portfolioByIsin.get(isin) ?? null
@@ -94,6 +121,22 @@ export function buildTickerMappings(
         hasTickerConflict,
       }
     })
+
+  const productMappings = [...groupedByProduct.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, meta]) => ({
+      isin: key,
+      productName: meta.productName,
+      transactionCount: meta.count,
+      source: "unresolved" as const,
+      suggestedTicker: null,
+      portfolioTicker: null,
+      yahooTicker: null,
+      requiresManual: true,
+      hasTickerConflict: false,
+    }))
+
+  return [...isinMappings, ...productMappings]
 }
 
 /** Prefer portfolio match, then Yahoo — used for row classification. */
