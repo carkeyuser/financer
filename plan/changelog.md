@@ -4,6 +4,9 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.8** — Trade-Republic-CSV-Import (F-38), Ticker-Abgleich, 126 Tests |
+| 2026-05-31 | **F-38 Ticker-Abgleich:** Import-Wizard zeigt alle ISINs; Portfolio-Ticker vor Yahoo; manuelle Zuweisung bei unbekannten ISINs; Konflikt-Hinweis bei abweichenden Tickern |
+| 2026-05-31 | **F-38 Trade-Republic-Import:** 7-Schritte-Wizard, CSV-Parser, Hard/Soft-Dedup (`importRef`), Preview/Apply-API, ISIN→Ticker, Konflikt-Aktionen; Migration; Backup; 5 Tests; i18n de/en |
 | 2026-05-31 | **F-36 Erweiterung:** `User.provisionedByUserId` — Owner sieht angelegte Tenant-User unter „Angelegte Benutzer (eigene Haushalte)"; Bearbeiten/2FA über provisioned-Check |
 | 2026-05-31 | **F-36 Tenant-Provisioning (Hybrid):** `POST /api/admin/users` mit `tenancy: household|tenant`; neuer Haushalt + OWNER + Fixkosten; UI auf `/household`; `default-fixed-costs.ts`; 4 Schema-Tests |
 | 2026-05-31 | **README:** An Stand v0.0.7 angepasst — Dividenden, Simulationen, 11 Widgets, 114 Tests, Backup-Inhalt, Marktkalender/`MARKET_CALENDAR_EXTERNAL`, offenes Backlog |

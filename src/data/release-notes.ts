@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.8",
+    date: "2026-05-31",
+    highlights: {
+      de: [
+        "Trade-Republic-Import: CSV hochladen, 7-Schritte-Wizard mit Vorschau und Konflikt-Lösung",
+        "Ticker-Abgleich: Portfolio-Ticker vor Yahoo, manuelle Zuweisung bei unbekannten ISINs",
+        "Keine Doppelbuchungen — Hard-/Soft-Dedup über Order-ID und Abgleich mit manuellen Einträgen",
+      ],
+      en: [
+        "Trade Republic import: upload CSV, 7-step wizard with preview and conflict resolution",
+        "Ticker reconciliation: portfolio ticker before Yahoo, manual mapping for unknown ISINs",
+        "No duplicate entries — hard/soft dedup via order ID and match against manual bookings",
+      ],
+    },
+  },
+  {
     version: "0.0.7",
     date: "2026-05-31",
     highlights: {
