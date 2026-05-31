@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-01 | **Release v0.0.9** — Positionen zusammenführen (F-39), Depot leeren vor TR-Import, Merge-Wizard UX |
+| 2026-06-01 | **TR-Import:** Depot leeren — API `DELETE /api/investments/accounts`, Button + Checkbox „vor Import leeren“ im Import-Wizard; löscht alle Positionen eines Depot-Namens inkl. Buchungen/Dividenden (Interest ausgenommen) |
 | 2026-06-01 | **CI-Fix:** Doppelimport `useHousehold` entfernt; `MergeScanPhase`-Typ für TS-Build |
 | 2026-06-01 | **F-39 Merge-Wizard UX:** Dialog breiter (`max-w-4xl`), scrollbarer Body; manueller Schritt mit durchsuchbarem Ziel-Picker und Quell-Filter; Null-Positionen ausblenden (Default an); Werte in Listen; Review ohne `truncate` |
 | 2026-06-01 | **F-39 Review-Fixes (vollständig):** Wizard Steps suggestions/review/applying + NDJSON-Scan + Batch high-confidence + Step-Bug; Admin-only Merge-Button; Null-Filter mit Header/Charts; `fetchMergeSuggestionsStream`; Tests merge-apply, merge-suggestions-route, tr-isin-backfill; **177 Tests** |
