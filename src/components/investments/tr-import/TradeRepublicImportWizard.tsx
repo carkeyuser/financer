@@ -39,8 +39,20 @@ import {
   partitionConflictRows,
   partitionTickerMappings,
   rowNeedsAttention,
-  sortOverviewRows,
 } from "@/lib/services/tr-import-sort"
+import {
+  applySelectionPreset,
+  buildInitialResolutions,
+  countSelectedRows,
+  isRowSelected,
+  isSelectableRow,
+  resolutionForSelected,
+  resolveImportAction,
+  rowValueEur,
+  sortSelectionRows,
+  type TrImportSelectionPreset,
+} from "@/lib/services/tr-import-selection"
+import { formatCurrency } from "@/lib/utils/currency"
 import type { TrImportPreviewRow, TrImportResolution, TrImportRowStatus, TrTickerOverride } from "@/lib/services/tr-import-types"
 import { countUnresolvedTickers, initialTickerOverrides, isProductOnlyKey, tickerOverrideKey, type TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
 import { cn } from "@/lib/utils"
@@ -113,8 +125,13 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
   const filteredRows = useMemo(() => {
     if (!preview) return []
     const rows = filter === "all" ? preview.rows : preview.rows.filter((r) => r.status === filter)
-    return sortOverviewRows(rows)
+    return sortSelectionRows(rows)
   }, [preview, filter])
+
+  const selectionCounts = useMemo(
+    () => (preview ? countSelectedRows(preview.rows, resolutions) : { selected: 0, total: 0 }),
+    [preview, resolutions]
+  )
 
   const conflictPartition = useMemo(
     () => partitionConflictRows(conflictRows, resolutions),
@@ -196,6 +213,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
         targetUserId: targetUserId || undefined,
       })
       setPreview(result)
+      setResolutions(buildInitialResolutions(result.rows))
       setTickerOverrides(initialTickerOverrides(result.tickerMappings))
       setImportProgress(null)
       setStep("overview")
@@ -259,11 +277,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
     let linked = 0
     let skipped = 0
     for (const row of preview.rows) {
-      if (row.status === "skip_hard" || row.status === "ignored") {
-        skipped++
-        continue
-      }
-      const action = resolutions[row.rowId] ?? row.defaultResolution
+      const action = resolveImportAction(row, resolutions)
       if (action === "skip") {
         skipped++
         continue
@@ -273,7 +287,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
         continue
       }
       if (action === "link") linked++
-      else if (row.status === "import_new" || action === "import" || action === "replace") created++
+      else if (action === "import" || action === "replace") created++
     }
     return { created, linked, skipped }
   }, [preview, resolutions, tickerOverrides])
@@ -455,11 +469,15 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
         )}
 
         {step === "overview" && preview && (
-          <OverviewStep
+          <SelectionStep
             preview={preview}
             filter={filter}
             setFilter={setFilter}
             filteredRows={filteredRows}
+            resolutions={resolutions}
+            setResolutions={setResolutions}
+            selectionCounts={selectionCounts}
+            locale={locale}
             ti={ti}
             onBack={() => setStep("upload")}
             onNext={goAfterOverview}
@@ -513,7 +531,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
               <Button variant="outline" onClick={() => setStep(tickerPartition.needsAttention.length > 0 ? "tickers" : conflictRows.length > 0 ? "conflicts" : "overview")}>
                 {ti("back")}
               </Button>
-              <Button disabled={unresolvedTickers > 0} onClick={runApply}>
+              <Button disabled={unresolvedTickers > 0 || selectionCounts.selected === 0} onClick={runApply}>
                 {ti("apply")}
               </Button>
             </div>
@@ -591,11 +609,15 @@ function SummaryCards({
   )
 }
 
-function OverviewStep({
+function SelectionStep({
   preview,
   filter,
   setFilter,
   filteredRows,
+  resolutions,
+  setResolutions,
+  selectionCounts,
+  locale,
   ti,
   onBack,
   onNext,
@@ -604,6 +626,10 @@ function OverviewStep({
   filter: string
   setFilter: (f: string) => void
   filteredRows: TrImportPreviewRow[]
+  resolutions: Record<string, TrImportResolution>
+  setResolutions: (r: Record<string, TrImportResolution>) => void
+  selectionCounts: { selected: number; total: number }
+  locale: "de" | "en"
   ti: (key: string, params?: Record<string, string | number>) => string
   onBack: () => void
   onNext: () => void
@@ -617,9 +643,55 @@ function OverviewStep({
     { id: "needs_ticker", label: ti("summaryNeedsTicker") },
   ]
 
+  const presets: { id: TrImportSelectionPreset; label: string }[] = [
+    { id: "all", label: ti("presetAll") },
+    { id: "none", label: ti("presetNone") },
+    { id: "new_only", label: ti("presetNewOnly") },
+    { id: "matched_only", label: ti("presetMatchedOnly") },
+    { id: "with_value", label: ti("presetWithValue") },
+  ]
+
+  const visibleSelectable = filteredRows.filter(isSelectableRow)
+  const allVisibleSelected =
+    visibleSelectable.length > 0 && visibleSelectable.every((row) => isRowSelected(row, resolutions))
+
+  const applyPreset = (preset: TrImportSelectionPreset) => {
+    setResolutions(applySelectionPreset(preset, preview.rows, resolutions))
+  }
+
+  const toggleRow = (row: TrImportPreviewRow, selected: boolean) => {
+    setResolutions({ ...resolutions, [row.rowId]: resolutionForSelected(row, selected) })
+  }
+
+  const toggleAllVisible = (selected: boolean) => {
+    const next = { ...resolutions }
+    for (const row of visibleSelectable) {
+      next[row.rowId] = resolutionForSelected(row, selected)
+    }
+    setResolutions(next)
+  }
+
   return (
     <div className="space-y-4">
+      <div className="space-y-1">
+        <p className="font-medium">{ti("selectionTitle")}</p>
+        <p className="text-sm text-muted-foreground">{ti("selectionSubtitle")}</p>
+        <p className="text-sm font-medium">{ti("selectionCount", selectionCounts)}</p>
+      </div>
+
       <SummaryCards summary={preview.summary} ti={ti} />
+
+      <div className="space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">{ti("presetSection")}</p>
+        <div className="flex flex-wrap gap-1">
+          {presets.map((p) => (
+            <Button key={p.id} size="sm" variant="outline" onClick={() => applyPreset(p.id)}>
+              {p.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-1">
         {filters.map((f) => (
           <Button key={f.id} size="sm" variant={filter === f.id ? "default" : "outline"} onClick={() => setFilter(f.id)}>
@@ -627,39 +699,78 @@ function OverviewStep({
           </Button>
         ))}
       </div>
-      <div className="max-h-64 overflow-y-auto rounded-md border">
+
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" disabled={allVisibleSelected} onClick={() => toggleAllVisible(true)}>
+          {ti("selectionSelectAll")}
+        </Button>
+        <Button size="sm" variant="outline" disabled={visibleSelectable.length === 0} onClick={() => toggleAllVisible(false)}>
+          {ti("selectionDeselectAll")}
+        </Button>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto rounded-md border">
         <table className="w-full text-xs">
           <thead className="sticky top-0 bg-muted">
             <tr>
-              <th className="p-2 text-left">{ti("stepOverview")}</th>
+              <th className="w-8 p-2" />
+              <th className="p-2 text-left">{ti("colDate")}</th>
               <th className="p-2 text-left">{ti("csvSide")}</th>
-              <th className="p-2 text-right">{ti("summaryNew")}</th>
+              <th className="p-2 text-right">{ti("colValue")}</th>
+              <th className="p-2 text-right">{ti("colStatus")}</th>
             </tr>
           </thead>
           <tbody>
-            {filteredRows.slice(0, 100).map((row) => (
-              <tr
-                key={row.rowId}
-                className={cn(
-                  "border-t",
-                  rowNeedsAttention(row.status) && "bg-destructive/5 hover:bg-destructive/10"
-                )}
-              >
-                <td className="p-2">{row.date}</td>
-                <td className="p-2">{row.product}</td>
-                <td className="p-2 text-right">
-                  <Badge variant={statusVariant(row.status)} className="text-[10px]">
-                    {row.status}
-                  </Badge>
-                </td>
-              </tr>
-            ))}
+            {filteredRows.map((row) => {
+              const selectable = isSelectableRow(row)
+              const selected = isRowSelected(row, resolutions)
+              const value = rowValueEur(row)
+              return (
+                <tr
+                  key={row.rowId}
+                  className={cn(
+                    "border-t",
+                    !selectable && "opacity-50",
+                    selectable && !selected && "bg-muted/30",
+                    rowNeedsAttention(row.status) && selected && "bg-destructive/5"
+                  )}
+                >
+                  <td className="p-2">
+                    {selectable ? (
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        className="h-4 w-4 cursor-pointer"
+                        onChange={(e) => toggleRow(row, e.target.checked)}
+                      />
+                    ) : null}
+                  </td>
+                  <td className="p-2 whitespace-nowrap">{row.date}</td>
+                  <td className="p-2">
+                    <p className="font-medium">{row.product}</p>
+                    <p className="text-muted-foreground">
+                      {row.quantity ?? "—"} @ {row.price ?? "—"}
+                      {row.matchedEntry ? ` · Match: ${row.matchedEntry.ticker}` : ""}
+                    </p>
+                  </td>
+                  <td className={cn("p-2 text-right whitespace-nowrap tabular-nums", value <= 0 && "text-muted-foreground")}>
+                    {formatCurrency(value, "EUR", locale)}
+                  </td>
+                  <td className="p-2 text-right">
+                    <Badge variant={statusVariant(row.status)} className="text-[10px]">
+                      {row.status}
+                    </Badge>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
+
       <div className="flex gap-2">
         <Button variant="outline" onClick={onBack}>{ti("back")}</Button>
-        <Button onClick={onNext}>{ti("next")}</Button>
+        <Button disabled={selectionCounts.selected === 0} onClick={onNext}>{ti("next")}</Button>
       </div>
     </div>
   )

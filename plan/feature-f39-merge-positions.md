@@ -1,6 +1,6 @@
 # F-39 — Positionen zusammenführen + Null-Positions-Filter
 
-> Feature-Spezifikation. **Implementiert** 2026-06-01 (Review-Fixes abgeschlossen).
+> Feature-Spezifikation. **Implementiert** 2026-06-01 (Release v0.0.9). Depot leeren (F-38b) siehe Phase 10 in [`phases.md`](phases.md).
 
 ---
 

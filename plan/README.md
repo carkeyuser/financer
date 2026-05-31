@@ -10,14 +10,14 @@
 Persönliches Finanz-Dashboard für zwei Personen (WG/Paar). Zwei Kernbereiche:
 
 1. **Haushaltskasse** — gemeinsame Fixkosten, monatliche Einnahmen, Auszahlungslogik mit Quartals-Bonus (eigener Tab in der Sidebar)
-2. **Investments** — manuelles Portfolio-Tracking (Aktien, ETFs, Krypto) mit Kursabfrage via Yahoo Finance
+2. **Investments** — manuelles Portfolio-Tracking (Aktien, ETFs, Krypto) mit Kursabfrage via Yahoo Finance; Trade-Republic-CSV-Import; Positionen zusammenführen; Depot vor Neuimport leeren
 
 Das Ausgaben-Modul (Transaktionen/Kategorien/Budgets) wurde **entfernt** — es passte nicht zum Nutzungsmodell.
 Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die Haushaltskasse hat einen eigenen Sidebar-Tab inkl. Simulations-Subtab.
 
 Self-hosted via Docker auf einem Proxmox LXC.
 
-**Stand:** 2026-06-01 (Depot leeren vor TR-Import)
+**Stand:** 2026-06-01 (Release v0.0.9, TR-Import Auswahl)
 
 ---
 
@@ -27,7 +27,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 |---|---|---|
 | **1** Auth + Skeleton | ✅ erledigt | Login, Register, NextAuth v5, Sidebar, Theme, AuthGuard, Docker |
 | **2** Expenses | ✅ gebaut, dann entfernt | Modul vollständig aus der App entfernt (Phase 6) |
-| **3** Investments | ✅ erledigt | Yahoo-Suche, Portfolio CRUD, VWAP, 4 Chart-Typen, Nachkauf, Inline-Korrekturen |
+| **3** Investments | ✅ erledigt | Yahoo-Suche, Portfolio CRUD, VWAP, Charts, TR-Import (F-38), Merge (F-39), Depot leeren |
 | **4** Dashboard | ✅ erledigt | Widget-Grid (react-grid-layout), 11 Widgets, Widget-Manager, DB-backed Layout |
 | **5** Multi-User | ✅ erledigt | Invites, accept-invite, Switcher, Rollen, User anlegen, 2FA (TOTP) |
 | **6** Haushaltskasse | ✅ erledigt | Ausgaben raus, Haushaltskasse + Simulationen (F-33) |
