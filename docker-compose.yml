@@ -20,6 +20,7 @@ services:
   app:
     build: .
     image: finance-app:latest
+    pull_policy: build
     container_name: finance_app
     restart: unless-stopped
     depends_on:

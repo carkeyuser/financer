@@ -289,6 +289,18 @@ Die App ist erreichbar unter: `http://YOUR_SERVER:3000` (oder der in `NEXTAUTH_U
 
 ### Updates einspielen
 
+**Server (Git-Deploy):**
+
+```bash
+cd /opt/financer
+git pull
+docker compose up -d --build
+```
+
+> `finance-app:latest` wird lokal gebaut (`pull_policy: build` in `docker-compose.yml`) — kein Docker-Hub-Login nötig.
+
+**Von Windows (optional, mit `push.ps1`):**
+
 ```powershell
 .\push -Deploy
 ```
