@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Deploy:** `docker-compose.prod.yml` + CI GHCR-Push; `scripts/deploy.sh` nutzt Pull statt Build; Dockerfile ohne `next-env.d.ts` (gitignored) |
+| 2026-05-31 | **CI:** GitHub Actions Job `docker` — baut und pusht `ghcr.io/carkeyuser/financer` (`latest`, Package-Version, Git-Tag, SHA) nach grünem Build auf `main`/Tags; `docker-compose.prod.yml` für Pull-Deploy |
 | 2026-05-31 | **Release v0.0.7** — Release-Notes im Update-Dialog ein-/ausklappbar (nur neueste Version offen) |
 | 2026-05-31 | **Update-Dialog:** Release-Notes pro Version ein-/ausklappbar; nur neueste Version standardmäßig offen |
 | 2026-05-31 | **Release v0.0.6** — Schnellere Docker-Builds (schlankes Runtime-Image, BuildKit-Cache, Entrypoint) |
