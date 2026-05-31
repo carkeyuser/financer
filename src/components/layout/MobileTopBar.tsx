@@ -15,6 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { HouseholdSwitcher } from "./HouseholdSwitcher"
+import { ReleaseNotesMenuButton } from "./ReleaseNotesMenuButton"
 import { ThemeToggle } from "./ThemeToggle"
 import { useI18n } from "@/i18n/context"
 import { cn } from "@/lib/utils"
@@ -108,7 +109,8 @@ export function MobileTopBar({ householdName }: MobileTopBarProps) {
               })}
             </nav>
             <Separator />
-            <div className="p-3">
+            <div className="p-3 space-y-1">
+              <ReleaseNotesMenuButton />
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-3 text-muted-foreground"

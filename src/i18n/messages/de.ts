@@ -44,6 +44,7 @@ export const deMessages = {
     householdSimulation: "Simulation",
     users: "Benutzer",
     settings: "Einstellungen",
+    releaseNotes: "Release-Notes",
     logout: "Abmelden",
     householdLabel: "Haushalt",
   },

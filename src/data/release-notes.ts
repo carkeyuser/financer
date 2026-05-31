@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.5",
+    date: "2026-05-31",
+    highlights: {
+      de: [
+        "Release-Notes-Button in der Sidebar und im Mobile-Menü über Abmelden",
+        "Öffnet den bestehenden Update-Dialog mit kuratierten Release-Notes (de/en)",
+        "Link zu allen Releases auf GitHub im Dialog-Footer",
+      ],
+      en: [
+        "Release notes button in the sidebar and mobile menu above Sign out",
+        "Opens the existing update dialog with curated release notes (de/en)",
+        "Link to all GitHub releases in the dialog footer",
+      ],
+    },
+  },
+  {
     version: "0.0.4",
     date: "2026-05-31",
     highlights: {
