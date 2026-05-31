@@ -236,7 +236,19 @@ Das Skript kopiert alle relevanten Dateien per `robocopy` + `scp` nach `/opt/fin
 
 **Ausgeschlossen:** `node_modules`, `.next`, `src/generated`, `.env`/`.env.local`, `.codegraph`, `*.tsbuildinfo`, `.claude`
 
-### Option B: Manuell per `scp`
+### Option B: Git-Clone auf dem Server
+
+```bash
+ssh root@YOUR_SERVER
+git clone https://github.com/carkeyuser/financer.git /opt/financer
+cd /opt/financer
+cp .env.example .env && nano .env
+docker compose up -d --build
+```
+
+In `.env` optional `FINANCER_DEPLOY_MODE=ghcr` für Updates ohne lokalen Build (siehe Abschnitt 7).
+
+### Option C: Manuell per `scp`
 
 ```powershell
 scp -r . root@YOUR_SERVER:/opt/financer/
@@ -313,26 +325,40 @@ Die App ist erreichbar unter: `http://YOUR_SERVER:3000` (oder der in `NEXTAUTH_U
 
 ### Updates einspielen
 
+Modus in `.env`: `FINANCER_DEPLOY_MODE=build` (Default) oder `ghcr`.
+
+**Ein Befehl (beide Modi):**
+
+```bash
+cd /opt/financer
+./scripts/update.sh
+```
+
+**Modus `build`** — Git-Clone, lokaler Build:
+
 ```bash
 cd /opt/financer
 git pull
 docker compose up -d --build
 ```
 
-Oder alles in einem Schritt: `./scripts/deploy.sh`
+Hard-Reset auf `origin/main`: `./scripts/deploy.sh`
 
-> **`--build` ist nötig**, damit der Container den frischen Code aus `git pull` nutzt. Nur `up -d` startet den alten Container neu.
+> **`--build` ist nötig** — nur `docker compose up -d` startet den alten Container neu.
 
-**Optional — GHCR statt lokalem Build** (nur nach Release-Tag `v*`, sonst keine neuen Commits auf `main`):
+**Modus `ghcr`** — vorgefertigtes Image (CI pusht `:latest` bei jedem Push auf `main`):
 
 ```bash
+cd /opt/financer
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-Image: `ghcr.io/carkeyuser/financer:latest`
+In `.env`: `FINANCER_DEPLOY_MODE=ghcr`. Bei privatem Paket: einmalig `docker login ghcr.io`.
 
-**Von Windows (optional, mit `push.ps1`):**
+Image: `ghcr.io/carkeyuser/financer:latest` (überschreibbar via `FINANCER_IMAGE`).
+
+**Von Windows (optional, Modus `build`, mit `push.ps1`):**
 
 ```powershell
 .\push -Deploy
