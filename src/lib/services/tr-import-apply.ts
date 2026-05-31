@@ -19,21 +19,33 @@ export interface ApplyImportResult {
 
 type Tx = Prisma.TransactionClient
 
-export async function applyTradeRepublicImport(tx: Tx, input: ApplyImportInput): Promise<ApplyImportResult> {
+export async function applyTradeRepublicImport(
+  tx: Tx,
+  input: ApplyImportInput,
+  onProgress?: (current: number, total: number) => void
+): Promise<ApplyImportResult> {
   const result: ApplyImportResult = { created: 0, linked: 0, skipped: 0, errors: [] }
   const { preview, resolutions, tickerOverrides } = input
   const previewById = new Map(preview.previewRows.map((r) => [r.rowId, r]))
   const assetCache = new Map<string, string>()
 
   const sortedParsed = [...preview.parsedRows].sort((a, b) => a.date.localeCompare(b.date))
+  const total = sortedParsed.length
+  let current = 0
 
   for (const parsed of sortedParsed) {
     const previewRow = previewById.get(parsed.rowId)
-    if (!previewRow) continue
+    if (!previewRow) {
+      current++
+      onProgress?.(current, total)
+      continue
+    }
 
     const resolution = resolveAction(previewRow, resolutions)
     if (resolution === "skip") {
       result.skipped++
+      current++
+      onProgress?.(current, total)
       continue
     }
 
@@ -59,6 +71,9 @@ export async function applyTradeRepublicImport(tx: Tx, input: ApplyImportInput):
       result.errors.push(`Zeile ${parsed.lineNumber}: ${err instanceof Error ? err.message : "Unbekannter Fehler"}`)
       throw err
     }
+
+    current++
+    onProgress?.(current, total)
   }
 
   return result
