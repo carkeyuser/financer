@@ -7,7 +7,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 
-- **Auto-Deploy** — Self-hosted GitHub Actions runner and CI deploy job removed; production deploy is manual (`git pull`, `.\push -Deploy`, or `scripts/deploy.sh`)
+- **Auto-Deploy** — Self-hosted GitHub Actions runner and CI `deploy` job removed
+
+### Changed
+
+- **CI** — GitHub Actions runs test + build only on `ubuntu-latest` (no deploy step)
+- **Deploy** — Production updates are manual: `git pull && docker compose up -d --build`, `.\push -Deploy`, or `scripts/deploy.sh` on the LXC
+- **Docs** — Runner setup removed from `plan/setup.md`; manual deploy paths documented
 
 ## [0.0.2] - 2026-05-31
 
