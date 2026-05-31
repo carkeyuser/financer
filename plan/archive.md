@@ -42,6 +42,7 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | F-36b | Dashboard | **Login Portfolio-Snapshot:** Nach jedem Login ein Dialog mit kombiniertem unrealisiertem G/V (EUR + %) der eigenen Positionen, Gesamtwert, Link zum Portfolio. `sessionStorage`-Flag; API `GET /api/dashboard/summary?scope=mine`; kein Popup bei leerem Portfolio oder FX-Fehler; nicht bei pending 2FA-Setup. | ✅ erledigt 2026-05-31 |
 | F-37 | App | **Update-Dialog (What's New):** Nach Deploy einmalig Dialog mit kuratierten Release-Notes (de/en) aus `src/data/release-notes.ts`; Version-Vergleich via `localStorage`; Erstbesuch ohne Dialog; sequenziell vor Login-Snapshot; Settings zeigt Version + manuelles Öffnen. | ✅ erledigt 2026-05-31 |
 | F-38 | Investments | **Trade-Republic-CSV-Import (Wizard):** Offizieller TR-Transaktionsexport → 7-Schritte-Wizard (Intro, Upload, Übersicht, Konflikte, Ticker, Bestätigen, Ergebnis). Hard-Dedup via `importRef` (Order ID); Soft-Match gegen manuelle Buchungen; Konflikt-Aktionen skip/import/link/replace. API `preview` + `apply`; ISIN→Ticker via Yahoo; Zinsen → Interest-Asset. Migration `importRef` auf `AssetEntry` + `DividendPayment`. 5 Parser/Dedup-Tests + Fixture. | ✅ erledigt 2026-05-31 |
+| F-39 | Investments | **Positionen zusammenführen + Null-Filter:** Merge-Wizard mit ISIN-/Ticker-Vorschlägen und manueller Zuordnung; API `GET merge-suggestions`, `POST merge`, `POST merge/batch`; verschiebt Einträge + Dividenden; Filter „Leere ausblenden“ (default an); TR-Import ISIN-Lookup + Merge-CTA. | ✅ erledigt 2026-06-01 |
 | F-30 | DevOps | **GitHub-ready für Push:** `.gitignore` (Secrets, persönliche Deploy-Skripte, IDE-Config); IPs/Usernames anonymisiert; `push.example.ps1`/`pack.example.ps1`; MIT LICENSE; GitHub Actions CI; Initial Commit. | ✅ erledigt 2026-05-31 |
 
 ## Änderungen
@@ -103,5 +104,6 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | B-31 | TR-Import / UI | **Balken bei `current: 0` leer:** `computeWeightedProgress` zeigt 5 % Phasenanteil bei Start; Panel mindestens 1 % Anzeige. | ✅ behoben 2026-05-31 |
 | B-32 | TR-Import / Tests | **Fehlende Tests:** `tr-import-routes.test.ts` (Preview/Apply NDJSON); `isin-resolver.test.ts` (parallel + `onProgress`). | ✅ behoben 2026-05-31 |
 | B-33 | TR-Import / Wizard | **Krypto ohne ISIN:** Ticker-Step übersprungen (nicht in `tickerMappings`); Bestätigung zählte `needs_ticker` fälschlich als Import; Apply brach bei erster Fehlerzeile ab. | ✅ behoben 2026-05-31 |
+| B-34 | TR-Import / Parser | **Ungültige Menge oder Preis:** CSV mit `Amount`/`Betrag` ohne `Rate`/`Kurs`; Kurs wird aus Betrag÷Stück abgeleitet. | ✅ behoben 2026-05-31 |
 
 | B-09 | Investments | **G/V-Historie nach Verkäufen/Mengenkorrekturen falsch:** `getGainLossHistory()` nutzt jetzt eine chronologische Positions-Replay-Logik, die `SALE`, `QUANTITY_UPDATE` und `VWAP_UPDATE` in Menge und Kostenbasis berücksichtigt. | ✅ behoben 2026-05-27 |
