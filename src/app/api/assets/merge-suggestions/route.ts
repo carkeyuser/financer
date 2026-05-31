@@ -5,13 +5,13 @@ import { prisma } from "@/lib/prisma"
 import { buildMergeSuggestionGroups } from "@/lib/services/asset-merge-suggestions"
 import { getEurRate } from "@/lib/utils/currency"
 import { createNdjsonResponse } from "@/lib/utils/ndjson-stream"
-import { mergeSuggestionsCompleteSchema, type MergeScanProgressEvent } from "@/lib/validations/asset-merge"
+import { mergeSuggestionsCompleteSchema, type MergeScanPhase, type MergeScanProgressEvent } from "@/lib/validations/asset-merge"
 
 async function loadMergeSuggestions(
   householdId: string,
   filterUserId: string | undefined,
   trAccount: string | undefined,
-  onProgress?: (phase: MergeScanProgressEvent["phase"], current: number, total: number) => void
+  onProgress?: (phase: MergeScanPhase, current: number, total: number) => void
 ) {
   onProgress?.("load_assets", 0, 1)
   const assets = await prisma.asset.findMany({
