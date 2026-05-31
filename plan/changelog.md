@@ -4,6 +4,9 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **F-36 Erweiterung:** `User.provisionedByUserId` — Owner sieht angelegte Tenant-User unter „Angelegte Benutzer (eigene Haushalte)"; Bearbeiten/2FA über provisioned-Check |
+| 2026-05-31 | **F-36 Tenant-Provisioning (Hybrid):** `POST /api/admin/users` mit `tenancy: household|tenant`; neuer Haushalt + OWNER + Fixkosten; UI auf `/household`; `default-fixed-costs.ts`; 4 Schema-Tests |
+| 2026-05-31 | **README:** An Stand v0.0.7 angepasst — Dividenden, Simulationen, 11 Widgets, 114 Tests, Backup-Inhalt, Marktkalender/`MARKET_CALENDAR_EXTERNAL`, offenes Backlog |
 | 2026-05-31 | **Deploy:** `docker-compose.prod.yml` + CI GHCR-Push; `scripts/deploy.sh` nutzt Pull statt Build; Dockerfile ohne `next-env.d.ts` (gitignored) |
 | 2026-05-31 | **CI:** GitHub Actions Job `docker` — baut und pusht `ghcr.io/carkeyuser/financer` (`latest`, Package-Version, Git-Tag, SHA) nach grünem Build auf `main`/Tags; `docker-compose.prod.yml` für Pull-Deploy |
 | 2026-05-31 | **Release v0.0.7** — Release-Notes im Update-Dialog ein-/ausklappbar (nur neueste Version offen) |

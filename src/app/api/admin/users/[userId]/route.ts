@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { requireHouseholdAdmin } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
+import { assertOwnerCanManageUser } from "@/lib/provisioned-users"
 import { editUserSchema } from "@/lib/validations/household"
 
 export async function PATCH(
@@ -14,14 +15,14 @@ export async function PATCH(
     return NextResponse.json({ error: admin.error }, { status: admin.status })
   }
 
-  const targetMember = await prisma.householdMember.findUnique({
-    where: { userId_householdId: { userId, householdId: admin.householdId } },
-  })
-  if (!targetMember) {
-    return NextResponse.json({ error: "Benutzer nicht gefunden" }, { status: 404 })
-  }
-  if (targetMember.role === "OWNER") {
-    return NextResponse.json({ error: "Der Eigentümer kann nicht bearbeitet werden" }, { status: 403 })
+  const access = await assertOwnerCanManageUser(
+    admin.userId,
+    admin.householdId,
+    admin.membership.role,
+    userId
+  )
+  if (!access.ok) {
+    return NextResponse.json({ error: access.error }, { status: access.status })
   }
 
   const body = await request.json()

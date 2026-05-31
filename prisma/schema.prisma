@@ -59,9 +59,12 @@ model User {
   twoFactorEnabled Boolean   @default(false)
   locale           String    @default("de")
   role             Role      @default(MEMBER)
+  provisionedByUserId String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  provisionedBy            User?  @relation("ProvisionedUsers", fields: [provisionedByUserId], references: [id], onDelete: SetNull)
+  provisionedUsers         User[] @relation("ProvisionedUsers")
   accounts                 Account[]
   sessions                 Session[]
   householdMemberships     HouseholdMember[]

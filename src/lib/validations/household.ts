@@ -21,15 +21,27 @@ export const updateMemberRoleSchema = z.object({
 
 export function buildCreateUserSchema(locale: Locale) {
   const t = createTranslator(locale)
-  return z.object({
-    name: z.string().min(1, t("validation.nameRequiredField")).max(50),
-    username: z
-      .string()
-      .min(3, t("validation.min3Chars"))
-      .max(30, t("validation.max30Chars"))
-      .regex(/^[a-zA-Z0-9_-]+$/, t("validation.usernameChars30")),
-    password: z.string().min(8, t("validation.min8Chars")),
-  })
+  return z
+    .object({
+      name: z.string().min(1, t("validation.nameRequiredField")).max(50),
+      username: z
+        .string()
+        .min(3, t("validation.min3Chars"))
+        .max(30, t("validation.max30Chars"))
+        .regex(/^[a-zA-Z0-9_-]+$/, t("validation.usernameChars30")),
+      password: z.string().min(8, t("validation.min8Chars")),
+      tenancy: z.enum(["household", "tenant"]).default("household"),
+      householdName: z.string().min(1, t("validation.nameRequiredField")).max(50).optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.tenancy === "tenant" && data.householdName?.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          message: t("validation.nameRequiredField"),
+          path: ["householdName"],
+        })
+      }
+    })
 }
 
 export function buildEditUserSchema(locale: Locale) {
