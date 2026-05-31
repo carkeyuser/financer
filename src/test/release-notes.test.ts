@@ -47,8 +47,9 @@ describe("getReleaseNotesForVersion", () => {
 
 describe("getReleaseNotesUpTo", () => {
   it("includes current and older releases", () => {
-    const notes = getReleaseNotesUpTo("0.0.6")
+    const notes = getReleaseNotesUpTo("0.0.7")
     expect(notes.map((entry) => entry.version)).toEqual([
+      "0.0.7",
       "0.0.6",
       "0.0.5",
       "0.0.4",
