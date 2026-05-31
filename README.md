@@ -283,7 +283,7 @@ cd /opt/financer
 docker compose up -d --build
 ```
 
-Beim Start führt der Container automatisch `npx prisma db push` aus — das aktuelle Schema wird direkt auf die Datenbank angewendet (idempotent).
+Beim Start führt `docker-entrypoint.sh` automatisch `prisma db push` aus — das aktuelle Schema wird direkt auf die Datenbank angewendet (idempotent). Im Image liegt nur die Prisma-CLI (kein volles `node_modules` aus dem Builder).
 
 > **Hinweis:** Production nutzt `db push`, weil die DB ursprünglich ohne Migrationshistorie aufgebaut wurde. Lokal werden die Migrationen aus `prisma/migrations/` per `npx prisma migrate deploy` angewendet.
 
@@ -333,7 +333,7 @@ Dieser erste Account wird automatisch **Owner** des Haushalts. Weitere Benutzer 
 **Optional: Demo-Daten laden**
 
 ```bash
-docker compose exec app npx prisma db seed
+docker compose exec app ./node_modules/.bin/prisma db seed   # Seed braucht tsx — bei Fehler lokal mit DATABASE_URL seeden
 ```
 
 Legt Demo-Benutzer + Standard-Fixkosten an (Miete, Versicherung, Auto, etc.).
@@ -404,11 +404,11 @@ docker compose exec db psql -U financeuser -d finance
 
 # Prisma Studio (GUI, via SSH-Tunnel)
 ssh -L 5555:localhost:5555 root@YOUR_SERVER \
-  "cd /opt/financer && docker compose exec app npx prisma studio"
+  "cd /opt/financer && docker compose exec app ./node_modules/.bin/prisma studio"
 # Dann im Browser: http://localhost:5555
 
 # Schema-Status
-docker compose exec app npx prisma db push --dry-run
+docker compose exec app ./node_modules/.bin/prisma db push --dry-run
 ```
 
 **Ressourcen:**
@@ -544,7 +544,7 @@ npx prisma generate
 npx prisma migrate deploy
 
 # Server (automatisch beim Start, manuell falls nötig)
-docker compose exec app npx prisma db push
+docker compose exec app ./node_modules/.bin/prisma db push
 docker compose restart app
 ```
 

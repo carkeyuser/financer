@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.codegraph
+coverage
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+push.ps1
+.cursor
+agent-transcripts
+**/*.test.ts
+**/*.test.tsx
+vitest.config.ts
