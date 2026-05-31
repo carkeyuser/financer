@@ -122,6 +122,8 @@ export const deMessages = {
     twoFactorSetupFailed: "Setup fehlgeschlagen",
     twoFactorLoadFailed: "Fehler beim Laden",
     pageDescription: "Profil und Passwort verwalten",
+    appVersion: "App-Version {version}",
+    releaseNotes: "Release-Notes",
   },
   backup: {
     title: "Datensicherung",
@@ -174,6 +176,12 @@ export const deMessages = {
     gainLossLabel: "Gewinn / Verlust (unrealisiert)",
     portfolioValue: "Gesamtwert",
     goToPortfolio: "Zum Portfolio",
+  },
+  updateNotes: {
+    title: "Neu in v{version}",
+    description: "Das Financer-Update bringt folgende Änderungen:",
+    versionLabel: "Version {version}",
+    allReleases: "Alle Releases",
   },
   widgets: {
     kpiCards: "Portfolio KPIs",

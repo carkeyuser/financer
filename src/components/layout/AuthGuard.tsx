@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { PortfolioPriceRefresh } from "@/components/investments/PortfolioPriceRefresh"
-import { LoginSnapshotDialog } from "@/components/dashboard/LoginSnapshotDialog"
+import { AuthenticatedDialogs } from "./AuthenticatedDialogs"
 import { Sidebar } from "./Sidebar"
 import { ThemeToggle } from "./ThemeToggle"
 import { MobileTopBar } from "./MobileTopBar"
@@ -42,8 +41,7 @@ export async function AuthGuard({
 
   return (
     <div className="min-h-screen md:flex">
-      <PortfolioPriceRefresh />
-      <LoginSnapshotDialog />
+      <AuthenticatedDialogs />
       <Sidebar householdName={householdName} />
       <div className="flex-1 flex flex-col">
         <MobileTopBar householdName={householdName} />

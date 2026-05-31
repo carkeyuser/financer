@@ -18,6 +18,8 @@ import {
 import { useHousehold } from "@/hooks/useHousehold"
 import { BackupCard } from "./BackupCard"
 import { LanguageCard } from "./LanguageCard"
+import { UpdateNotesDialog } from "@/components/layout/UpdateNotesDialog"
+import { APP_VERSION } from "@/lib/constants/app-version"
 import { useI18n } from "@/i18n/context"
 import { translateApiError } from "@/i18n/api-errors"
 import { getMessages } from "@/i18n/messages"
@@ -273,6 +275,7 @@ export function SettingsContent() {
   const { locale, t } = useI18n()
   const [profilePending, setProfilePending] = useState(false)
   const [passwordPending, setPasswordPending] = useState(false)
+  const [releaseNotesOpen, setReleaseNotesOpen] = useState(false)
 
   const profileSchema = useMemo(() => createProfileSchema(locale), [locale])
   const passwordSchema = useMemo(() => createPasswordSchema(locale), [locale])
@@ -439,6 +442,15 @@ export function SettingsContent() {
       <BackupCard />
 
       <Separator />
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{t("settings.appVersion", { version: APP_VERSION })}</p>
+        <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => setReleaseNotesOpen(true)}>
+          {t("settings.releaseNotes")}
+        </Button>
+      </div>
+
+      <UpdateNotesDialog manualOpen={releaseNotesOpen} onManualOpenChange={setReleaseNotesOpen} />
 
       <p className="text-xs text-muted-foreground">{t("household.accountDeleteHint")}</p>
     </div>
