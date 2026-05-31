@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.2** — Update-Dialog, Auto-Deploy, README-Vorschau |
+| 2026-05-31 | **Docs:** README-Vorschau — Dashboard-Screenshots (Light/Dark) unter `docs/screenshots/` |
 | 2026-05-31 | **F-37 Update-Dialog:** Nach App-Update einmalig Dialog mit kuratierten Release-Notes (de/en); Version aus `package.json` via `next.config.ts`; `localStorage` für gesehene Version; Erstbesuch stumm; Login-Snapshot wartet auf Schließen; manuelles Öffnen in Settings |
 | 2026-05-31 | **Deploy:** Auto-Deploy via Self-hosted GitHub Actions Runner + `scripts/deploy.sh` (nach grünem CI auf `main`) |
 | 2026-05-31 | **Deploy:** `docker-compose.yml` — `pull_policy: build` für `app`, damit Compose `finance-app:latest` nicht von Docker Hub pullt |
