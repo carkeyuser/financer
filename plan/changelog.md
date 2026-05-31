@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **CI:** Docker-Job nur bei Tags `v*` (~4 min Release-CI); `main`/PR nur build/test (~1 min); Concurrency pro Commit; GHA-Cache für Docker-Build |
 | 2026-05-31 | **Release v0.0.8** — Trade-Republic-CSV-Import (F-38), Ticker-Abgleich, 126 Tests |
 | 2026-05-31 | **F-38 Ticker-Abgleich:** Import-Wizard zeigt alle ISINs; Portfolio-Ticker vor Yahoo; manuelle Zuweisung bei unbekannten ISINs; Konflikt-Hinweis bei abweichenden Tickern |
 | 2026-05-31 | **F-38 Trade-Republic-Import:** 7-Schritte-Wizard, CSV-Parser, Hard/Soft-Dedup (`importRef`), Preview/Apply-API, ISIN→Ticker, Konflikt-Aktionen; Migration; Backup; 5 Tests; i18n de/en |
