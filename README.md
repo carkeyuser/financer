@@ -12,12 +12,15 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 
 | Bereich | Inhalt |
 |---|---|
-| **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven |
-| **Haushaltskasse** | Fixkosten, Monatseinkommen, Auszahlungslogik mit Quartals-Bonus |
-| **Dashboard** | Frei konfigurierbares Widget-Grid (Drag & Drop, 10 Widgets) |
-| **Multi-User** | Haushalte, Rollen, Einladungen, Benutzer direkt anlegen |
-| **Sicherheit** | Username + Passwort, optional 2FA (TOTP), JSON-Backup/Restore |
+| **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven, Auto-Refresh (2h) |
+| **Dividenden** | Manuelle Dividenden-Buchungen auf Positionen, Jahres-KPIs, Monats-Chart |
+| **Haushaltskasse** | Fixkosten, Monatseinkommen, Auszahlungslogik mit Quartals-Bonus; **Simulationen** (Was-wäre-wenn-Szenarien) |
+| **Dashboard** | Frei konfigurierbares Widget-Grid (Drag & Drop, **11 Widgets**) |
+| **Multi-User** | Haushalte, Rollen, Einladungen, Benutzer direkt anlegen, 2FA (TOTP) |
+| **Sicherheit** | Username + Passwort, JSON-Backup/Restore (inkl. Dividenden & Simulationen) |
 | **Sprache** | Deutsch / Englisch (pro User in Einstellungen) |
+
+**Release:** v0.0.7 · Kein Ausgaben-/Budget-Modul (entfernt — passt nicht zum Nutzungsmodell).
 
 **Tech-Stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
 **Deployment:** Docker Compose auf Proxmox LXC (Debian 12)  
@@ -51,9 +54,10 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 ### Dashboard (`/dashboard`)
 
 - Konfigurierbares Widget-Grid mit Drag & Drop und Resize
-- **10 Widgets:** Portfolio-KPIs, Wert-Verlauf, Allokation, Positionen-Tabelle, Uhr, Marktkalender, Top/Flop, Haushalts-Übersicht, Währungsexposure, Vermögen
-- Layout pro User in der DB gespeichert; Widget-Manager zum An-/Abschalten
+- **11 Widgets:** Portfolio-KPIs, Wert-Verlauf, Allokation, Positionen-Tabelle, Uhr, Marktkalender (Nasdaq), Top/Flop, Haushalts-Übersicht, Währungsexposure, Vermögen, Dividenden-KPIs
+- Layout pro User in der DB gespeichert (Speichern nach Drag/Resize); Widget-Manager zum An-/Abschalten
 - Auto-Sort-Button ordnet Widgets lückenlos an
+- Marktkalender: primär US-Ticker ohne Suffix; ohne Outbound-HTTPS → `MARKET_CALENDAR_EXTERNAL=false` (siehe [Bekannte Einschränkungen](#14-bekannte-einschränkungen))
 
 ### Investments (`/investments`)
 
@@ -63,8 +67,14 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 - Inline-Korrekturen auf der Detailseite: Kurs, Menge, Ø-Kaufpreis
 - 4 umschaltbare Charts: Allokation (Torte), Wert-Verlauf, G/V-Verlauf, G/V pro Position
 - Historische Yahoo-Kurse in Charts (ab erstem Kaufdatum)
-- Alle Werte in EUR (Wechselkurse via Yahoo Forex)
+- Alle Werte in EUR (Wechselkurse via Yahoo Forex; FX-Fehler → API 503, keine falschen EUR-Werte)
 - Card-/Listen-Ansicht, Sortierung (Depot/Besitzer/Wert), Drag & Drop für Reihenfolge
+- Auto-Refresh der Kurse alle 2h (`PortfolioPriceRefresh` in `AuthGuard`)
+
+### Dividenden (`/dividenden`)
+
+- Manuelle Dividenden-Zahlungen auf bestehende Positionen (kein Yahoo-Import)
+- Jahres-KPIs und Monats-Chart, Positionsübersicht
 
 ### Haushaltskasse (`/haushaltskasse`)
 
@@ -72,11 +82,13 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 - Monatliche Einnahmen und Auszahlungen pro User
 - Fixkosten-Snapshot: beim ersten Einkommenseintrag eines Monats eingefroren
 - Quartals-Bonus aus Überschüssen (Theoretisch − Tatsächlich über 3 Monate)
+- **Simulation** (`/haushaltskasse/simulation`): gespeicherte Szenarien mit frei wählbarem Zeitraum — überschreibt keine echten Monatsdaten
 
 ### Benutzer & Haushalt (`/household`)
 
 - Mitgliederliste mit Rollen (Owner, Admin, Member)
-- User direkt anlegen (Owner) oder per Einladungslink (7-Tage-Token)
+- User direkt anlegen (Owner): **Mitglied dieses Haushalts** oder **eigener Haushalt (Tenant)** — Tenant-User erscheinen nicht in der Mitgliederliste und sind datentechnisch isoliert
+- Einladungslink (7-Tage-Token) für den aktiven Haushalt
 - Haushalts-Switcher in der Sidebar
 - Admin: andere User bearbeiten (Name, Username, Passwort zurücksetzen)
 - 2FA für User per Admin-Toggle aktivierbar
@@ -260,6 +272,9 @@ NEXTAUTH_SECRET=<langer_zufaelliger_schluessel>
 
 # URL unter der die App erreichbar ist
 NEXTAUTH_URL=http://YOUR_SERVER:3000
+
+# Optional: ohne Outbound-HTTPS zu api.nasdaq.com (gesperrter LXC)
+# MARKET_CALENDAR_EXTERNAL=false
 ```
 
 > `.env` **nie committen** — sie enthält Secrets. Die Datei bleibt ausschließlich auf dem Server.
@@ -367,8 +382,8 @@ Unter **Einstellungen → Datensicherung**.
 
 **Export** (alle Haushaltsmitglieder):
 - Button „Backup erstellen" → JSON-Datei `financer-backup-YYYY-MM-DD.json`
-- Enthält: Fixkosten, Monatseinkommen, Auszahlungen, Snapshots, alle Wertpapiere + Kaufhistorie
-- Enthält nicht: Passwörter, Sessions, Auth-Tokens, 2FA-Secrets, Widget-Layouts
+- Enthält: Fixkosten, Monatseinkommen, Auszahlungen, Snapshots, Wertpapiere + Kaufhistorie, **Dividenden**, **Haushaltskassen-Simulationen**
+- Enthält nicht: Passwörter, Sessions, Auth-Tokens, 2FA-Secrets, Dashboard-Widget-Layouts
 
 **Restore** (nur Owner/Admin):
 - JSON-Datei auswählen → Bestätigungsdialog
@@ -491,20 +506,27 @@ Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. 
 
 ## 12. Tests
 
-59 Unit-Tests mit Vitest + Testing Library:
+**118 Unit-Tests** in 10 Dateien (Vitest + Testing Library), alle grün:
 
 ```bash
 npm run test          # einmalig
 npm run test:watch    # Watch-Modus
 ```
 
-| Datei | Inhalt |
+| Datei | Fokus |
 |---|---|
-| `calculations.test.ts` | VWAP, G/V, Portfolio-Historie, QUANTITY_UPDATE, VWAP_UPDATE |
-| `validations.test.ts` | Zod-Schemas (Auth, Assets, Entries) |
+| `calculations.test.ts` | VWAP, G/V, Portfolio-/G/V-Historie (inkl. QUANTITY_UPDATE, VWAP_UPDATE) |
+| `validations.test.ts` | Zod-Schemas (Auth, Assets, Backup, Simulation, …) |
 | `i18n.test.ts` | Formatierung, API-Fehler-Übersetzung |
+| `dividends.test.ts` | Manuelle Dividenden, KPIs |
+| `household-finance.test.ts` | Monatsbereiche, Quartalsbonus, Simulation |
+| `security-price.test.ts` | `resolveStoredPrice` (EUR vs. Fremdwährung) |
+| `nasdaq-calendar.test.ts` | Symbol-Filter, `MARKET_CALENDAR_EXTERNAL` |
+| `currency.test.ts` | `getEurRate` |
+| `release-notes.test.ts` | Versionsvergleich, Update-Dialog |
+| `interest-asset.test.ts` | Zins-/Tagesgeld-Positionen |
 
-Nur Unit-Tests (Vitest) — keine E2E- oder Browser-Tests geplant.
+Nur Unit-Tests — keine E2E- oder API-Integration-Tests.
 
 ---
 
@@ -553,6 +575,21 @@ EUR-Assets speichern den EUR-Kurs, USD-Assets den Nativkurs. Die UI rechnet alle
 
 Layout wird in der DB pro User gespeichert. Nach Drag/Resize wird automatisch gespeichert. Bei Problemen: Browser-Cache leeren, Seite neu laden (F5).
 
+### App hängt / Marktkalender-Timeouts
+
+Logs mit vielen `api.nasdaq.com`-Fehlern oder `failed to pipe response`: Marktkalender-Widget blockiert den Server.
+
+```env
+# In Server-.env, dann Container neu starten
+MARKET_CALENDAR_EXTERNAL=false
+```
+
+Alternativ: Marktkalender-Widget im Dashboard deaktivieren.
+
+### Keine Live-Kurse
+
+Yahoo (`query1.finance.yahoo.com`) muss vom Container erreichbar sein. Sonst Kurse manuell per Inline-Edit oder Refresh-Button setzen.
+
 ### Prisma-Fehler nach Schema-Änderung
 
 ```bash
@@ -571,11 +608,15 @@ docker compose restart app
 
 | Thema | Details |
 |---|---|
-| WKN-Suche | Deutsche WKN-Nummern werden von Yahoo Finance nicht unterstützt |
-| Keine Bank-APIs | Alle Daten werden manuell eingegeben |
-| Mobile | App ist primär für Desktop optimiert; responsive Anpassung offen |
-| EUR-Historie | Historische Charts nutzen den aktuellen EUR-Kurs als Näherung |
-| Widget-Layouts | Nicht im JSON-Backup enthalten |
+| **WKN-Suche** | Deutsche WKN werden von Yahoo nicht unterstützt — Ticker (`EUNL.DE`), Name oder ISIN nutzen |
+| **Keine Bank-APIs** | Alle Daten manuell; Dividenden nur über `/dividenden` |
+| **Outbound HTTPS** | Yahoo (Kurse) und Nasdaq (Marktkalender) brauchen Erreichbarkeit vom Container/LXC |
+| **Marktkalender** | Nasdaq: primär US-Symbole ohne Suffix (`.DE`, Krypto, Forex ignoriert). Ohne Zugang: `MARKET_CALENDAR_EXTERNAL=false` |
+| **EUR-Historie** | Historische Charts nutzen den aktuellen EUR-Kurs als Näherung |
+| **Widget-Layouts** | Nicht im JSON-Backup enthalten |
+| **Lint (Dev)** | `npm run lint` (`next lint`) unter Next.js 16 derzeit kaputt — siehe Backlog Ä-10 in `plan/aenderungen.md` |
+
+**Offenes Backlog** (Details in `plan/features.md`): One-Click-Install (F-31), Marktkalender DE/ETF (F-34).
 
 ---
 

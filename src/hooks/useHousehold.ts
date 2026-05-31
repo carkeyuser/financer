@@ -16,10 +16,22 @@ export interface HouseholdMember {
   twoFactorConfigured: boolean
 }
 
+export interface ProvisionedUser {
+  userId: string
+  name: string | null
+  username: string
+  householdId: string | null
+  householdName: string | null
+  role: HouseholdRole | null
+  createdAt: string
+  twoFactorEnabled: boolean
+}
+
 export interface HouseholdInfo {
   household: { id: string; name: string; currency: string } | null
   myRole: HouseholdRole | null
   members: HouseholdMember[]
+  provisionedUsers: ProvisionedUser[]
   households: { id: string; name: string; currency: string; role: HouseholdRole }[]
   pendingInvites: { id: string; expiresAt: string; createdAt: string }[]
 }
@@ -65,7 +77,12 @@ export function useCreateUser() {
         const err = await res.json()
         throw err
       }
-      return res.json() as Promise<{ id: string; username: string }>
+      return res.json() as Promise<{
+        id: string
+        username: string
+        tenancy: "household" | "tenant"
+        householdId?: string
+      }>
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["household"] }),
   })

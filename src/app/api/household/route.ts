@@ -31,6 +31,7 @@ export async function GET() {
         role: m.role,
       })),
       pendingInvites: [],
+      provisionedUsers: [],
     })
   }
 
@@ -39,7 +40,7 @@ export async function GET() {
     return NextResponse.json({ error: "Kein Zugriff auf diesen Haushalt" }, { status: 403 })
   }
 
-  const [household, members, pendingInvites] = await Promise.all([
+  const [household, members, pendingInvites, provisionedUsers] = await Promise.all([
     prisma.household.findUnique({
       where: { id: householdId },
       select: { id: true, name: true, currency: true },
@@ -56,6 +57,22 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       select: { id: true, email: true, token: true, expiresAt: true, createdAt: true },
     }),
+    myMembership.role === "OWNER"
+      ? prisma.user.findMany({
+          where: {
+            provisionedByUserId: userId,
+            NOT: { householdMemberships: { some: { householdId } } },
+          },
+          include: {
+            householdMemberships: {
+              include: { household: { select: { id: true, name: true } } },
+              orderBy: { joinedAt: "asc" },
+              take: 1,
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        })
+      : Promise.resolve([]),
   ])
 
   return NextResponse.json({
@@ -86,6 +103,19 @@ export async function GET() {
       expiresAt: i.expiresAt.toISOString(),
       createdAt: i.createdAt.toISOString(),
     })),
+    provisionedUsers: provisionedUsers.map((u) => {
+      const membership = u.householdMemberships[0]
+      return {
+        userId: u.id,
+        name: u.name,
+        username: u.username,
+        householdId: membership?.household.id ?? null,
+        householdName: membership?.household.name ?? null,
+        role: membership?.role ?? null,
+        createdAt: u.createdAt.toISOString(),
+        twoFactorEnabled: u.twoFactorEnabled,
+      }
+    }),
   })
 }
 

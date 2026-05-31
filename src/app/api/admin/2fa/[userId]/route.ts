@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireHouseholdAdmin } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
+import { assertOwnerCanManageUser } from "@/lib/provisioned-users"
 import { z } from "zod"
 
 const schema = z.object({ enabled: z.boolean() })
@@ -25,12 +26,14 @@ export async function PATCH(
     return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 })
   }
 
-  // Verify target is a member of this household
-  const membership = await prisma.householdMember.findUnique({
-    where: { userId_householdId: { userId, householdId } },
-  })
-  if (!membership) {
-    return NextResponse.json({ error: "Mitglied nicht gefunden" }, { status: 404 })
+  const access = await assertOwnerCanManageUser(
+    admin.userId,
+    householdId,
+    admin.membership.role,
+    userId
+  )
+  if (!access.ok) {
+    return NextResponse.json({ error: access.error }, { status: access.status })
   }
 
   if (parsed.data.enabled) {
