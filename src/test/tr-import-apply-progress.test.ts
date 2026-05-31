@@ -124,8 +124,53 @@ describe("applyTradeRepublicImport progress", () => {
 
     expect(result.errors).toHaveLength(1)
     expect(result.errors[0]).toContain("Ungültige Menge oder Preis")
+    expect(result.errors[0]).toContain("Menge 0")
     expect(result.skipped).toBe(1)
     expect(result.created).toBe(1)
+    expect(assetEntryCreate).toHaveBeenCalledTimes(1)
+  })
+
+  it("skips import_new when resolution is skip", async () => {
+    const parsedRows = [
+      baseParsed({ rowId: "skip-row", lineNumber: 1 }),
+      baseParsed({ rowId: "good-row", lineNumber: 2 }),
+    ]
+    const previewRows = [
+      basePreviewRow({
+        rowId: "skip-row",
+        suggestedTicker: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" },
+      }),
+      basePreviewRow({
+        rowId: "good-row",
+        suggestedTicker: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" },
+      }),
+    ]
+
+    const preview: TrImportPreviewCacheEntry = {
+      previewId: "p1",
+      householdId: "hh1",
+      userId: "u1",
+      targetUserId: "u1",
+      account: "Trade Republic",
+      parsedRows,
+      previewRows,
+      createdAt: Date.now(),
+    }
+
+    const assetEntryCreate = vi.fn().mockResolvedValue({ id: "entry-1" })
+    const tx = {
+      asset: { findFirst: vi.fn().mockResolvedValue(null), findUnique: vi.fn().mockResolvedValue({ id: "asset-1" }), create: vi.fn(), update: vi.fn() },
+      assetEntry: { create: assetEntryCreate, findUnique: vi.fn(), delete: vi.fn(), update: vi.fn() },
+    } as unknown as Parameters<typeof applyTradeRepublicImport>[0]
+
+    const result = await applyTradeRepublicImport(tx, {
+      preview,
+      resolutions: { "skip-row": "skip" },
+      tickerOverrides: { IE00BK5BQT8V: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" } },
+    })
+
+    expect(result.created).toBe(1)
+    expect(result.skipped).toBe(1)
     expect(assetEntryCreate).toHaveBeenCalledTimes(1)
   })
 

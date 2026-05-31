@@ -4,6 +4,7 @@ import type { TrImportEventType, TrParsedRow } from "@/lib/services/tr-import-ty
 const HEADER_ALIASES: Record<string, string[]> = {
   date: ["date", "datum", "timestamp"],
   time: ["time", "zeit", "uhrzeit"],
+  status: ["status", "state"],
   product: ["product", "produkt", "name"],
   isin: ["isin", "instrument isin", "instrument", "wkn"],
   type: ["type", "typ", "transaction type", "transaktionstyp", "transaction", "transaktion"],
@@ -61,6 +62,9 @@ export function parseTradeRepublicCsv(content: string): TrParsedRow[] {
     const dateRaw = get("date")
     const date = parseDate(dateRaw, get("time"))
     if (!date) continue
+
+    const status = get("status").toLowerCase()
+    if (status && status !== "executed" && status !== "ausgeführt") continue
 
     let product = get("product") || "Unknown"
     let isin = normalizeIsin(get("isin"))
@@ -223,12 +227,15 @@ function findIsinInCells(cells: string[]): string | null {
 
 function parseTotalEur(get: (key: keyof typeof HEADER_ALIASES) => string): number | null {
   const direct = parseNumber(get("totalEur"))
-  if (direct !== null && direct !== 0) return direct
+  if (direct !== null && direct !== 0) return Math.abs(direct)
   const debit = parseNumber(get("debit"))
-  if (debit !== null && debit !== 0) return debit
   const credit = parseNumber(get("credit"))
-  if (credit !== null && credit !== 0) return credit
-  return direct
+  const absDebit = debit !== null && debit !== 0 ? Math.abs(debit) : null
+  const absCredit = credit !== null && credit !== 0 ? Math.abs(credit) : null
+  if (absDebit !== null && absCredit !== null) return Math.max(absDebit, absCredit)
+  if (absDebit !== null) return absDebit
+  if (absCredit !== null) return absCredit
+  return direct !== null ? Math.abs(direct) : null
 }
 
 function classifyEvent(
@@ -307,6 +314,27 @@ export function resolveTradeQuantityPrice(parsed: {
     qty: normalized.quantity ?? 0,
     price: normalized.price ?? 0,
   }
+}
+
+export function formatInvalidTradeError(parsed: {
+  rawType: string
+  product: string
+  isin: string | null
+  quantity: number | null
+  price: number | null
+  totalEur: number | null
+}): string {
+  const details = [
+    parsed.rawType,
+    parsed.product,
+    parsed.isin ? `ISIN ${parsed.isin}` : null,
+    `Menge ${parsed.quantity ?? "—"}`,
+    `Kurs ${parsed.price ?? "—"}`,
+    `Betrag ${parsed.totalEur ?? "—"}`,
+  ]
+    .filter(Boolean)
+    .join(" · ")
+  return `Ungültige Menge oder Preis (${details})`
 }
 
 export function buildImportRef(

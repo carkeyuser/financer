@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-01 | **TR-Import Auswahl:** Neuer Auswahl-Schritt mit Checkboxen, Schnellauswahl (Alle/Keine/Nur neue/Nur mit Match/Nur mit Betrag), Sortierung nach Betrag (0 € unten); `import_new` per Resolution überspringbar |
+| 2026-06-01 | **TR-Import:** Fehlermeldung bei ungültiger Menge/Kurs zeigt Typ, Produkt, ISIN und Werte; nicht-`executed`-Zeilen werden übersprungen; Betrag aus max(Debit, Credit) wenn beide gesetzt |
 | 2026-06-01 | **Release v0.0.9** — Positionen zusammenführen (F-39), Depot leeren vor TR-Import, Merge-Wizard UX |
 | 2026-06-01 | **TR-Import:** Depot leeren — API `DELETE /api/investments/accounts`, Button + Checkbox „vor Import leeren“ im Import-Wizard; löscht alle Positionen eines Depot-Namens inkl. Buchungen/Dividenden (Interest ausgenommen) |
 | 2026-06-01 | **CI-Fix:** Doppelimport `useHousehold` entfernt; `MergeScanPhase`-Typ für TS-Build |
