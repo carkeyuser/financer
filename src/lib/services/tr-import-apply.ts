@@ -46,6 +46,7 @@ export async function applyTradeRepublicImport(tx: Tx, input: ApplyImportInput):
       const tickerInfo = resolveTicker(parsed, previewRow, tickerOverrides)
       if (!tickerInfo) {
         result.errors.push(`Zeile ${parsed.lineNumber}: Ticker fehlt für ${parsed.isin ?? parsed.product}`)
+        result.skipped++
         continue
       }
 
