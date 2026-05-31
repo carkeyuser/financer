@@ -49,7 +49,9 @@ export function createNdjsonResponse(
 ): Promise<Response> {
   return new Promise((resolve) => {
     let settled = false
-    let streamController: ReadableStreamDefaultController<Uint8Array> | null = null
+    const streamRef: { controller: ReadableStreamDefaultController<Uint8Array> | null } = {
+      controller: null,
+    }
     const encoder = new TextEncoder()
     let streamStarted = false
 
@@ -67,9 +69,9 @@ export function createNdjsonResponse(
           return
         }
         streamStarted = true
-        const stream = new ReadableStream({
+        const stream = new ReadableStream<Uint8Array>({
           start(controller) {
-            streamController = controller
+            streamRef.controller = controller
             controller.enqueue(line)
           },
         })
@@ -83,7 +85,7 @@ export function createNdjsonResponse(
         )
         return
       }
-      streamController?.enqueue(line)
+      streamRef.controller?.enqueue(line)
     }
 
     void (async () => {
@@ -100,7 +102,7 @@ export function createNdjsonResponse(
           emit({ type: "error", error: message })
         }
       } finally {
-        streamController?.close()
+        streamRef.controller?.close()
       }
     })()
   })
