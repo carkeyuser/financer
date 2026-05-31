@@ -24,7 +24,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }
 
-  const { name, username, password, tenancy, householdName } = parsed.data
+  const { name, username, password, householdName } = parsed.data
+  const tenancy = parsed.data.tenancy ?? "household"
 
   const existing = await prisma.user.findUnique({ where: { username } })
   if (existing) {
