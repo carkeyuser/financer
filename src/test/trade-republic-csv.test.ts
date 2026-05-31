@@ -52,6 +52,42 @@ describe("parseTradeRepublicCsv", () => {
     expect(sale?.eventType).toBe("sale")
     expect(sale?.isin).toBe("IE00BK5BQT8V")
   })
+
+  it("parses full portfolio-downloader sample without invalid trade qty/price", () => {
+    const content = readFileSync(join(__dirname, "fixtures", "tr-export-portfolio-downloader-full.csv"), "utf-8")
+    const rows = parseTradeRepublicCsv(content)
+    const badTrades = rows.filter((r) => {
+      if (r.eventType !== "purchase" && r.eventType !== "sale") return false
+      const qty = r.quantity ?? 0
+      const price = r.price ?? (r.totalEur && qty ? r.totalEur / qty : 0)
+      return qty <= 0 || price <= 0
+    })
+    expect(badTrades).toEqual([])
+  })
+
+  it("derives price from Amount column when Rate is missing", () => {
+    const csv = [
+      "Timestamp,Type,Name,Instrument,Shares,Amount",
+      "15 Jan 24 10:30 +0000,Purchase,Vanguard FTSE,IE00BK5BQT8V,5,427.50",
+    ].join("\n")
+    const rows = parseTradeRepublicCsv(csv)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].eventType).toBe("purchase")
+    expect(rows[0].quantity).toBe(5)
+    expect(rows[0].totalEur).toBe(427.5)
+    expect(rows[0].price).toBeCloseTo(85.5)
+  })
+
+  it("derives quantity from Amount and Rate when Shares is missing", () => {
+    const csv = [
+      "Date;Type;Name;ISIN;Kurs;Betrag",
+      "2024-01-15;Kauf;Vanguard;IE00BK5BQT8V;85,50;427,50",
+    ].join("\n")
+    const rows = parseTradeRepublicCsv(csv)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].quantity).toBeCloseTo(5)
+    expect(rows[0].price).toBeCloseTo(85.5)
+  })
 })
 
 describe("tr-import dedup", () => {

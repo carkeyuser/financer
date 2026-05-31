@@ -76,7 +76,7 @@ describe("applyTradeRepublicImport progress", () => {
 
   it("continues after invalid quantity/price instead of aborting", async () => {
     const parsedRows = [
-      baseParsed({ rowId: "bad-row", lineNumber: 1, quantity: 0, price: 0 }),
+      baseParsed({ rowId: "bad-row", lineNumber: 1, quantity: 0, price: 0, totalEur: null }),
       baseParsed({ rowId: "good-row", lineNumber: 2 }),
     ]
     const previewRows = [
@@ -84,6 +84,7 @@ describe("applyTradeRepublicImport progress", () => {
         rowId: "bad-row",
         quantity: 0,
         price: 0,
+        totalEur: null,
         suggestedTicker: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" },
       }),
       basePreviewRow({
@@ -105,9 +106,10 @@ describe("applyTradeRepublicImport progress", () => {
 
     const assetEntryCreate = vi.fn().mockResolvedValue({ id: "entry-1" })
     const assetUpdate = vi.fn().mockResolvedValue({})
+    const assetFindFirst = vi.fn().mockResolvedValue(null)
     const assetFindUnique = vi.fn().mockResolvedValue({ id: "asset-1" })
     const tx = {
-      asset: { findUnique: assetFindUnique, create: vi.fn(), update: assetUpdate },
+      asset: { findFirst: assetFindFirst, findUnique: assetFindUnique, create: vi.fn(), update: assetUpdate },
       assetEntry: { create: assetEntryCreate, findUnique: vi.fn(), delete: vi.fn(), update: vi.fn() },
     } as unknown as Parameters<typeof applyTradeRepublicImport>[0]
 

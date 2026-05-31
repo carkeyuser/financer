@@ -300,3 +300,23 @@ Nicht enthalten: Passwörter, Sessions, Auth-Tokens, 2FA-Secrets, Dashboard-Widg
 GET  /api/backup   → JSON-Export aller Haushaltsdaten
 POST /api/backup   → Restore aus JSON (löscht + reimportiert, Admin/Owner only)
 ```
+
+---
+
+## Phase 10 — Positionen zusammenführen (F-39) ✅
+
+**Status:** Implementiert 2026-06-01. Spezifikation: [`feature-f39-merge-positions.md`](feature-f39-merge-positions.md).
+
+**Ziel:** Duplikat-Assets (gleiches Wertpapier, unterschiedlicher Ticker/ISIN-Lücke) per Wizard zusammenführen; Null-Positionen in der Liste standardmäßig ausblenden.
+
+**Kern-API:**
+
+```text
+GET  /api/assets/merge-suggestions   → Duplikat-Gruppen (optional NDJSON-Stream)
+POST /api/assets/merge               → target + sources → Einträge/Dividenden verschieben, Menge recalc
+```
+
+**Einstieg:** Button „Zusammenführen“ im Investments-Tab; TR-Import Result-Step + optionale Checkbox im Intro.
+
+**Kein Schema-Change.** Merge nur gleicher `userId`; OWNER/ADMIN.
+
