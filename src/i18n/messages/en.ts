@@ -613,6 +613,10 @@ export const enMessages = {
     revokeInvite: "Revoke invitation",
     inviteValidUntil: "Valid until {date}",
     removeMemberConfirm: "Remove {name}?",
+    deleteProvisionedConfirm:
+      "Delete {name} and their tenant household? All data will be lost.",
+    provisionedUserDeleted: "Tenant user deleted",
+    deleteProvisionedFailed: "Delete failed",
     toggle2faConfirm: "{action} 2FA for this member?",
     revokeInviteConfirm: "Revoke invitation link?",
     noChanges: "No changes made",
