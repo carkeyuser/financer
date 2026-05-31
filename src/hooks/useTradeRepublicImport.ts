@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRef } from "react"
 import { readNdjsonStream, type TrImportProgressEvent } from "@/lib/services/tr-import-progress"
+import { trImportApplyResultSchema, trImportPreviewCompleteSchema } from "@/lib/validations/tr-import"
 import type { TrImportPreviewRow, TrImportResolution, TrImportSummary, TrTickerOverride } from "@/lib/services/tr-import-types"
 import type { TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
 
@@ -37,7 +38,11 @@ export function useTradeRepublicPreview(onProgress?: ProgressHandler) {
         method: "POST",
         body: form,
       })
-      return readNdjsonStream<TrImportPreviewResponse>(res, (e) => onProgressRef.current?.(e))
+      return readNdjsonStream<TrImportPreviewResponse>(
+        res,
+        (e) => onProgressRef.current?.(e),
+        trImportPreviewCompleteSchema
+      )
     },
   })
 }
@@ -57,7 +62,11 @@ export function useTradeRepublicApply(onProgress?: ProgressHandler) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
       })
-      return readNdjsonStream<TrImportApplyResponse>(res, (e) => onProgressRef.current?.(e))
+      return readNdjsonStream<TrImportApplyResponse>(
+        res,
+        (e) => onProgressRef.current?.(e),
+        trImportApplyResultSchema
+      )
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["assets"] })

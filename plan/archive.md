@@ -97,5 +97,10 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | B-25 | TR-Import / ISIN | **Parallele Yahoo-Auflösung:** Retry mit Backoff, Default-Concurrency 2, konfigurierbar. | ✅ behoben 2026-05-31 |
 | B-26 | TR-Import / API | **Stream-Fehler HTTP 200:** `createNdjsonResponse` liefert vor erstem Progress JSON 500; Mid-Stream-Fehler weiter NDJSON `error`. | ✅ behoben 2026-05-31 |
 | B-27 | TR-Import / Wizard | **Leerer Tickers-Step:** Navigation nur bei `tickerPartition.needsAttention.length > 0`. | ✅ behoben 2026-05-31 |
+| B-28 | TR-Import / Stream | **Keine Validierung von `complete.data`:** `readNdjsonStream` validiert Events per Zod; optional `resultSchema` für Complete-Payload; Hook nutzt Preview-/Apply-Schemas. | ✅ behoben 2026-05-31 |
+| B-29 | TR-Import / Stream | **NDJSON parse ohne Fehlerbehandlung:** `JSON.parse` in try/catch; ungültige Zeilen → klare Fehlermeldung. | ✅ behoben 2026-05-31 |
+| B-30 | TR-Import / UI | **Toter Code `useImportProgressReader`:** Hook entfernt; Fortschritt weiter über `useTradeRepublicImport`. | ✅ behoben 2026-05-31 |
+| B-31 | TR-Import / UI | **Balken bei `current: 0` leer:** `computeWeightedProgress` zeigt 5 % Phasenanteil bei Start; Panel mindestens 1 % Anzeige. | ✅ behoben 2026-05-31 |
+| B-32 | TR-Import / Tests | **Fehlende Tests:** `tr-import-routes.test.ts` (Preview/Apply NDJSON); `isin-resolver.test.ts` (parallel + `onProgress`). | ✅ behoben 2026-05-31 |
 
 | B-09 | Investments | **G/V-Historie nach Verkäufen/Mengenkorrekturen falsch:** `getGainLossHistory()` nutzt jetzt eine chronologische Positions-Replay-Logik, die `SALE`, `QUANTITY_UPDATE` und `VWAP_UPDATE` in Menge und Kostenbasis berücksichtigt. | ✅ behoben 2026-05-27 |

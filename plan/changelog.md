@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **B-28–B-32:** TR-Import — Zod-Validierung für NDJSON-Complete-Payload; JSON.parse try/catch; toter `useImportProgressReader` entfernt; Fortschrittsbalken min. 1 % bei Phase-Start; Tests für NDJSON-Routes und `resolveIsins` parallel |
 | 2026-05-31 | **CI:** TR-Import — `streamController`-Typ in `createNdjsonResponse` (Objekt-Ref statt `let`, TS-Narrowing in async-`finally`) |
 | 2026-05-31 | **B-24–B-27:** TR-Import — ETA ab erstem Event; ISIN-Retry/Concurrency 2; NDJSON-Fehler vor Stream → HTTP 500; Tickers-Step nur bei `needsAttention` |
 | 2026-05-31 | **B-22, B-23:** TR-Import — Apply-Fortschritt via `finally` pro Zeile; Ticker-Konflikt rutscht nach Override in „Erledigt“ |

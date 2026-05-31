@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest"
+import { z } from "zod"
 import {
   computeWeightedProgress,
   createNdjsonResponse,
@@ -12,6 +13,12 @@ describe("computeWeightedProgress", () => {
     expect(computeWeightedProgress("parse", 1, 1)).toBeCloseTo(0.05)
     expect(computeWeightedProgress("tickers", 5, 10)).toBeCloseTo(0.05 + 0.7 * 0.5)
     expect(computeWeightedProgress("import", 3, 10)).toBeCloseTo(0.3)
+  })
+
+  it("shows partial phase progress when current is 0", () => {
+    expect(computeWeightedProgress("parse", 0, 1)).toBeCloseTo(0.05 * 0.05)
+    expect(computeWeightedProgress("import", 0, 10)).toBeCloseTo(0.02)
+    expect(computeWeightedProgress("database", 0, 1)).toBeCloseTo(0.75 + 0.15 * 0.05)
   })
 })
 
@@ -76,5 +83,20 @@ describe("readNdjsonStream", () => {
     await expect(
       readNdjsonStream(new Response(body, { status: 200 }))
     ).rejects.toThrow("fail")
+  })
+
+  it("throws on malformed JSON line", async () => {
+    const body = "not-json\n"
+    await expect(
+      readNdjsonStream(new Response(body, { status: 200 }))
+    ).rejects.toThrow("Ungültige Antwort vom Server")
+  })
+
+  it("validates complete data with schema", async () => {
+    const body = JSON.stringify({ type: "complete", data: { created: "bad" } })
+    const schema = z.object({ created: z.number() })
+    await expect(
+      readNdjsonStream(new Response(body, { status: 200 }), undefined, schema)
+    ).rejects.toThrow("Ungültiges Ergebnis vom Server")
   })
 })
