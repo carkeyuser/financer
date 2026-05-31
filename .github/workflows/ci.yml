@@ -24,3 +24,11 @@ jobs:
       - run: npm run test
 
       - run: npm run build
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux, financer]
+    steps:
+      - name: Deploy to production
+        run: bash /opt/financer/scripts/deploy.sh
