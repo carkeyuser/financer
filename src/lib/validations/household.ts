@@ -30,7 +30,7 @@ export function buildCreateUserSchema(locale: Locale) {
         .max(30, t("validation.max30Chars"))
         .regex(/^[a-zA-Z0-9_-]+$/, t("validation.usernameChars30")),
       password: z.string().min(8, t("validation.min8Chars")),
-      tenancy: z.enum(["household", "tenant"]).default("household"),
+      tenancy: z.enum(["household", "tenant"]),
       householdName: z.string().min(1, t("validation.nameRequiredField")).max(50).optional(),
     })
     .superRefine((data, ctx) => {

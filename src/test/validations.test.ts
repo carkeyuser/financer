@@ -68,12 +68,11 @@ describe("buildCreateUserSchema", () => {
     name: "Tenant User",
     username: "tenantuser",
     password: "geheim123",
+    tenancy: "household" as const,
   }
 
-  it("accepts household tenancy by default", () => {
+  it("accepts household tenancy", () => {
     expect(schema.safeParse(validBase).success).toBe(true)
-    const parsed = schema.safeParse(validBase)
-    if (parsed.success) expect(parsed.data.tenancy).toBe("household")
   })
 
   it("accepts tenant tenancy without householdName", () => {
