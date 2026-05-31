@@ -14,6 +14,7 @@ import {
   useRevokeInvite,
   useAdminToggle2FA,
   useAdminEditUser,
+  useDeleteProvisionedUser,
   useUpdateHouseholdName,
   type HouseholdMember,
 } from "@/hooks/useHousehold"
@@ -159,6 +160,7 @@ export function HouseholdContent() {
   const updateRole = useUpdateMemberRole()
   const revokeInvite = useRevokeInvite()
   const toggle2FA = useAdminToggle2FA()
+  const deleteProvisionedUser = useDeleteProvisionedUser()
   const updateHouseholdName = useUpdateHouseholdName()
   const [inviteUrl, setInviteUrl] = useState<string | null>(null)
   const [editingMember, setEditingMember] = useState<HouseholdMember | null>(null)
@@ -248,6 +250,17 @@ export function HouseholdContent() {
       toast.success(t("household.memberRemoved"))
     } catch {
       toast.error(t("household.removeFailed"))
+    }
+  }
+
+  async function handleDeleteProvisioned(userId: string, name: string | null, username: string) {
+    const label = name ?? username
+    if (!confirm(t("household.deleteProvisionedConfirm", { name: label }))) return
+    try {
+      await deleteProvisionedUser.mutateAsync(userId)
+      toast.success(t("household.provisionedUserDeleted"))
+    } catch (err: unknown) {
+      toast.error(mapErr(err))
     }
   }
 
@@ -683,7 +696,7 @@ export function HouseholdContent() {
         </CardContent>
       </Card>
 
-      {isOwner && (
+      {canManage && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{t("household.provisionedUsers")}</CardTitle>
@@ -750,6 +763,16 @@ export function HouseholdContent() {
                           )}
                           2FA
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteProvisioned(p.userId, p.name, p.username)}
+                          disabled={deleteProvisionedUser.isPending}
+                          title={t("common.delete")}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -763,7 +786,7 @@ export function HouseholdContent() {
                         <TableHead>{t("household.tableHousehold")}</TableHead>
                         <TableHead>{t("household.table2fa")}</TableHead>
                         <TableHead>{t("household.tableJoined")}</TableHead>
-                        <TableHead className="w-20" />
+                        <TableHead className="w-24" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -806,27 +829,41 @@ export function HouseholdContent() {
                             {fmtDate(p.createdAt)}
                           </TableCell>
                           <TableCell>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8"
-                              onClick={() =>
-                                setEditingMember({
-                                  id: p.userId,
-                                  userId: p.userId,
-                                  name: p.name,
-                                  email: p.username,
-                                  image: null,
-                                  role: "OWNER",
-                                  joinedAt: p.createdAt,
-                                  twoFactorEnabled: p.twoFactorEnabled,
-                                  twoFactorConfigured: false,
-                                })
-                              }
-                              title={t("household.editUserTooltip")}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8"
+                                onClick={() =>
+                                  setEditingMember({
+                                    id: p.userId,
+                                    userId: p.userId,
+                                    name: p.name,
+                                    email: p.username,
+                                    image: null,
+                                    role: "OWNER",
+                                    joinedAt: p.createdAt,
+                                    twoFactorEnabled: p.twoFactorEnabled,
+                                    twoFactorConfigured: false,
+                                  })
+                                }
+                                title={t("household.editUserTooltip")}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={() =>
+                                  handleDeleteProvisioned(p.userId, p.name, p.username)
+                                }
+                                disabled={deleteProvisionedUser.isPending}
+                                title={t("common.delete")}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

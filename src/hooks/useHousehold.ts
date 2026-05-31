@@ -157,6 +157,20 @@ export function useAdminEditUser() {
   })
 }
 
+export function useDeleteProvisionedUser() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" })
+      if (!res.ok) {
+        const err = await res.json()
+        throw err
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["household"] }),
+  })
+}
+
 export function useUpdateHouseholdName() {
   const qc = useQueryClient()
   return useMutation({

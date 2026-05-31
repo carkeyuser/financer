@@ -611,6 +611,10 @@ export const deMessages = {
     revokeInvite: "Einladung widerrufen",
     inviteValidUntil: "Gültig bis {date}",
     removeMemberConfirm: "{name} wirklich entfernen?",
+    deleteProvisionedConfirm:
+      "{name} und den zugehörigen Tenant-Haushalt wirklich löschen? Alle Daten gehen verloren.",
+    provisionedUserDeleted: "Tenant-Benutzer gelöscht",
+    deleteProvisionedFailed: "Löschen fehlgeschlagen",
     toggle2faConfirm: "2FA für dieses Mitglied {action}?",
     revokeInviteConfirm: "Einladungslink wirklich widerrufen?",
     noChanges: "Keine Änderungen vorgenommen",
