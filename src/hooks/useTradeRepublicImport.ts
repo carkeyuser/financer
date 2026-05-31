@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRef } from "react"
+import { readNdjsonStream, type TrImportProgressEvent } from "@/lib/services/tr-import-progress"
 import type { TrImportPreviewRow, TrImportResolution, TrImportSummary, TrTickerOverride } from "@/lib/services/tr-import-types"
 import type { TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
 
@@ -18,7 +20,12 @@ export interface TrImportApplyResponse {
   errors: string[]
 }
 
-export function useTradeRepublicPreview() {
+type ProgressHandler = (event: Extract<TrImportProgressEvent, { type: "progress" }>) => void
+
+export function useTradeRepublicPreview(onProgress?: ProgressHandler) {
+  const onProgressRef = useRef(onProgress)
+  onProgressRef.current = onProgress
+
   return useMutation({
     mutationFn: async (input: { file: File; account: string; targetUserId?: string }) => {
       const form = new FormData()
@@ -30,16 +37,14 @@ export function useTradeRepublicPreview() {
         method: "POST",
         body: form,
       })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(typeof err.error === "string" ? err.error : "Vorschau fehlgeschlagen")
-      }
-      return res.json() as Promise<TrImportPreviewResponse>
+      return readNdjsonStream<TrImportPreviewResponse>(res, (e) => onProgressRef.current?.(e))
     },
   })
 }
 
-export function useTradeRepublicApply() {
+export function useTradeRepublicApply(onProgress?: ProgressHandler) {
+  const onProgressRef = useRef(onProgress)
+  onProgressRef.current = onProgress
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: {
@@ -52,11 +57,7 @@ export function useTradeRepublicApply() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
       })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(typeof err.error === "string" ? err.error : "Import fehlgeschlagen")
-      }
-      return res.json() as Promise<TrImportApplyResponse>
+      return readNdjsonStream<TrImportApplyResponse>(res, (e) => onProgressRef.current?.(e))
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["assets"] })
