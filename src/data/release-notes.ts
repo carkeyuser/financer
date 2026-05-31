@@ -12,10 +12,16 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
     date: "2026-05-31",
     highlights: {
       de: [
-        "Auto-Deploy entfernt — CI prüft nur noch Build/Tests, Deploy manuell auf dem Server",
+        "Auto-Deploy entfernt — kein Self-hosted GitHub Actions Runner mehr nötig",
+        "CI prüft nur noch Tests und Production-Build (GitHub-hosted)",
+        "Deploy manuell: git pull + docker compose, .\\push -Deploy oder scripts/deploy.sh",
+        "Deploy-Doku in plan/setup.md vereinfacht",
       ],
       en: [
-        "Auto-deploy removed — CI only runs build/tests; deploy manually on the server",
+        "Auto-deploy removed — no self-hosted GitHub Actions runner required",
+        "CI only runs tests and production build (GitHub-hosted)",
+        "Manual deploy: git pull + docker compose, .\\push -Deploy, or scripts/deploy.sh",
+        "Deploy docs in plan/setup.md simplified",
       ],
     },
   },
