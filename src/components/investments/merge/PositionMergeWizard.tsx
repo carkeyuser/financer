@@ -29,7 +29,7 @@ import { useI18n } from "@/i18n/context"
 import { isInterestAsset } from "@/lib/constants/interest-asset"
 import { isEmptyPosition } from "@/lib/services/asset-merge-suggestions"
 import { getCurrentValue } from "@/lib/utils/calculations"
-import type { MergeScanProgressEvent } from "@/lib/validations/asset-merge"
+import type { MergeScanPhase, MergeScanProgressEvent } from "@/lib/validations/asset-merge"
 import { cn } from "@/lib/utils"
 
 type WizardStep = "intro" | "scan" | "suggestions" | "review" | "manual" | "applying" | "result"
@@ -41,7 +41,7 @@ interface PositionMergeWizardProps {
   trAccount?: string
 }
 
-const SCAN_PHASE_WEIGHT: Record<MergeScanProgressEvent["phase"], number> = {
+const SCAN_PHASE_WEIGHT: Record<MergeScanPhase, number> = {
   load_assets: 0.2,
   load_rates: 0.4,
   analyze: 0.4,
@@ -147,9 +147,9 @@ function MergeAssetPicker({
   )
 }
 
-function scanProgressPercent(phase: MergeScanProgressEvent["phase"], current: number, total: number): number {
+function scanProgressPercent(phase: MergeScanPhase, current: number, total: number): number {
   let base = 0
-  for (const [p, weight] of Object.entries(SCAN_PHASE_WEIGHT) as Array<[MergeScanProgressEvent["phase"], number]>) {
+  for (const [p, weight] of Object.entries(SCAN_PHASE_WEIGHT) as Array<[MergeScanPhase, number]>) {
     if (p === phase) {
       const fraction = total > 0 ? current / total : 1
       return Math.min(100, Math.round((base + weight * fraction) * 100))
@@ -179,7 +179,7 @@ export function PositionMergeWizard({ open, onOpenChange, source, trAccount }: P
   const [manualSourceIds, setManualSourceIds] = useState<Set<string>>(new Set())
   const [hideZeroInManual, setHideZeroInManual] = useState(true)
   const [manualSourceSearch, setManualSourceSearch] = useState("")
-  const [scanProgress, setScanProgress] = useState<{ phase: MergeScanProgressEvent["phase"]; current: number; total: number }>({
+  const [scanProgress, setScanProgress] = useState<{ phase: MergeScanPhase; current: number; total: number }>({
     phase: "load_assets",
     current: 0,
     total: 1,

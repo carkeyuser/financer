@@ -41,7 +41,6 @@ import { useI18n } from "@/i18n/context"
 import { TradeRepublicImportWizard } from "@/components/investments/tr-import/TradeRepublicImportWizard"
 import { PositionMergeWizard } from "@/components/investments/merge/PositionMergeWizard"
 import { isEmptyPosition } from "@/lib/services/asset-merge-suggestions"
-import { useHousehold } from "@/hooks/useHousehold"
 
 const HIDE_ZERO_STORAGE_KEY = "financer.hideZeroPositions"
 
