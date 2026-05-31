@@ -111,6 +111,7 @@ export async function GET() {
         quantity: e.quantity?.toString() ?? null,
         date: e.date.toISOString(),
         note: e.note,
+        importRef: e.importRef,
       })),
       dividends: a.dividends.map((d) => ({
         username: d.user.username,
@@ -127,6 +128,7 @@ export async function GET() {
         status: d.status,
         source: d.source,
         note: d.note,
+        importRef: d.importRef,
       })),
     })),
     simulations: simulations.map((s) => ({
@@ -276,6 +278,7 @@ export async function POST(request: Request) {
             quantity: e.quantity ?? null,
             date: new Date(e.date),
             note: e.note ?? null,
+            importRef: e.importRef ?? null,
           })),
         })
       }
@@ -299,6 +302,7 @@ export async function POST(request: Request) {
             status: d.status,
             source: d.source,
             note: d.note ?? null,
+            importRef: d.importRef ?? null,
           })),
         })
       }

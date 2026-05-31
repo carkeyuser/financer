@@ -11,6 +11,7 @@ const entrySchema = z.object({
   quantity: z.string().nullable(),
   date: z.string(),
   note: z.string().nullable().optional(),
+  importRef: z.string().nullable().optional(),
 })
 
 const dividendSchema = z.object({
@@ -28,6 +29,7 @@ const dividendSchema = z.object({
   status: z.enum(backupDividendStatuses),
   source: z.enum(backupDividendSources),
   note: z.string().nullable().optional(),
+  importRef: z.string().nullable().optional(),
 })
 
 const simulationSchema = z.object({

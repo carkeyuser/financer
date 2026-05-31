@@ -1,0 +1,6 @@
+Date;Time;Product;ISIN;Number;Price;Total EUR;Tax amount;Order ID
+2024-01-15;10:30:00;Buy;IE00BK5BQT8V;5;85,50;427,50;;tr-order-001
+2024-03-01;10:00:00;Sell;IE00BK5BQT8V;-2;90,00;180,00;;tr-order-002
+2024-06-01;09:00:00;Dividend;IE00BK5BQT8V;5;0,25;1,25;0,25;tr-order-003
+2024-02-01;08:00:00;Interest;;;0,50;0,50;;tr-order-004
+2024-01-01;08:00:00;Deposit;;;1000,00;1000,00;;tr-order-005
