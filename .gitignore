@@ -1,0 +1,57 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+.codegraph/
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env: Template committen, echte Secrets nie
+.env*
+!.env.example
+
+# Persönliche Deploy-Skripte (lokal kopieren aus *.example.ps1)
+/push.ps1
+/pack.ps1
+
+# IDE / Agent (persönliche Pfade & SSH)
+.claude/
+.cursor/
+
+# Build-Artefakte
+*.tar.gz
+finance_deploy.tar.gz
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+/src/generated/prisma

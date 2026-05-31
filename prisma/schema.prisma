@@ -1,0 +1,357 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth (NextAuth Adapter) ─────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── User & Household ────────────────────────────────────────────────────────
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  username         String    @unique
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  passwordHash     String?
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean   @default(false)
+  locale           String    @default("de")
+  role             Role      @default(MEMBER)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  accounts                 Account[]
+  sessions                 Session[]
+  householdMemberships     HouseholdMember[]
+  assets                   Asset[]
+  dividendPayments         DividendPayment[]
+  monthlyIncomes           MonthlyIncome[]
+  monthlyPayouts           MonthlyPayout[]
+  dashboardWidgets         DashboardWidget[]
+  financeSimulations       HouseholdFinanceSimulation[]
+  financeSimulationEntries HouseholdFinanceSimulationEntry[]
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  currency  String   @default("EUR")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members            HouseholdMember[]
+  assets             Asset[]
+  dividendPayments   DividendPayment[]
+  invites            HouseholdInvite[]
+  fixedCosts         FixedCost[]
+  monthlyIncomes     MonthlyIncome[]
+  monthlyPayouts     MonthlyPayout[]
+  fixedCostSnapshots MonthlyFixedCostSnapshot[]
+  financeSimulations HouseholdFinanceSimulation[]
+}
+
+model HouseholdMember {
+  id          String        @id @default(cuid())
+  userId      String
+  householdId String
+  role        HouseholdRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, householdId])
+}
+
+enum HouseholdRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model HouseholdInvite {
+  id          String    @id @default(cuid())
+  householdId String
+  email       String
+  token       String    @unique @default(cuid())
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+}
+
+// ─── Haushaltskasse ───────────────────────────────────────────────────────────
+
+model FixedCost {
+  id          String  @id @default(cuid())
+  householdId String
+  name        String
+  amount      Decimal @db.Decimal(12, 2)
+  order       Int     @default(0)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
+}
+
+model MonthlyIncome {
+  id          String   @id @default(cuid())
+  householdId String
+  userId      String
+  year        Int
+  month       Int
+  amount      Decimal  @db.Decimal(12, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([householdId, userId, year, month])
+}
+
+model MonthlyPayout {
+  id          String   @id @default(cuid())
+  householdId String
+  userId      String
+  year        Int
+  month       Int
+  amount      Decimal  @db.Decimal(12, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([householdId, userId, year, month])
+}
+
+// ─── Investments ─────────────────────────────────────────────────────────────
+
+model Asset {
+  id          String    @id @default(cuid())
+  householdId String
+  userId      String
+  ticker      String
+  name        String
+  type        AssetType
+  currency    String    @default("EUR")
+  isin        String?
+  wkn         String?
+  notes       String?
+  account     String    @default("")
+  quantity    Decimal   @db.Decimal(18, 6)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  household Household    @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id])
+  entries   AssetEntry[]
+  dividends DividendPayment[]
+
+  @@unique([householdId, userId, ticker])
+}
+
+model AssetEntry {
+  id        String         @id @default(cuid())
+  assetId   String
+  type      AssetEntryType
+  price     Decimal        @db.Decimal(18, 6)
+  quantity  Decimal?       @db.Decimal(18, 6)
+  date      DateTime
+  note      String?
+  createdAt DateTime       @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
+enum AssetType {
+  STOCK
+  ETF
+  CRYPTO
+  BOND
+  OTHER
+}
+
+enum AssetEntryType {
+  PURCHASE
+  SALE
+  PRICE_UPDATE
+  QUANTITY_UPDATE
+  VWAP_UPDATE
+}
+
+model DividendPayment {
+  id             String         @id @default(cuid())
+  householdId    String
+  assetId        String
+  userId         String
+  year           Int
+  exDate         DateTime
+  payDate        DateTime?
+  amountPerShare Decimal        @db.Decimal(18, 6)
+  quantity       Decimal        @db.Decimal(18, 6)
+  grossAmount    Decimal        @db.Decimal(12, 2)
+  taxAmount      Decimal        @db.Decimal(12, 2) @default(0)
+  netAmount      Decimal        @db.Decimal(12, 2)
+  currency       String         @default("EUR")
+  eurRate        Decimal        @db.Decimal(18, 6) @default(1)
+  status         DividendStatus @default(RECEIVED)
+  source         DividendSource @default(MANUAL)
+  note           String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  asset     Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([householdId, year])
+  @@index([assetId])
+  @@index([userId])
+  @@index([status])
+}
+
+enum DividendStatus {
+  EXPECTED
+  RECEIVED
+}
+
+enum DividendSource {
+  YAHOO
+  MANUAL
+}
+
+// ─── Haushaltskasse Snapshot ──────────────────────────────────────────────────
+
+model MonthlyFixedCostSnapshot {
+  id          String  @id @default(cuid())
+  householdId String
+  year        Int
+  month       Int
+  fixedCosts  Decimal @db.Decimal(12, 2)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, year, month])
+}
+
+// ─── Haushaltskasse Simulation ────────────────────────────────────────────────
+
+model HouseholdFinanceSimulation {
+  id          String   @id @default(cuid())
+  householdId String
+  createdById String?
+  name        String
+  startYear   Int
+  startMonth  Int
+  endYear     Int
+  endMonth    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household                         @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdBy User?                             @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  months    HouseholdFinanceSimulationMonth[]
+
+  @@index([householdId])
+  @@index([createdById])
+}
+
+model HouseholdFinanceSimulationMonth {
+  id           String  @id @default(cuid())
+  simulationId String
+  year         Int
+  month        Int
+  fixedCosts   Decimal @db.Decimal(12, 2)
+
+  simulation HouseholdFinanceSimulation        @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  entries    HouseholdFinanceSimulationEntry[]
+
+  @@unique([simulationId, year, month])
+  @@index([simulationId])
+}
+
+model HouseholdFinanceSimulationEntry {
+  id                String              @id @default(cuid())
+  simulationMonthId String
+  userId            String
+  type              SimulationEntryType
+  amount            Decimal             @db.Decimal(12, 2)
+
+  simulationMonth HouseholdFinanceSimulationMonth @relation(fields: [simulationMonthId], references: [id], onDelete: Cascade)
+  user            User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([simulationMonthId, userId, type])
+  @@index([userId])
+}
+
+enum SimulationEntryType {
+  INCOME
+  PAYOUT
+}
+
+// ─── Dashboard Widgets ────────────────────────────────────────────────────────
+
+model DashboardWidget {
+  id       String @id @default(cuid())
+  userId   String
+  widgetId String
+  x        Int    @default(0)
+  y        Int    @default(0)
+  w        Int    @default(4)
+  h        Int    @default(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, widgetId])
+}
