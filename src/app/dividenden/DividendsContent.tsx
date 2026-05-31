@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from "recharts"
-import { CalendarDays, ChevronLeft, ChevronRight, HandCoins, Pencil, Plus, Trash2 } from "lucide-react"
+import { CalendarDays, ChevronLeft, ChevronRight, Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useI18n } from "@/i18n/context"
+import { isInterestAsset } from "@/lib/constants/interest-asset"
 import { monthName } from "@/i18n/messages"
 import {
   useCreateDividendPayment,
@@ -118,7 +119,8 @@ function PaymentDialog({
 
   useEffect(() => {
     if (!open) return
-    const initialAsset = event ? assets.find((item) => item.id === event.assetId) : assets[0]
+    const defaultAsset = assets.find((item) => !isInterestAsset(item)) ?? assets[0]
+    const initialAsset = event ? assets.find((item) => item.id === event.assetId) : defaultAsset
     setAssetId(initialAsset?.id ?? "")
     setDate(event?.date ?? "")
     setAmount(toInputNumber(event?.amount ?? 0))
@@ -137,6 +139,7 @@ function PaymentDialog({
   const parsedAmountPerShare = parseInput(amountPerShare)
   const parsedQuantity = parseInput(quantity)
   const isSaving = createPayment.isPending || updatePayment.isPending
+  const isInterest = isInterestAsset(asset)
 
   async function handleSubmit() {
     try {
@@ -175,14 +178,21 @@ function PaymentDialog({
             <Label>{t("common.position")}</Label>
             <Select value={assetId} onValueChange={(value) => value && setAssetId(value)}>
               <SelectTrigger className="w-full">
-                <span className="truncate">{asset.name} · {asset.ticker}</span>
+                <span className="truncate">
+                  {isInterest ? t("dividends.interestPosition") : `${asset.name} · ${asset.ticker}`}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {assets.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>{item.name} · {item.ticker}</SelectItem>
+                  <SelectItem key={item.id} value={item.id}>
+                    {isInterestAsset(item) ? t("dividends.interestPosition") : `${item.name} · ${item.ticker}`}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {isInterest && (
+              <p className="text-xs text-muted-foreground">{t("dividends.interestPositionHint")}</p>
+            )}
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
@@ -201,14 +211,18 @@ function PaymentDialog({
               <Label>{t("dividends.tax")} <span className="text-muted-foreground">({t("common.optional")})</span></Label>
               <Input inputMode="decimal" value={taxAmount} onChange={(changeEvent) => setTaxAmount(changeEvent.target.value)} />
             </div>
-            <div className="space-y-1.5">
-              <Label>{t("dividends.amountPerShare")} <span className="text-muted-foreground">({t("common.optional")})</span></Label>
-              <Input inputMode="decimal" value={amountPerShare} onChange={(changeEvent) => setAmountPerShare(changeEvent.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("common.quantity")} <span className="text-muted-foreground">({t("common.optional")})</span></Label>
-              <Input inputMode="decimal" value={quantity} onChange={(changeEvent) => setQuantity(changeEvent.target.value)} />
-            </div>
+            {!isInterest && (
+              <>
+                <div className="space-y-1.5">
+                  <Label>{t("dividends.amountPerShare")} <span className="text-muted-foreground">({t("common.optional")})</span></Label>
+                  <Input inputMode="decimal" value={amountPerShare} onChange={(changeEvent) => setAmountPerShare(changeEvent.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{t("common.quantity")} <span className="text-muted-foreground">({t("common.optional")})</span></Label>
+                  <Input inputMode="decimal" value={quantity} onChange={(changeEvent) => setQuantity(changeEvent.target.value)} />
+                </div>
+              </>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label>{t("common.note")}</Label>
@@ -265,13 +279,16 @@ function DividendEvents({ summary, onEdit }: { summary: DividendSummary; onEdit:
                 <div key={event.id} className="flex flex-col gap-3 rounded-lg border p-3 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">{event.name}</p>
+                      <p className="font-medium">
+                        {isInterestAsset(event) ? t("dividends.interestPosition") : event.name}
+                      </p>
                       <Badge variant={isFuture ? "secondary" : "default"}>
                         {isFuture ? t("dividends.future") : t("dividends.received")}
                       </Badge>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {event.ticker} · {event.account || t("common.dash")}
+                      {isInterestAsset(event) ? t("dividends.interestPosition") : event.ticker}
+                      {!isInterestAsset(event) && ` · ${event.account || t("common.dash")}`}
                       {event.ownerName ? ` · ${event.ownerName}` : ""} · {formatDate(event.date)}
                     </p>
                     {event.note && <p className="mt-1 text-xs text-muted-foreground">{event.note}</p>}
@@ -350,11 +367,6 @@ export function DividendsContent() {
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">{t("dividends.loading")}</div>
       ) : error || !summary ? (
         <div className="flex h-40 items-center justify-center text-sm text-destructive">{t("dividends.loadFailed")}</div>
-      ) : summary.assets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
-          <HandCoins className="h-10 w-10 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">{t("dividends.noAssets")}</p>
-        </div>
       ) : (
         <>
           <DividendKpis summary={summary} />

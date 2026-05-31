@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.4",
+    date: "2026-05-31",
+    highlights: {
+      de: [
+        "Bankzinsen als Dividenden-Position „Interest“ — ohne Investment anlegen",
+        "Interest wird pro User automatisch bereitgestellt, nur im Dividenden-Tab sichtbar",
+        "Vereinfachter Dialog: Betrag plus optional Datum, Brutto und Steuer",
+      ],
+      en: [
+        "Bank interest as dividend position “Interest” — no investment required",
+        "Interest is auto-provisioned per user and only visible on the Dividends tab",
+        "Simplified dialog: amount plus optional date, gross, and tax",
+      ],
+    },
+  },
+  {
     version: "0.0.3",
     date: "2026-05-31",
     highlights: {

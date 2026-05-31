@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { excludeInterestTicker, isInterestAsset } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
 import { assetSchema } from "@/lib/validations/asset"
 import { getEurRate } from "@/lib/utils/currency"
@@ -12,7 +13,7 @@ export async function GET() {
   const householdId = session.user.householdId
 
   const assets = await prisma.asset.findMany({
-    where: { householdId },
+    where: { householdId, ticker: excludeInterestTicker },
     include: {
       entries: { orderBy: { date: "asc" } },
       user: { select: { id: true, name: true, username: true } },
@@ -61,6 +62,13 @@ export async function POST(request: Request) {
   }
 
   const { ticker, name, type, currency, account, isin, wkn, purchaseDate, purchasePrice, quantity, note } = parsed.data
+
+  if (isInterestAsset({ ticker })) {
+    return NextResponse.json(
+      { error: { ticker: ["Interest ist eine reservierte Dividenden-Position"] } },
+      { status: 400 }
+    )
+  }
 
   // Nachkauf-Logik: prüft auf (householdId, userId, ticker) — zwei User können denselben Ticker halten
   const existing = await prisma.asset.findUnique({

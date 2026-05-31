@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.4] - 2026-05-31
+
+### Added
+
+- **Dividends — Interest position (F-35)** — Record bank interest on cash balances via reserved position `Interest` in the manual dividend flow; auto-provisioned per user, excluded from portfolio, price refresh, and market calendar
+
 ## [0.0.3] - 2026-05-31
 
 ### Removed
@@ -44,6 +50,7 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.0.4]: https://github.com/carkeyuser/financer/releases/tag/v0.0.4
 [0.0.3]: https://github.com/carkeyuser/financer/releases/tag/v0.0.3
 [0.0.2]: https://github.com/carkeyuser/financer/releases/tag/v0.0.2
 [0.0.1]: https://github.com/carkeyuser/financer/releases/tag/v0.0.1
