@@ -105,5 +105,10 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | B-32 | TR-Import / Tests | **Fehlende Tests:** `tr-import-routes.test.ts` (Preview/Apply NDJSON); `isin-resolver.test.ts` (parallel + `onProgress`). | ✅ behoben 2026-05-31 |
 | B-33 | TR-Import / Wizard | **Krypto ohne ISIN:** Ticker-Step übersprungen (nicht in `tickerMappings`); Bestätigung zählte `needs_ticker` fälschlich als Import; Apply brach bei erster Fehlerzeile ab. | ✅ behoben 2026-05-31 |
 | B-34 | TR-Import / Parser | **Ungültige Menge oder Preis:** CSV mit `Amount`/`Betrag` ohne `Rate`/`Kurs`; Kurs wird aus Betrag÷Stück abgeleitet. | ✅ behoben 2026-05-31 |
+| B-35 | F-39 / Merge | **VWAP_UPDATE ignoriert in Mengenberechnung:** `recalculateQuantityFromEntries` berücksichtigt VWAP_UPDATE; Merge-Apply übergibt `price`. | ✅ behoben 2026-06-01 |
+| B-36 | F-39 / Matching | **Regel „eine ISIN + Name“ feuerte nie:** `matchAssetPair` prüft one-ISIN vor Ticker-Match. | ✅ behoben 2026-06-01 |
+| B-37 | F-39 / Matching | **Transitive False-Positives:** Union-Find-Komponenten ≥3 werden per Clique-Split aufgeteilt. | ✅ behoben 2026-06-01 |
+| B-38 | F-39 / TR-Import | **ISIN-Backfill fehlte:** `getOrCreateAsset` schreibt ISIN bei Ticker-Match nach. | ✅ behoben 2026-06-01 |
+| B-39 | F-39 / Wizard | **Step-Regression nach Merge:** Scan per NDJSON-Stream; kein Query-Refetch überschreibt `result`-Step. | ✅ behoben 2026-06-01 |
 
 | B-09 | Investments | **G/V-Historie nach Verkäufen/Mengenkorrekturen falsch:** `getGainLossHistory()` nutzt jetzt eine chronologische Positions-Replay-Logik, die `SALE`, `QUANTITY_UPDATE` und `VWAP_UPDATE` in Menge und Kostenbasis berücksichtigt. | ✅ behoben 2026-05-27 |

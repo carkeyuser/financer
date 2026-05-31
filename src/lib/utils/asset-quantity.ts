@@ -4,6 +4,7 @@ export interface QuantityEntry {
   type: AssetEntryType
   quantity: string | null
   date: Date
+  price?: string | null
 }
 
 const QTY_EPSILON = 1e-6
@@ -18,6 +19,8 @@ export function recalculateQuantityFromEntries(entries: QuantityEntry[]): number
     } else if (entry.type === "SALE" && entry.quantity) {
       qty -= parseFloat(entry.quantity)
     } else if (entry.type === "QUANTITY_UPDATE" && entry.quantity) {
+      qty = parseFloat(entry.quantity)
+    } else if (entry.type === "VWAP_UPDATE" && entry.quantity) {
       qty = parseFloat(entry.quantity)
     }
   }

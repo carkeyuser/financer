@@ -1,6 +1,6 @@
 # F-39 — Positionen zusammenführen + Null-Positions-Filter
 
-> Feature-Spezifikation. **Implementiert** 2026-06-01.
+> Feature-Spezifikation. **Implementiert** 2026-06-01 (Review-Fixes abgeschlossen).
 
 ---
 
@@ -121,7 +121,7 @@ Wenn Wizard mit `tr-import`-Kontext geöffnet: zusätzlich Gruppen markieren, in
 2. **Unique-Constraint:** sources dürfen anderen Ticker haben als target (OK); nach Merge werden sources gelöscht
 3. `assetEntry.updateMany({ assetId: source → target })`
 4. `dividendPayment.updateMany({ assetId: source → target })`
-5. **`recalculateAssetQuantity(targetId)`** — Einträge chronologisch abspielen (PURCHASE/SALE/QUANTITY_UPDATE; VWAP/PRICE_UPDATE ignorieren für Menge)
+5. **`recalculateAssetQuantity(targetId)`** — Einträge chronologisch abspielen (PURCHASE/SALE/QUANTITY_UPDATE/**VWAP_UPDATE**; PRICE_UPDATE ignorieren für Menge)
 6. Metadaten target: `isin` = target.isin ?? first non-null source; `wkn` analog; `notes` anhängen wenn unterschiedlich
 7. `asset.deleteMany(sources)` (Cascade löscht verwaiste Einträge — bereits verschoben)
 8. `order`-Feld: Minimum der gemergten Assets übernehmen
@@ -203,14 +203,19 @@ Verhindert neue Duplikate; kein Ersatz für Merge bestehender Daten.
 
 | Neu | Geändert |
 |---|---|
-| `src/lib/services/asset-merge-suggestions.ts` | `InvestmentsContent.tsx` — Filter + Button |
-| `src/lib/services/asset-merge-apply.ts` | `TradeRepublicImportWizard.tsx` — Checkbox + Result-CTA |
-| `src/lib/validations/asset-merge.ts` | `tr-import-apply.ts` — ISIN-Lookup (Phase 2) |
-| `src/app/api/assets/merge-suggestions/route.ts` | `plan/features.md`, `plan/phases.md` |
-| `src/app/api/assets/merge/route.ts` | i18n `de.ts` / `en.ts` |
+| `src/lib/utils/ndjson-stream.ts` | `InvestmentsContent.tsx` — Filter + Button (Admin-only) |
+| `src/lib/services/asset-merge-suggestions.ts` | `TradeRepublicImportWizard.tsx` — Checkbox + Result-CTA + trAccount |
+| `src/lib/services/asset-merge-apply.ts` | `tr-import-apply.ts` — ISIN-Backfill |
+| `src/lib/validations/asset-merge.ts` | `tr-import-progress.ts` — NDJSON-Re-Export |
+| `src/app/api/assets/merge-suggestions/route.ts` | i18n `de.ts` / `en.ts` |
+| `src/app/api/assets/merge/route.ts` | |
 | `src/components/investments/merge/PositionMergeWizard.tsx` | |
 | `src/hooks/useAssetMerge.ts` | |
-| `src/test/asset-merge.test.ts` | |
+| `src/lib/utils/ndjson-stream.ts` | `tr-import-progress.ts` — NDJSON extrahiert |
+| `src/test/merge-apply.test.ts` | `src/test/merge-suggestions-route.test.ts` |
+| `src/test/merge-apply.test.ts` | |
+| `src/test/merge-suggestions-route.test.ts` | |
+| `src/test/tr-import-isin-backfill.test.ts` | |
 
 Kein Schema-Change nötig.
 
@@ -220,10 +225,13 @@ Kein Schema-Change nötig.
 
 - Gruppierung: gleiche ISIN → eine Gruppe; verschiedene userId → getrennt
 - Ticker-Normalisierung `VUAA` / `VUAA.DE`
-- Merge verschiebt entries + dividends; quantity korrekt nach PURCHASE/SALE-Mix
-- Merge mit QUANTITY_UPDATE in Historie
-- Negativ-Menge → 422
-- Interest nicht mergebar
+- Eine ISIN + ähnlicher Name → medium-Gruppe
+- Clique-Split bei transitiven False-Positives (≥3 Assets)
+- `trImportRelevant` bei TR-Konto + `importRef`
+- Merge verschiebt entries + dividends; quantity korrekt (inkl. VWAP_UPDATE)
+- Merge Mock-Tx: cross-userId → 422, Interest → 403, negative qty → 422
+- NDJSON merge-suggestions route
+- TR ISIN-Backfill bei Ticker-Match
 - Null-Filter: qty=0 ausgeblendet; qty>0 mit Wert sichtbar
 
 ---
