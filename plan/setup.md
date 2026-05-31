@@ -9,7 +9,7 @@ Bedienoberfläche, lokale Entwicklung, Docker-Setup und Teststand.
 | Seite | Sidebar-Label | Inhalt |
 |---|---|---|
 | `/dashboard` | Dashboard | Widget-Grid (11 Typen): KPIs, Charts, Positionen, Uhr, Marktkalender, Top/Flop, Haushalt, Währungen, Vermögen, Dividenden |
-| `/investments` | Investments | Portfolio-Header, 4 Charts, Asset-Cards/Liste (DnD) |
+| `/investments` | Investments | Portfolio-Header, Charts, Asset-Cards/Liste (DnD); Filter/Sort nach Depot; Buttons **Import**, **Zusammenführen** (Admin) |
 | `/investments/new` | — | SecuritySearch + AssetForm (inkl. Konto-Feld) |
 | `/investments/[id]` | — | Asset-Detail: 4 KPI-Cards (Wert, G/V, Menge, VWAP) je mit Inline-Edit; RefreshCw-Button für Yahoo-Kurs; Entry-Tabelle mit QUANTITY_UPDATE/VWAP_UPDATE-Badges; AssetEntryEditDialog |
 | `/dividenden` | Dividenden | Manuelle Dividenden-Buchungen auf bestehende Positionen, Jahres-KPIs, Monats-Chart, Positionsübersicht |
@@ -166,7 +166,7 @@ Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frische
 
 ## Tests
 
-**118 Unit-Tests, alle grün** (Stand 2026-05-31). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
+**179 Unit-Tests, alle grün** (Stand 2026-06-01). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
 
 ```bash
 npm run test          # vitest run (einmalig)
@@ -175,15 +175,30 @@ npm run test:watch    # vitest (watch-Modus)
 
 | Datei | Fokus | Tests |
 |---|---|---|
-| `calculations.test.ts` | VWAP, Preis, G/V, Portfolio-/G/V-Historie (inkl. SALE, QUANTITY_UPDATE, VWAP_UPDATE) | 22 |
-| `validations.test.ts` | Auth, Asset, Entry, Edit, Backup, Simulation | 39 |
-| `i18n.test.ts` | Geld/Datum/%, date-fns-Locale, API-Fehlerübersetzung | 12 |
-| `dividends.test.ts` | Manuelle Dividenden, KPIs, Zod | 6 |
-| `household-finance.test.ts` | Monatsbereiche, Quartalsbonus, Simulation | 5 |
-| `security-price.test.ts` | `resolveStoredPrice` (EUR vs. Fremdwährung) | 5 |
-| `nasdaq-calendar.test.ts` | Symbol-Filter, Datum, Env-Schalter | 5 |
-| `currency.test.ts` | `getEurRate` (EUR, FX, Fehler) | 3 |
-| `release-notes.test.ts` | Version-Vergleich, unseen Release-Notes | 8 |
+| `validations.test.ts` | Auth, Asset, Entry, Backup, Simulation, TR-Import-Schemas | 43 |
+| `calculations.test.ts` | VWAP, Preis, G/V, Portfolio-/G/V-Historie | 26 |
+| `asset-merge.test.ts` | Merge-Vorschläge, Matching, Clique-Split | 16 |
+| `tr-import-progress.test.ts` | NDJSON-Progress, ETA, gewichtete Phasen | 11 |
+| `trade-republic-csv.test.ts` | CSV-Parser, Spalten, Betrag÷Stück | 9 |
+| `i18n.test.ts` | Geld/Datum/%, Locale, API-Fehler | 12 |
+| `release-notes.test.ts` | Version-Vergleich, Release-Notes | 8 |
+| `household-finance.test.ts` | Monatsbereiche, Quartalsbonus, Simulation | 8 |
+| `dividends.test.ts` | Manuelle Dividenden, KPIs | 6 |
+| `tr-import-sort.test.ts` | Konflikt-/Ticker-Partition, Sortierung | 5 |
+| `nasdaq-calendar.test.ts` | Symbol-Filter, Env-Schalter | 5 |
+| `security-price.test.ts` | `resolveStoredPrice` | 5 |
+| `merge-apply.test.ts` | Merge-Apply, Mengen-Recalc | 4 |
+| `tr-import-ticker-mapping.test.ts` | ISIN→Ticker, Overrides | 4 |
+| `tr-import-apply-progress.test.ts` | Apply-Fortschritt pro Zeile | 3 |
+| `currency.test.ts` | `getEurRate` | 3 |
+| `tr-import-routes.test.ts` | Preview/Apply NDJSON-Routes | 2 |
+| `merge-suggestions-route.test.ts` | Merge-Suggestions NDJSON | 2 |
+| `isin-resolver.test.ts` | Parallele ISIN-Auflösung | 2 |
+| `interest-asset.test.ts` | Interest-Platzhalter | 2 |
+| `delete-investment-account*.test.ts` | Depot leeren (Service + Route) | 2 |
+| `tr-import-isin-backfill.test.ts` | ISIN-Backfill beim Import | 1 |
+
+Weitere Testdateien siehe `src/test/`. Aktuelle Gesamtzahl: `npm run test`.
 
 ---
 

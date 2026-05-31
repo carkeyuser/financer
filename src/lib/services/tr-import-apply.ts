@@ -1,7 +1,8 @@
 import type { Prisma } from "@/generated/prisma"
 import { INTEREST_ASSET_TICKER, INTEREST_ASSET_NAME } from "@/lib/constants/interest-asset"
 import { tickerOverrideKey } from "@/lib/services/tr-import-ticker-mapping"
-import { resolveTradeQuantityPrice } from "@/lib/services/trade-republic-csv"
+import { formatInvalidTradeError, resolveTradeQuantityPrice } from "@/lib/services/trade-republic-csv"
+import { resolveImportAction } from "@/lib/services/tr-import-selection"
 import type { TrImportPreviewCacheEntry } from "@/lib/services/tr-import-preview-cache"
 import type { TrImportResolution, TrParsedRow, TrTickerOverride } from "@/lib/services/tr-import-types"
 import type { TrImportPreviewRow } from "@/lib/services/tr-import-types"
@@ -40,7 +41,7 @@ export async function applyTradeRepublicImport(
       const previewRow = previewById.get(parsed.rowId)
       if (!previewRow) continue
 
-      const resolution = resolveAction(previewRow, resolutions)
+      const resolution = resolveImportAction(previewRow, resolutions)
       if (resolution === "skip") {
         result.skipped++
         continue
@@ -73,12 +74,6 @@ export async function applyTradeRepublicImport(
   }
 
   return result
-}
-
-function resolveAction(row: TrImportPreviewRow, resolutions: Record<string, TrImportResolution>): TrImportResolution {
-  if (row.status === "skip_hard" || row.status === "ignored") return "skip"
-  if (row.status === "import_new") return "import"
-  return resolutions[row.rowId] ?? row.defaultResolution
 }
 
 function resolveTicker(
@@ -210,7 +205,7 @@ async function applyTrade(
   const entryType = parsed.eventType === "sale" ? "SALE" : "PURCHASE"
   const { qty, price } = resolveTradeQuantityPrice(parsed)
   if (qty <= 0 || price <= 0) {
-    throw new Error("Ungültige Menge oder Preis")
+    throw new Error(formatInvalidTradeError(parsed))
   }
 
   await tx.assetEntry.create({

@@ -2,7 +2,7 @@ import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, it, expect } from "vitest"
 import { buildPreviewRows, summarizePreviewRows } from "@/lib/services/tr-import-dedup"
-import { buildImportRef, parseTradeRepublicCsv } from "@/lib/services/trade-republic-csv"
+import { buildImportRef, formatInvalidTradeError, parseTradeRepublicCsv } from "@/lib/services/trade-republic-csv"
 
 const fixturePath = join(__dirname, "fixtures", "tr-export-sample.csv")
 
@@ -87,6 +87,41 @@ describe("parseTradeRepublicCsv", () => {
     expect(rows).toHaveLength(1)
     expect(rows[0].quantity).toBeCloseTo(5)
     expect(rows[0].price).toBeCloseTo(85.5)
+  })
+
+  it("skips non-executed rows", () => {
+    const csv = [
+      "ID,Status,Timestamp,Type,Name,Instrument,Shares,Rate,Debit,Credit",
+      "abc-1,cancelled,15 Jan 24 10:30 +0000,Purchase,Vanguard,IE00BK5BQT8V,5,85.5,427.50,0",
+      "abc-2,executed,16 Jan 24 10:30 +0000,Purchase,Vanguard,IE00BK5BQT8V,5,85.5,427.50,0",
+    ].join("\n")
+    const rows = parseTradeRepublicCsv(csv)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].orderId).toBe("abc-2")
+  })
+
+  it("uses max of debit and credit when both are present", () => {
+    const csv = [
+      "ID,Status,Timestamp,Type,Name,Instrument,Shares,Rate,Commission,Debit,Credit",
+      "abc-1,executed,15 Jan 24 10:30 +0000,Sale,Vanguard,IE00BK5BQT8V,-5,85.5,1,1,427.50",
+    ].join("\n")
+    const rows = parseTradeRepublicCsv(csv)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].totalEur).toBe(427.5)
+  })
+
+  it("formats invalid trade errors with row context", () => {
+    const msg = formatInvalidTradeError({
+      rawType: "purchase",
+      product: "Amazon.com",
+      isin: "US0231351067",
+      quantity: 0,
+      price: null,
+      totalEur: null,
+    })
+    expect(msg).toContain("Amazon.com")
+    expect(msg).toContain("US0231351067")
+    expect(msg).toContain("Menge 0")
   })
 })
 

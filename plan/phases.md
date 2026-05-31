@@ -303,7 +303,27 @@ POST /api/backup   → Restore aus JSON (löscht + reimportiert, Admin/Owner onl
 
 ---
 
-## Phase 10 — Positionen zusammenführen (F-39) ✅
+## Phase 10 — Trade Republic Import (F-38) ✅
+
+**Status:** Implementiert 2026-05-31, erweitert 2026-06-01 (Depot leeren).
+
+**Wizard:** 7 Schritte (Intro → Upload → Übersicht → Konflikte → Ticker → Bestätigen → Ergebnis). CSV aus TR-App; Hard-Dedup via `importRef` (Order ID); Soft-Match gegen bestehende Buchungen; Konflikt-Aktionen skip/import/link/replace; ISIN→Ticker (Portfolio vor Yahoo); Zinsen → Interest-Asset.
+
+**API:**
+
+```text
+POST /api/investments/import/trade-republic/preview   → NDJSON (parse, tickers, dedup)
+POST /api/investments/import/trade-republic/apply     → NDJSON Import
+DELETE /api/investments/accounts                      → alle Positionen eines Depot-Namens löschen
+```
+
+**Depot leeren (v0.0.9):** Im Upload-Schritt Hinweis + Button „Depot leeren“ (AlertDialog); optional Checkbox „vor Import leeren“. Löscht alle `Asset` mit passendem `account` + `userId` (Interest ausgenommen); Einträge/Dividenden per Cascade. Admins können Ziel-User wie beim Import wählen.
+
+**Services:** `trade-republic-csv.ts`, `tr-import-dedup.ts`, `tr-import-apply.ts`, `delete-investment-account.ts`
+
+---
+
+## Phase 11 — Positionen zusammenführen (F-39) ✅
 
 **Status:** Implementiert 2026-06-01. Spezifikation: [`feature-f39-merge-positions.md`](feature-f39-merge-positions.md).
 

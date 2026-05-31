@@ -112,7 +112,14 @@ financer/
     │       │   ├── route.ts               # GET alle Haushalt-Assets; POST mit Nachkauf-Logik
     │       │   ├── reorder/route.ts       # POST: Reihenfolge speichern
     │       │   ├── refresh-prices/route.ts # POST: Yahoo-Kurse → PRICE_UPDATE (Bulk)
+    │       │   ├── merge-suggestions/route.ts  # GET Duplikat-Scan (optional NDJSON)
+    │       │   ├── merge/route.ts         # POST Einzel-Merge
+    │       │   ├── merge/batch/route.ts   # POST Batch high-confidence
     │       │   └── [id]/route.ts          # GET/PUT/DELETE
+    │       ├── investments/
+    │       │   ├── import/trade-republic/preview/route.ts
+    │       │   ├── import/trade-republic/apply/route.ts
+    │       │   └── accounts/route.ts      # DELETE Depot leeren
     │       ├── asset-entries/
     │       │   ├── route.ts
     │       │   └── [id]/route.ts
@@ -179,10 +186,14 @@ financer/
     │       ├── PortfolioAllocationChart.tsx
     │       ├── PortfolioValueChart.tsx
     │       ├── PortfolioGainLossChart.tsx
-    │       └── AssetGainLossBarChart.tsx
+    │       ├── AssetGainLossBarChart.tsx
+    │       ├── tr-import/TradeRepublicImportWizard.tsx
+    │       └── merge/PositionMergeWizard.tsx
     │
     ├── hooks/
-    │   ├── useAssets.ts                   # CRUD + reorder + entries
+    │   ├── useAssets.ts                   # CRUD + reorder + entries + portfolio history
+    │   ├── useInvestmentAccount.ts        # DELETE Depot leeren
+    │   ├── useTradeRepublicImport.ts      # Preview/Apply NDJSON
     │   ├── useSecuritySearch.ts
     │   ├── useHousehold.ts                # useHouseholdFinance, useSaveMonthlyEntry, useDashboardSummary
     │   ├── useHouseholdFinanceSimulations.ts
