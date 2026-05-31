@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Docs:** Windows-Pfad `c:\dev\financer` in README/plan durch neutrales `financer/` ersetzt |
 | 2026-05-31 | **F-30 GitHub-ready:** `.gitignore` erweitert (`.env*` + `!.env.example`, `push.ps1`/`pack.ps1`, `.claude/`, `.cursor/`, `*.tar.gz`); IPs und persönliche Daten anonymisiert; `push.example.ps1`/`pack.example.ps1`; MIT LICENSE; GitHub Actions CI (lint, test, build); Initial Commit |
 | 2026-05-31 | **Deploy:** `push.ps1` — Parameter `-Deploy` kopiert und startet `docker compose up -d --build` per SSH (`.\push -Deploy`) |
 | 2026-05-31 | **Fix:** `LoginSnapshotDialog` — Link als Outline-Button via `buttonVariants` (Base UI Button hat kein `asChild`; Docker-Build TypeScript-Fehler) |

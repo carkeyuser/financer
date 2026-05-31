@@ -17,8 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf einem Proxmox LXC.
 
-**Arbeitsverzeichnis:** `c:\dev\financer`  
-**Stand:** 2026-05-31 (F-30 GitHub-ready)
+**Stand:** 2026-05-31 (README-Pfad anonymisiert)
 
 ---
 

@@ -26,7 +26,7 @@ Tech Stack, Projektstruktur und aktuelles Datenmodell.
 ## Projektstruktur
 
 ```text
-c:\dev\financer\
+financer/
 ├── plan/
 │   ├── README.md
 │   ├── architecture.md
