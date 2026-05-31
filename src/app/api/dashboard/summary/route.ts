@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { excludeInterestTicker } from "@/lib/constants/interest-asset"
 import { requireSession } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
 import {
@@ -29,7 +30,9 @@ export async function GET(req: Request) {
   const mineOnly = scope === "mine"
 
   const assets = await prisma.asset.findMany({
-    where: mineOnly ? { householdId, userId } : { householdId },
+    where: mineOnly
+      ? { householdId, userId, ticker: excludeInterestTicker }
+      : { householdId, ticker: excludeInterestTicker },
     include: { entries: { orderBy: { date: "asc" } } },
   })
 

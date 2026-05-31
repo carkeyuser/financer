@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { excludeInterestTicker, isInterestAsset } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
 import { requireSession } from "@/lib/household-auth"
 import { assetEditSchema } from "@/lib/validations/asset"
@@ -60,6 +61,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const asset = await prisma.asset.findFirst({ where: { id, householdId } })
   if (!asset) return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 })
+  if (isInterestAsset(asset)) {
+    return NextResponse.json({ error: "Interest-Position kann nicht bearbeitet werden" }, { status: 403 })
+  }
 
   const updated = await prisma.asset.update({
     where: { id },
@@ -93,6 +97,9 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
   const asset = await prisma.asset.findFirst({ where: { id, householdId } })
   if (!asset) return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 })
+  if (isInterestAsset(asset)) {
+    return NextResponse.json({ error: "Interest-Position kann nicht gelöscht werden" }, { status: 403 })
+  }
 
   await prisma.asset.delete({ where: { id } })
   return new NextResponse(null, { status: 204 })

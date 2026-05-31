@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { excludeInterestTicker } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
 import {
   fetchCalendarEvents,
@@ -16,7 +17,7 @@ export async function GET() {
     }
 
     const assets = await prisma.asset.findMany({
-      where: { householdId: session.user.householdId },
+      where: { householdId: session.user.householdId, ticker: excludeInterestTicker },
       select: { ticker: true, name: true },
     })
 
