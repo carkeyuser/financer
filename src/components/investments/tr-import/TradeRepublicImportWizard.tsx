@@ -38,7 +38,7 @@ type WizardStep = "intro" | "upload" | "analyze" | "overview" | "conflicts" | "t
 interface TradeRepublicImportWizardProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onOpenMerge?: () => void
+  onOpenMerge?: (trAccount: string) => void
 }
 
 export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: TradeRepublicImportWizardProps) {
@@ -320,7 +320,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
                 className="text-sm text-muted-foreground underline-offset-2 hover:underline"
                 onClick={() => {
                   handleClose(false)
-                  onOpenMerge()
+                  onOpenMerge(account.trim() || "Trade Republic")
                 }}
               >
                 {ti("cleanupDuplicates")}
@@ -448,7 +448,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
                 <Button
                   onClick={() => {
                     handleClose(false)
-                    onOpenMerge()
+                    onOpenMerge(account.trim() || preview?.account || "Trade Republic")
                   }}
                 >
                   {ti("mergeAfterImport")}
