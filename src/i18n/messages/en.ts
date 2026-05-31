@@ -46,6 +46,7 @@ export const enMessages = {
     householdSimulation: "Simulation",
     users: "Users",
     settings: "Settings",
+    releaseNotes: "Release notes",
     logout: "Sign out",
     householdLabel: "Household",
   },

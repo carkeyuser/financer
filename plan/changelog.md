@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.5** — Release-Notes-Button in Sidebar und Mobile-Menü (Ä-11) |
+| 2026-05-31 | **Ä-11 Changelog-Button:** Release-Notes-Button über Abmelden in Sidebar und Mobile-Menü; wiederverwendet `UpdateNotesDialog` + `release-notes.ts` |
 | 2026-05-31 | **Release v0.0.4** — Bankzinsen als Dividenden-Position `Interest` (F-35) |
 | 2026-05-31 | **F-35:** Bankzinsen als Dividenden-Position `Interest` — auto-provisioniert pro User, nur in Dividenden sichtbar, nicht im Portfolio |
 | 2026-05-31 | **F-36** (Backlog): Mandantenfähige User-Verwaltung — User in eigenem Haushalt, Investments nur eigene Positionen pro Tenant |

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { LogOut } from "lucide-react"
 import { HouseholdSwitcher } from "./HouseholdSwitcher"
+import { ReleaseNotesMenuButton } from "./ReleaseNotesMenuButton"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -73,7 +74,8 @@ export function Sidebar({ householdName }: SidebarProps) {
         })}
       </nav>
       <Separator />
-      <div className="p-2">
+      <div className="p-2 space-y-1">
+        <ReleaseNotesMenuButton />
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-muted-foreground"
