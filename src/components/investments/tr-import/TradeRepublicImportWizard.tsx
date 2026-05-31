@@ -19,11 +19,72 @@ import {
   type TrImportPreviewResponse,
 } from "@/hooks/useTradeRepublicImport"
 import { useI18n } from "@/i18n/context"
-import type { TrImportPreviewRow, TrImportResolution, TrTickerOverride } from "@/lib/services/tr-import-types"
+import type { TrImportPreviewRow, TrImportResolution, TrImportRowStatus, TrTickerOverride } from "@/lib/services/tr-import-types"
 import { countUnresolvedTickers, initialTickerOverrides, type TrTickerMapping } from "@/lib/services/tr-import-ticker-mapping"
 import { cn } from "@/lib/utils"
 
 type WizardStep = "intro" | "upload" | "analyze" | "overview" | "conflicts" | "tickers" | "confirm" | "result"
+
+/** Lower = further up — errors first, auto-assigned last. */
+const ROW_STATUS_PRIORITY: Record<TrImportRowStatus, number> = {
+  conflict: 0,
+  needs_ticker: 1,
+  skip_hard: 2,
+  skip_soft: 3,
+  ignored: 4,
+  import_new: 5,
+}
+
+function sortPreviewRows(rows: TrImportPreviewRow[]): TrImportPreviewRow[] {
+  return [...rows].sort((a, b) => {
+    const diff = ROW_STATUS_PRIORITY[a.status] - ROW_STATUS_PRIORITY[b.status]
+    if (diff !== 0) return diff
+    return a.lineNumber - b.lineNumber
+  })
+}
+
+function rowNeedsAttention(status: TrImportRowStatus): boolean {
+  return status === "conflict" || status === "needs_ticker"
+}
+
+function sortConflictRows(
+  rows: TrImportPreviewRow[],
+  resolutions: Record<string, TrImportResolution>
+): TrImportPreviewRow[] {
+  const priority = (row: TrImportPreviewRow) => {
+    if (row.status === "conflict" && !resolutions[row.rowId]) return 0
+    if (row.status === "conflict") return 1
+    return 2
+  }
+  return [...rows].sort((a, b) => {
+    const diff = priority(a) - priority(b)
+    if (diff !== 0) return diff
+    return a.lineNumber - b.lineNumber
+  })
+}
+
+function sortTickerMappings(
+  mappings: TrTickerMapping[],
+  overrides: Record<string, TrTickerOverride>
+): TrTickerMapping[] {
+  const priority = (m: TrTickerMapping) => {
+    if (m.requiresManual && !overrides[m.isin]?.symbol) return 0
+    if (m.hasTickerConflict) return 1
+    return 2
+  }
+  return [...mappings].sort((a, b) => {
+    const diff = priority(a) - priority(b)
+    if (diff !== 0) return diff
+    return a.isin.localeCompare(b.isin)
+  })
+}
+
+function tickerMappingNeedsAttention(
+  mapping: TrTickerMapping,
+  override: TrTickerOverride | undefined
+): boolean {
+  return (mapping.requiresManual && !override?.symbol) || mapping.hasTickerConflict
+}
 
 interface TradeRepublicImportWizardProps {
   open: boolean
@@ -66,9 +127,19 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
   const filteredRows = useMemo(() => {
     if (!preview) return []
-    if (filter === "all") return preview.rows
-    return preview.rows.filter((r) => r.status === filter)
+    const rows = filter === "all" ? preview.rows : preview.rows.filter((r) => r.status === filter)
+    return sortPreviewRows(rows)
   }, [preview, filter])
+
+  const sortedConflictRows = useMemo(
+    () => sortConflictRows(conflictRows, resolutions),
+    [conflictRows, resolutions]
+  )
+
+  const sortedTickerMappings = useMemo(
+    () => sortTickerMappings(tickerMappings, tickerOverrides),
+    [tickerMappings, tickerOverrides]
+  )
 
   const unresolvedConflicts = conflictRows.filter(
     (r) => r.status === "conflict" && !resolutions[r.rowId]
@@ -261,7 +332,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
         {step === "conflicts" && preview && (
           <ConflictsStep
-            rows={conflictRows}
+            rows={sortedConflictRows}
             resolutions={resolutions}
             setResolutions={setResolutions}
             unresolved={unresolvedConflicts}
@@ -281,7 +352,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
         {step === "tickers" && preview && (
           <TickersStep
-            mappings={tickerMappings}
+            mappings={sortedTickerMappings}
             tickerOverrides={tickerOverrides}
             setTickerOverrides={setTickerOverrides}
             unresolved={unresolvedTickers}
@@ -415,7 +486,13 @@ function OverviewStep({
           </thead>
           <tbody>
             {filteredRows.slice(0, 100).map((row) => (
-              <tr key={row.rowId} className="border-t">
+              <tr
+                key={row.rowId}
+                className={cn(
+                  "border-t",
+                  rowNeedsAttention(row.status) && "bg-destructive/5 hover:bg-destructive/10"
+                )}
+              >
                 <td className="p-2">{row.date}</td>
                 <td className="p-2">{row.product}</td>
                 <td className="p-2 text-right">
@@ -515,10 +592,20 @@ function ConflictCard({
     { id: "replace", labelKey: "actionReplace" },
   ]
 
+  const needsAttention = row.status === "conflict" && !resolution
+
   return (
-    <div className={cn("rounded-lg border p-3", row.status === "conflict" && "border-amber-500/50")}>
+    <div
+      className={cn(
+        "rounded-lg border p-3",
+        needsAttention && "border-destructive/40 bg-destructive/5",
+        row.status === "conflict" && resolution && "border-amber-500/50",
+        row.status === "skip_soft" && "opacity-90"
+      )}
+    >
       <div className="mb-2 flex items-center gap-2">
-        {row.status === "conflict" && <AlertTriangle className="h-4 w-4 text-amber-500" />}
+        {needsAttention && <AlertTriangle className="h-4 w-4 text-destructive" />}
+        {row.status === "conflict" && resolution && <AlertTriangle className="h-4 w-4 text-amber-500" />}
         <span className="text-sm font-medium">{row.product}</span>
         <Badge variant="outline">{row.date}</Badge>
       </div>
@@ -604,12 +691,14 @@ function TickersStep({
       <div className="max-h-80 space-y-4 overflow-y-auto">
         {mappings.map((mapping) => {
           const override = tickerOverrides[mapping.isin]
+          const needsAttention = tickerMappingNeedsAttention(mapping, override)
           return (
             <div
               key={mapping.isin}
               className={cn(
                 "rounded-lg border p-3 space-y-2",
-                mapping.requiresManual && !override?.symbol && "border-amber-500/50"
+                needsAttention && "border-destructive/40 bg-destructive/5",
+                !needsAttention && override?.symbol && "opacity-90"
               )}
             >
               <div className="flex flex-wrap items-center gap-2">
@@ -684,8 +773,8 @@ function TickersStep({
   )
 }
 
-function statusVariant(status: TrImportPreviewRow["status"]) {
-  if (status === "conflict") return "destructive" as const
+function statusVariant(status: TrImportRowStatus) {
+  if (status === "conflict" || status === "needs_ticker") return "destructive" as const
   if (status === "import_new") return "default" as const
   return "secondary" as const
 }
