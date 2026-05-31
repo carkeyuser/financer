@@ -98,7 +98,7 @@ bash /opt/financer/scripts/deploy.sh
 .\push -Deploy
 ```
 
-`docker-compose.yml` führt bei Start `npx prisma db push` aus (Produktions-DB ohne Migrationshistorie — siehe D-01 in `README.md`). Lokal: `npx prisma migrate deploy` für vollständige Migrationen.
+`docker-entrypoint.sh` führt bei Start `prisma db push` aus (Produktions-DB ohne Migrationshistorie — siehe D-01 in `README.md`). Runtime-Image: Standalone + nur Prisma-CLI/dotenv, kein Builder-`node_modules`. Lokal: `npx prisma migrate deploy` für vollständige Migrationen.
 
 ---
 
@@ -133,7 +133,7 @@ services:
     depends_on: { db: { condition: service_healthy } }
     ports: ["3000:3000"]
     networks: [finance_net]
-    command: sh -c "npx prisma db push && node server.js"
+    # ENTRYPOINT: docker-entrypoint.sh (db push + node server.js)
 
 networks:
   finance_net:

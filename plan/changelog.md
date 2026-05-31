@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **Release v0.0.6** — Schnellere Docker-Builds (schlankes Runtime-Image, BuildKit-Cache, Entrypoint) |
+| 2026-05-31 | **Docker Build:** Schlankes Runtime-Image (nur Prisma-CLI statt vollem `node_modules`), BuildKit-Cache, `.dockerignore`, selektiver Builder-COPY, `outputFileTracingIncludes` für Generated Client |
 | 2026-05-31 | **Release v0.0.5** — Release-Notes-Button in Sidebar und Mobile-Menü (Ä-11) |
 | 2026-05-31 | **Ä-11 Changelog-Button:** Release-Notes-Button über Abmelden in Sidebar und Mobile-Menü; wiederverwendet `UpdateNotesDialog` + `release-notes.ts` |
 | 2026-05-31 | **Release v0.0.4** — Bankzinsen als Dividenden-Position `Interest` (F-35) |

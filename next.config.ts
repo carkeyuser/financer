@@ -3,6 +3,9 @@ import pkg from "./package.json"
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/*": ["./src/generated/prisma/**/*"],
+  },
   // LAN-IP hier eintragen, z. B. "192.168.1.50"
   allowedDevOrigins: [],
   env: {

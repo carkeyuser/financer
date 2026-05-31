@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.6",
+    date: "2026-05-31",
+    highlights: {
+      de: [
+        "Schnellere Docker-Builds auf dem Server (deutlich kleineres Runtime-Image)",
+        "Nur Prisma-CLI im Container statt vollem node_modules — kürzeres Exportieren der Image-Layer",
+        "BuildKit-Cache für npm und Next.js; .dockerignore und gezielter Builder-COPY",
+      ],
+      en: [
+        "Faster Docker builds on the server (much smaller runtime image)",
+        "Prisma CLI only in the container instead of full node_modules — shorter image layer export",
+        "BuildKit cache for npm and Next.js; .dockerignore and selective builder COPY",
+      ],
+    },
+  },
+  {
     version: "0.0.5",
     date: "2026-05-31",
     highlights: {
