@@ -2,16 +2,18 @@ import { createHash } from "crypto"
 import type { TrImportEventType, TrParsedRow } from "@/lib/services/tr-import-types"
 
 const HEADER_ALIASES: Record<string, string[]> = {
-  date: ["date", "datum"],
+  date: ["date", "datum", "timestamp"],
   time: ["time", "zeit", "uhrzeit"],
-  product: ["product", "produkt", "instrument", "name"],
-  isin: ["isin"],
+  product: ["product", "produkt", "name"],
+  isin: ["isin", "instrument isin", "instrument", "wkn"],
   type: ["type", "typ", "transaction type", "transaktionstyp", "transaction", "transaktion"],
   quantity: ["number", "anzahl", "quantity", "shares", "stück", "menge"],
   price: ["price", "kurs", "rate"],
   totalEur: ["total eur", "eur value", "gesamt eur", "total", "betrag eur"],
+  debit: ["debit", "belastung"],
+  credit: ["credit", "gutschrift"],
   taxEur: ["tax amount", "steuer", "tax", "quellensteuer"],
-  orderId: ["order id", "orderid", "order-id", "referenz"],
+  orderId: ["order id", "orderid", "order-id", "referenz", "id"],
 }
 
 const IGNORED_TYPES = new Set([
@@ -60,12 +62,22 @@ export function parseTradeRepublicCsv(content: string): TrParsedRow[] {
     const date = parseDate(dateRaw, get("time"))
     if (!date) continue
 
-    const product = get("product") || get("type") || "Unknown"
-    const isin = normalizeIsin(get("isin"))
+    let product = get("product") || "Unknown"
+    let isin = normalizeIsin(get("isin"))
+    if (!isin) {
+      isin = findIsinInCells(cells)
+    }
+    if (!isin && product) {
+      const productAsIsin = normalizeIsin(product)
+      if (productAsIsin) {
+        isin = productAsIsin
+        product = get("type") || "Unknown"
+      }
+    }
     const rawType = (get("type") || product).toLowerCase()
     const quantity = parseNumber(get("quantity"))
     const price = parseNumber(get("price"))
-    const totalEur = parseNumber(get("totalEur"))
+    const totalEur = parseTotalEur(get)
     const taxEur = parseNumber(get("taxEur"))
     const orderId = get("orderId") || null
 
@@ -194,6 +206,24 @@ function parseDate(dateRaw: string, timeRaw: string): string | null {
 function normalizeIsin(raw: string): string | null {
   const s = raw.trim().toUpperCase()
   return /^[A-Z0-9]{12}$/.test(s) ? s : null
+}
+
+function findIsinInCells(cells: string[]): string | null {
+  for (const cell of cells) {
+    const isin = normalizeIsin(cell)
+    if (isin) return isin
+  }
+  return null
+}
+
+function parseTotalEur(get: (key: keyof typeof HEADER_ALIASES) => string): number | null {
+  const direct = parseNumber(get("totalEur"))
+  if (direct !== null && direct !== 0) return direct
+  const debit = parseNumber(get("debit"))
+  if (debit !== null && debit !== 0) return debit
+  const credit = parseNumber(get("credit"))
+  if (credit !== null && credit !== 0) return credit
+  return direct
 }
 
 function classifyEvent(

@@ -69,6 +69,10 @@ function classifyRow(row: TrParsedRow, ctx: DedupContext): TrImportPreviewRow {
     return toPreviewRow(row, "ignored", null, null, "skip")
   }
 
+  if (row.eventType !== "interest" && !row.isin) {
+    return toPreviewRow(row, "needs_ticker", null, null, "import")
+  }
+
   if (ctx.existingImportRefs.has(row.importRef)) {
     return toPreviewRow(row, "skip_hard", null, null, "skip")
   }

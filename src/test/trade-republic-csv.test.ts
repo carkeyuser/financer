@@ -38,6 +38,20 @@ describe("parseTradeRepublicCsv", () => {
   it("throws on empty file", () => {
     expect(() => parseTradeRepublicCsv("")).toThrow("EMPTY_FILE")
   })
+
+  it("parses portfolio-downloader CSV (Instrument column for ISIN)", () => {
+    const content = readFileSync(join(__dirname, "fixtures", "tr-export-portfolio-downloader.csv"), "utf-8")
+    const rows = parseTradeRepublicCsv(content)
+    expect(rows).toHaveLength(2)
+    const purchase = rows.find((r) => r.orderId === "abc-001")
+    const sale = rows.find((r) => r.orderId === "abc-002")
+    expect(purchase?.isin).toBe("IE00BK5BQT8V")
+    expect(purchase?.product).toBe("Vanguard FTSE All-World")
+    expect(purchase?.eventType).toBe("purchase")
+    expect(purchase?.quantity).toBe(5)
+    expect(sale?.eventType).toBe("sale")
+    expect(sale?.isin).toBe("IE00BK5BQT8V")
+  })
 })
 
 describe("tr-import dedup", () => {
