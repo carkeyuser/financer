@@ -151,11 +151,23 @@ cp .env.example .env && nano .env   # einmalig
 docker compose up -d --build
 ```
 
+### Release-Checkliste
+
+Bei jedem Release (Version-Bump + Deploy):
+
+1. `package.json` — `version` erhöhen (SemVer)
+2. [`CHANGELOG.md`](../CHANGELOG.md) — Abschnitt für neue Version
+3. [`src/data/release-notes.ts`](../src/data/release-notes.ts) — kuratierte Highlights (de/en, 3–8 Bullets)
+4. Git-Tag `vX.Y.Z` + GitHub Release
+5. Deploy (Auto-Deploy via CI oder `.\push -Deploy`)
+
+Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frischer Installation bleibt stumm.
+
 ---
 
 ## Tests
 
-**97 Unit-Tests, alle grün** (Stand 2026-05-27). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
+**112 Unit-Tests, alle grün** (Stand 2026-05-31). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
 
 ```bash
 npm run test          # vitest run (einmalig)
@@ -172,6 +184,7 @@ npm run test:watch    # vitest (watch-Modus)
 | `security-price.test.ts` | `resolveStoredPrice` (EUR vs. Fremdwährung) | 5 |
 | `nasdaq-calendar.test.ts` | Symbol-Filter, Datum, Env-Schalter | 5 |
 | `currency.test.ts` | `getEurRate` (EUR, FX, Fehler) | 3 |
+| `release-notes.test.ts` | Version-Vergleich, unseen Release-Notes | 8 |
 
 ---
 
@@ -183,17 +196,18 @@ GitHub-Hosted Runner erreichen **keine private IP** (`10.x`). Lösung: **Self-ho
 
 1. GitHub → Repo **financer** → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux → Befehle kopieren.
 
-2. Auf dem Server (als root):
+2. Auf dem Server — Runner entpacken (`curl` + `tar` aus GitHub-Anleitung), dann:
 
 ```bash
-mkdir -p /opt/actions-runner && cd /opt/actions-runner
-# curl + tar aus GitHub-Anleitung (Version aus UI)
-./config.sh --url https://github.com/carkeyuser/financer --token <TOKEN_AUS_UI>
-# Labels bestätigen oder ergänzen: financer
-./run.sh   # Test — danach als Service:
-./svc.sh install
-./svc.sh start
+cd /opt/actions-runner
+echo 'RUNNER_ALLOW_RUNASROOT=1' > .env   # nur nötig wenn als root
+./config.sh --url https://github.com/carkeyuser/financer --token ECHTER_TOKEN_HIER
+# Labels: financer ergänzen (Enter für Rest)
+./svc.sh install && ./svc.sh start
 ```
+
+> **Token:** Frischen Registration Token aus GitHub kopieren — **nicht** `<TOKEN>` tippen. Token ist ~1 h gültig und Einmalgebrauch.  
+> **Root:** GitHub verbietet root ohne `RUNNER_ALLOW_RUNASROOT=1` in `.env`. Alternativ: eigener User `github-runner` in Gruppe `docker`.
 
 3. Deploy-Skript ausführbar:
 

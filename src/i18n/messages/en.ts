@@ -124,6 +124,8 @@ export const enMessages = {
     twoFactorSetupFailed: "Setup failed",
     twoFactorLoadFailed: "Failed to load",
     pageDescription: "Manage profile and password",
+    appVersion: "App version {version}",
+    releaseNotes: "Release notes",
   },
   backup: {
     title: "Backup",
@@ -176,6 +178,12 @@ export const enMessages = {
     gainLossLabel: "Gain / loss (unrealized)",
     portfolioValue: "Total value",
     goToPortfolio: "Go to portfolio",
+  },
+  updateNotes: {
+    title: "What's new in v{version}",
+    description: "This Financer update includes:",
+    versionLabel: "Version {version}",
+    allReleases: "All releases",
   },
   widgets: {
     kpiCards: "Portfolio KPIs",
