@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { Progress, ProgressLabel } from "@/components/ui/progress"
 import {
   computeWeightedProgress,
@@ -20,13 +20,11 @@ export interface ImportProgressState {
 export function useImportEta(progress: ImportProgressState | null, locale: "de" | "en") {
   const startRef = useRef<number | null>(null)
 
-  useEffect(() => {
-    if (progress) {
-      if (startRef.current === null) startRef.current = Date.now()
-    } else {
-      startRef.current = null
-    }
-  }, [progress])
+  if (progress) {
+    if (startRef.current === null) startRef.current = Date.now()
+  } else {
+    startRef.current = null
+  }
 
   if (!progress || startRef.current === null) {
     return { percent: null as number | null, eta: null as string | null }

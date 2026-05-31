@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   computeWeightedProgress,
+  createNdjsonResponse,
   estimateRemainingSeconds,
   formatImportEta,
   readNdjsonStream,
@@ -28,6 +29,28 @@ describe("formatImportEta", () => {
   it("formats seconds and minutes in de", () => {
     expect(formatImportEta(45, "de")).toBe("45 Sek.")
     expect(formatImportEta(90, "de")).toBe("2 Min.")
+  })
+})
+
+describe("createNdjsonResponse", () => {
+  it("returns 500 JSON when handler fails before any progress", async () => {
+    const response = await createNdjsonResponse(async () => {
+      throw new Error("preview failed")
+    })
+    expect(response.status).toBe(500)
+    const body = await response.json()
+    expect(body.error).toBe("preview failed")
+  })
+
+  it("returns NDJSON stream when progress is emitted", async () => {
+    const response = await createNdjsonResponse(async (emit) => {
+      emit({ type: "progress", phase: "parse", current: 1, total: 1 })
+      emit({ type: "complete", data: { ok: true } })
+    })
+    expect(response.status).toBe(200)
+    expect(response.headers.get("Content-Type")).toContain("ndjson")
+    const result = await readNdjsonStream<{ ok: boolean }>(response)
+    expect(result).toEqual({ ok: true })
   })
 })
 

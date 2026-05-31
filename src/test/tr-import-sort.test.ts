@@ -75,6 +75,24 @@ describe("partitionTickerMappings", () => {
     expect(resolved).toHaveLength(1)
     expect(resolved[0].isin).toBe("AAA")
   })
+
+  it("moves ticker conflict to resolved after override is chosen", () => {
+    const mappings = [
+      baseMapping({
+        isin: "CCC",
+        hasTickerConflict: true,
+        portfolioTicker: { symbol: "VWCE.DE", name: "VWCE", type: "ETF", currency: "EUR" },
+        yahooTicker: { symbol: "VWRA.L", name: "VWRA", type: "ETF", currency: "USD" },
+      }),
+    ]
+    const overrides = {
+      CCC: { symbol: "VWCE.DE", name: "VWCE", type: "ETF" as const, currency: "EUR" },
+    }
+    const { needsAttention, resolved } = partitionTickerMappings(mappings, overrides)
+    expect(needsAttention).toHaveLength(0)
+    expect(resolved).toHaveLength(1)
+    expect(resolved[0].isin).toBe("CCC")
+  })
 })
 
 describe("mappingsNeedingReview", () => {

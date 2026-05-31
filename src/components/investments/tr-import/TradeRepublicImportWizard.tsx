@@ -25,7 +25,6 @@ import type { TrImportPhase } from "@/lib/services/tr-import-progress"
 import {
   partitionConflictRows,
   partitionTickerMappings,
-  mappingsNeedingReview,
   rowNeedsAttention,
   sortOverviewRows,
 } from "@/lib/services/tr-import-sort"
@@ -98,11 +97,6 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
     [tickerMappings, tickerOverrides]
   )
 
-  const reviewTickerMappings = useMemo(
-    () => mappingsNeedingReview(tickerMappings, tickerOverrides),
-    [tickerMappings, tickerOverrides]
-  )
-
   const unresolvedConflicts = conflictRows.filter(
     (r) => r.status === "conflict" && !resolutions[r.rowId]
   ).length
@@ -156,12 +150,12 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
 
   const goAfterOverview = () => {
     if (conflictRows.length > 0) setStep("conflicts")
-    else if (reviewTickerMappings.length > 0 || (preview?.summary.needsTicker ?? 0) > 0) setStep("tickers")
+    else if (tickerPartition.needsAttention.length > 0) setStep("tickers")
     else setStep("confirm")
   }
 
   const goAfterConflicts = () => {
-    if (reviewTickerMappings.length > 0) setStep("tickers")
+    if (tickerPartition.needsAttention.length > 0) setStep("tickers")
     else setStep("confirm")
   }
 
@@ -377,7 +371,7 @@ export function TradeRepublicImportWizard({ open, onOpenChange }: TradeRepublicI
             </p>
             <SummaryCards summary={preview.summary} ti={ti} />
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep(reviewTickerMappings.length > 0 ? "tickers" : conflictRows.length > 0 ? "conflicts" : "overview")}>
+              <Button variant="outline" onClick={() => setStep(tickerPartition.needsAttention.length > 0 ? "tickers" : conflictRows.length > 0 ? "conflicts" : "overview")}>
                 {ti("back")}
               </Button>
               <Button disabled={unresolvedTickers > 0} onClick={runApply}>

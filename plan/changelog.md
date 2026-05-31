@@ -4,6 +4,9 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-05-31 | **B-24–B-27:** TR-Import — ETA ab erstem Event; ISIN-Retry/Concurrency 2; NDJSON-Fehler vor Stream → HTTP 500; Tickers-Step nur bei `needsAttention` |
+| 2026-05-31 | **B-22, B-23:** TR-Import — Apply-Fortschritt via `finally` pro Zeile; Ticker-Konflikt rutscht nach Override in „Erledigt“ |
+| 2026-05-31 | **B-22–B-32:** Code-Review TR-Import — 11 Bugs im Backlog (`plan/bugs.md`): Apply-Progress-Lücken, Ticker-Konflikt-Partition, ETA-Start, fehlende Tests |
 | 2026-05-31 | **F-38 UX:** TR-Import — Fortschrittsbalken mit ETA (NDJSON-Streaming bei Analyse + Apply); Konflikte/Ticker in Folge-Steps oben („Zu prüfen"), auto-zugeordnete ISINs eingeklappt; Scroll-Reset bei Step-Wechsel |
 | 2026-05-31 | **F-38 UX:** TR-Import-Wizard — Zeilen sortiert (Fehler oben, Auto-Zuordnung unten), problematische Einträge leicht rot markiert |
 | 2026-05-31 | **Deploy:** `scripts/deploy.sh` baut lokal (`git pull` + `compose up --build`); GHCR-Overlay nur noch optional — kein Versions-Rückschritt mehr nach `git pull` |

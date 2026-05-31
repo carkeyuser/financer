@@ -64,7 +64,8 @@ export function tickerMappingNeedsAttention(
   mapping: TrTickerMapping,
   override: TrTickerOverride | undefined
 ): boolean {
-  return (mapping.requiresManual && !override?.symbol) || mapping.hasTickerConflict
+  if (override?.symbol) return false
+  return mapping.requiresManual || mapping.hasTickerConflict
 }
 
 export function sortTickerMappings(
@@ -72,8 +73,9 @@ export function sortTickerMappings(
   overrides: Record<string, TrTickerOverride>
 ): TrTickerMapping[] {
   const priority = (m: TrTickerMapping) => {
-    if (m.requiresManual && !overrides[m.isin]?.symbol) return 0
-    if (m.hasTickerConflict) return 1
+    if (tickerMappingNeedsAttention(m, overrides[m.isin])) {
+      return m.requiresManual ? 0 : 1
+    }
     return 2
   }
   return [...mappings].sort((a, b) => {
