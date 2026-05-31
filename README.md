@@ -313,32 +313,24 @@ Die App ist erreichbar unter: `http://YOUR_SERVER:3000` (oder der in `NEXTAUTH_U
 
 ### Updates einspielen
 
-**Server (Pull aus GHCR — empfohlen nach CI-Setup):**
-
-Einmalig GHCR-Login (PAT mit `read:packages`, falls Repo privat):
-
-```bash
-echo "ghp_..." | docker login ghcr.io -u YOUR_GITHUB_USER --password-stdin
-```
-
-```bash
-cd /opt/financer
-git pull   # nur docker-compose*.yml + .env aktuell halten
-docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
-
-Image: `ghcr.io/carkeyuser/financer:latest` (wird bei **Version-Tags** `v*` von GitHub Actions gebaut — nach Release taggen, dann `pull`).
-
-**Server (lokaler Build — Fallback):**
-
 ```bash
 cd /opt/financer
 git pull
 docker compose up -d --build
 ```
 
-> Standard-`docker-compose.yml` baut `finance-app:latest` lokal (`pull_policy: build`).
+Oder alles in einem Schritt: `./scripts/deploy.sh`
+
+> **`--build` ist nötig**, damit der Container den frischen Code aus `git pull` nutzt. Nur `up -d` startet den alten Container neu.
+
+**Optional — GHCR statt lokalem Build** (nur nach Release-Tag `v*`, sonst keine neuen Commits auf `main`):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+Image: `ghcr.io/carkeyuser/financer:latest`
 
 **Von Windows (optional, mit `push.ps1`):**
 
