@@ -16,6 +16,7 @@ const WIDGET_ICONS: Record<string, React.ElementType> = {
   "clock":            Clock,
   "market-calendar":  CalendarDays,
   "dividend-summary": DollarSign,
+  "portfolio-snapshot": TrendingUp,
 }
 
 const WIDGET_TITLE_KEYS: Record<string, MessageKey> = {
@@ -30,6 +31,7 @@ const WIDGET_TITLE_KEYS: Record<string, MessageKey> = {
   "currency-exposure": "widgets.currencyExposure",
   "net-worth": "widgets.netWorth",
   "dividend-summary": "widgets.dividendSummary",
+  "portfolio-snapshot": "widgets.portfolioSnapshot",
 }
 
 interface Props {

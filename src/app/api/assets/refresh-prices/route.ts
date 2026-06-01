@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { excludeInterestTicker } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
+import { syncNotificationsForHousehold } from "@/lib/services/notifications"
+import { upsertTodayPortfolioSnapshot } from "@/lib/services/portfolio-snapshot"
 import {
   fetchSecurityPriceFromYahoo,
   resolveStoredPrice,
@@ -51,6 +53,13 @@ export async function POST() {
     } else {
       failed.push(ticker)
     }
+  }
+
+  try {
+    await upsertTodayPortfolioSnapshot(householdId)
+    await syncNotificationsForHousehold(householdId)
+  } catch (e) {
+    console.error("[refresh-prices] snapshot/notifications", e)
   }
 
   return NextResponse.json({ updated, failed, skipped })

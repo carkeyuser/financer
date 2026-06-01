@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useI18n } from "@/i18n/context"
+import { NotificationBell } from "./NotificationBell"
 import { navItems } from "./navigation"
 
 interface SidebarProps {
@@ -23,11 +24,16 @@ export function Sidebar({ householdName }: SidebarProps) {
   return (
     <aside className="hidden flex-col w-60 min-h-screen border-r bg-card md:flex">
       <div className="px-4 py-5">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-          {t("nav.householdLabel")}
-        </p>
-        <HouseholdSwitcher />
-        <p className="font-semibold text-sm truncate mt-1">{householdName ?? t("common.dash")}</p>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+              {t("nav.householdLabel")}
+            </p>
+            <HouseholdSwitcher />
+            <p className="font-semibold text-sm truncate mt-1">{householdName ?? t("common.dash")}</p>
+          </div>
+          <NotificationBell variant="sidebar" />
+        </div>
       </div>
       <Separator />
       <nav className="flex-1 px-2 py-3 space-y-1">

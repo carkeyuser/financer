@@ -19,6 +19,7 @@ import { HouseholdSummaryWidget } from "@/components/dashboard/HouseholdSummaryW
 import { CurrencyExposureWidget } from "@/components/dashboard/CurrencyExposureWidget"
 import { NetWorthWidget } from "@/components/dashboard/NetWorthWidget"
 import { DividendSummaryWidget } from "@/components/dashboard/DividendSummaryWidget"
+import { PortfolioSnapshotWidget } from "@/components/dashboard/PortfolioSnapshotWidget"
 import { WidgetManager } from "@/components/dashboard/WidgetManager"
 import { useAssets } from "@/hooks/useAssets"
 import { useDashboardSummary } from "@/hooks/useHousehold"
@@ -380,6 +381,12 @@ export function DashboardContent() {
         return (
           <WidgetShell key={widgetId} title={title} {...shellControls}>
             <DividendSummaryWidget />
+          </WidgetShell>
+        )
+      case "portfolio-snapshot":
+        return (
+          <WidgetShell key={widgetId} title={title} {...shellControls}>
+            <PortfolioSnapshotWidget />
           </WidgetShell>
         )
       default:

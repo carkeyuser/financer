@@ -75,6 +75,9 @@ model User {
   dashboardWidgets         DashboardWidget[]
   financeSimulations       HouseholdFinanceSimulation[]
   financeSimulationEntries HouseholdFinanceSimulationEntry[]
+  notifications            Notification[]
+  notificationReads        NotificationRead[]
+  monthChecklistItems      HouseholdMonthChecklist[]
 }
 
 enum Role {
@@ -97,7 +100,10 @@ model Household {
   monthlyIncomes     MonthlyIncome[]
   monthlyPayouts     MonthlyPayout[]
   fixedCostSnapshots MonthlyFixedCostSnapshot[]
-  financeSimulations HouseholdFinanceSimulation[]
+  financeSimulations      HouseholdFinanceSimulation[]
+  portfolioDailySnapshots PortfolioDailySnapshot[]
+  notifications           Notification[]
+  monthChecklistItems     HouseholdMonthChecklist[]
 }
 
 model HouseholdMember {
@@ -346,6 +352,84 @@ model HouseholdFinanceSimulationEntry {
 enum SimulationEntryType {
   INCOME
   PAYOUT
+}
+
+// ─── Daily Habit (F-40–F-44) ─────────────────────────────────────────────────
+
+model PortfolioDailySnapshot {
+  id          String   @id @default(cuid())
+  householdId String
+  date        DateTime @db.Date
+  totalEur    Decimal  @db.Decimal(18, 2)
+  gainLossEur Decimal? @db.Decimal(18, 2)
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, date])
+  @@index([householdId])
+}
+
+enum NotificationType {
+  PRICE_MOVE
+  CALENDAR
+  HOUSEHOLD_MONTH
+  QUARTER_BONUS
+  DIVIDEND_EXPECTED
+  HOUSEHOLD_PARTNER_PENDING
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  householdId String
+  userId      String?
+  type        NotificationType
+  titleKey    String
+  bodyKey     String
+  payload     Json             @default("{}")
+  dedupeKey   String
+  createdAt   DateTime         @default(now())
+
+  household Household          @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reads     NotificationRead[]
+
+  @@unique([householdId, dedupeKey])
+  @@index([householdId, createdAt])
+}
+
+model NotificationRead {
+  notificationId String
+  userId         String
+  readAt         DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([notificationId, userId])
+}
+
+enum HouseholdChecklistStep {
+  INCOME
+  FIXED_COSTS
+  PAYOUTS
+  TRANSFERS_DONE
+}
+
+model HouseholdMonthChecklist {
+  id          String                 @id @default(cuid())
+  householdId String
+  year        Int
+  month       Int
+  userId      String
+  step        HouseholdChecklistStep
+  completedAt DateTime               @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, year, month, userId, step])
+  @@index([householdId, year, month])
 }
 
 // ─── Dashboard Widgets ────────────────────────────────────────────────────────
