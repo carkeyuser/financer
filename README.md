@@ -18,6 +18,18 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 |---|---|
 | ![Dashboard — mobil, Dark Mode](docs/screenshots/dashboard-mobile-dark.png) | ![Sidebar — mobil, Dark Mode](docs/screenshots/sidebar-mobile-dark.png) |
 
+**Investments — Wert-Verlauf** (Dark): Historischer Portfoliowert mit Zeitraum-Presets (1W bis Gesamt) und Yahoo-Kurven ab erstem Kaufdatum:
+
+![Investments — Wert-Verlauf, Dark Mode](docs/screenshots/investments-value-chart-dark.png)
+
+**Dividenden — Monatsverlauf** (Dark): Manuell erfasste Dividenden und Bankzinsen als Balkendiagramm pro Monat:
+
+![Dividenden — Monatsverlauf, Dark Mode](docs/screenshots/dividends-monthly-chart-dark.png)
+
+**Einstellungen — 2FA** (Dark): TOTP-Zwei-Faktor-Authentifizierung (QR-Setup in den Einstellungen, Admin-Toggle unter Benutzer):
+
+![Einstellungen — 2FA aktiv, Dark Mode](docs/screenshots/settings-2fa-dark.png)
+
 | Bereich | Inhalt |
 |---|---|
 | **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven, Auto-Refresh (2h) |
@@ -25,7 +37,9 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 | **Positionen** | Duplikate zusammenführen (Merge-Wizard), Null-Positionen ausblendbar |
 | **Dividenden** | Manuelle Dividenden-Buchungen auf Positionen, Jahres-KPIs, Monats-Chart |
 | **Haushaltskasse** | Fixkosten, Monatseinkommen, Auszahlungslogik mit Quartals-Bonus; **Simulationen** (Was-wäre-wenn-Szenarien) |
-| **Dashboard** | Frei konfigurierbares Widget-Grid (Drag & Drop, **11 Widgets**) |
+| **Dashboard** | Frei konfigurierbares Widget-Grid (Drag & Drop, **12 Widgets** inkl. Vermögens-Snapshot) |
+| **Heute** | Tages-Briefing (`/heute`): Portfolio, Top/Flop, Kalender, Haushalt, Dividenden, Monatsroutine |
+| **Benachrichtigungen** | Notification Bell in der Sidebar (Kurs, Termine, Haushalt, Dividenden) |
 | **Multi-User** | Haushalte, Rollen, Einladungen, Tenant-Provisioning, 2FA (TOTP) |
 | **Sicherheit** | Username + Passwort, JSON-Backup/Restore (inkl. Dividenden & Simulationen) |
 | **Sprache** | Deutsch / Englisch (pro User in Einstellungen) |
@@ -553,7 +567,7 @@ Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. 
 
 ## 12. Tests
 
-**196 Unit-Tests** in 25 Dateien (Vitest + Testing Library):
+**202 Unit-Tests** in 26 Dateien (Vitest + Testing Library):
 
 ```bash
 npm run test          # einmalig
@@ -670,7 +684,7 @@ docker compose restart app
 ```
 financer/
 ├── docs/
-│   └── screenshots/           # README-Vorschau (Desktop Light/Dark, Mobile)
+│   └── screenshots/           # README-Vorschau (Dashboard, Mobile, Charts, 2FA)
 ├── plan/                      # Projektdokumentation, Architektur, Backlogs, deploy.md
 ├── scripts/
 │   ├── update.sh              # Server-Update (build oder ghcr)
