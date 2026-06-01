@@ -35,7 +35,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | **8** Feature-Backlog | 🟡 teilweise offen | DevOps F-31, Kalender F-34 |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
-| **Tests** | ✅ Unit-Tests | Vitest, **179 Tests** in 23 Dateien, alle grün |
+| **Tests** | ✅ Unit-Tests | Vitest, **196 Tests** in 25 Dateien, alle grün |
 
 ---
 

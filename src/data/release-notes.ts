@@ -14,11 +14,15 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
       de: [
         "Positionen zusammenführen: Duplikate erkennen und per Wizard zu einer Position mergen",
         "TR-Import: Depot leeren — alle Positionen eines Kontos vor Neuimport löschen",
+        "TR-Import: Auswahl-Step mit Checkboxen und Schnellauswahl vor dem Import",
+        "Tenant-Benutzer löschen: Owner/Admin können angelegte Tenant-User entfernen",
         "Merge-Wizard UX: durchsuchbare Auswahl, leere Positionen ausblenden, breiterer Dialog",
       ],
       en: [
         "Merge positions: detect duplicates and combine into one position via wizard",
         "TR import: clear depot — delete all positions for an account before re-import",
+        "TR import: selection step with checkboxes and quick filters before apply",
+        "Delete tenant users: owner/admin can remove provisioned tenant accounts",
         "Merge wizard UX: searchable picker, hide empty positions, wider dialog",
       ],
     },

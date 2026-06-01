@@ -71,7 +71,7 @@ Jede Hauptroute hat `layout.tsx` mit `<AuthGuard>`. Page-Komponenten dürfen `Au
 npm run dev                            # Dev-Server (localhost:3000)
 npm run build                          # Production-Build prüfen
 npm run lint                           # ESLint
-npm run test                           # 118 Unit-Tests (vitest run)
+npm run test                           # Unit-Tests (vitest run)
 npm run test:watch                     # vitest watch
 
 npx prisma studio                      # DB-Daten im Browser
@@ -167,7 +167,7 @@ Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frische
 
 ## Tests
 
-**179 Unit-Tests, alle grün** (Stand 2026-06-01). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
+**196 Unit-Tests, alle grün** (Stand 2026-06-01). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
 
 ```bash
 npm run test          # vitest run (einmalig)

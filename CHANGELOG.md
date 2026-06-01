@@ -3,6 +3,19 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.9] - 2026-06-01
+
+### Added
+
+- **Investments — Merge positions (F-39)** — Wizard to combine duplicate assets (same security, different ticker/ISIN gap); NDJSON scan for suggestions; hide zero-quantity positions by default
+- **TR import — Clear depot** — Delete all positions for an account (including entries and dividends) before re-import; optional checkbox in wizard
+- **TR import — Selection step** — Checkbox per row, quick filters (all/none/new/matched/with amount), sort by amount
+- **Admin — Delete provisioned tenant users** — `DELETE /api/admin/users/[userId]`; household admins can manage tenants created by the owner
+
+### Changed
+
+- **Deploy** — Documented `FINANCER_DEPLOY_MODE` (`build` vs `ghcr`), `./scripts/update.sh`, and [plan/deploy.md](plan/deploy.md)
+
 ## [0.0.8] - 2026-05-31
 
 ### Added

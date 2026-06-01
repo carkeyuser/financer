@@ -2,6 +2,8 @@
 
 Self-hosted Finance-Dashboard für kleine Haushalte (Paar/WG). Manuelle Datenerfassung — keine Bank- oder Broker-APIs.
 
+**Repository:** [github.com/carkeyuser/financer](https://github.com/carkeyuser/financer) · **Lizenz:** MIT
+
 ## Vorschau
 
 Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Positionen (Light/Dark):
@@ -13,14 +15,16 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 | Bereich | Inhalt |
 |---|---|
 | **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven, Auto-Refresh (2h) |
+| **TR-Import** | Trade-Republic-CSV (7-Schritte-Wizard), Auswahl-Step, Konflikt-Lösung, Depot leeren vor Neuimport |
+| **Positionen** | Duplikate zusammenführen (Merge-Wizard), Null-Positionen ausblendbar |
 | **Dividenden** | Manuelle Dividenden-Buchungen auf Positionen, Jahres-KPIs, Monats-Chart |
 | **Haushaltskasse** | Fixkosten, Monatseinkommen, Auszahlungslogik mit Quartals-Bonus; **Simulationen** (Was-wäre-wenn-Szenarien) |
 | **Dashboard** | Frei konfigurierbares Widget-Grid (Drag & Drop, **11 Widgets**) |
-| **Multi-User** | Haushalte, Rollen, Einladungen, Benutzer direkt anlegen, 2FA (TOTP) |
+| **Multi-User** | Haushalte, Rollen, Einladungen, Tenant-Provisioning, 2FA (TOTP) |
 | **Sicherheit** | Username + Passwort, JSON-Backup/Restore (inkl. Dividenden & Simulationen) |
 | **Sprache** | Deutsch / Englisch (pro User in Einstellungen) |
 
-**Release:** v0.0.8 · Kein Ausgaben-/Budget-Modul (entfernt — passt nicht zum Nutzungsmodell).
+**Release:** [v0.0.9](CHANGELOG.md#090---2026-06-01) · Kein Ausgaben-/Budget-Modul (entfernt — passt nicht zum Nutzungsmodell).
 
 **Tech-Stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
 **Deployment:** Docker Compose auf Proxmox LXC (Debian 12)  
@@ -66,10 +70,24 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 - Kauf/Verkauf, Nachkauf-Logik (gleicher Ticker → Menge summiert, VWAP aktualisiert)
 - Inline-Korrekturen auf der Detailseite: Kurs, Menge, Ø-Kaufpreis
 - 4 umschaltbare Charts: Allokation (Torte), Wert-Verlauf, G/V-Verlauf, G/V pro Position
-- Historische Yahoo-Kurse in Charts (ab erstem Kaufdatum)
+- Historische Yahoo-Kurse in Charts (ab erstem Kaufdatum); Zeitraum-Presets (1W–Gesamt)
 - Alle Werte in EUR (Wechselkurse via Yahoo Forex; FX-Fehler → API 503, keine falschen EUR-Werte)
 - Card-/Listen-Ansicht, Sortierung (Depot/Besitzer/Wert), Drag & Drop für Reihenfolge
+- Null-Positionen standardmäßig ausblendbar (Filter in der Liste)
 - Auto-Refresh der Kurse alle 2h (`PortfolioPriceRefresh` in `AuthGuard`)
+
+**Trade-Republic-Import** (Button „Import“):
+
+- CSV aus der TR-App; 7-Schritte-Wizard mit NDJSON-Fortschritt und ETA
+- Auswahl-Step: Zeilen per Checkbox, Schnellauswahl (Alle/Keine/Nur neue/…), Sortierung nach Betrag
+- Hard-Dedup über Order-ID (`importRef`); Soft-Match gegen manuelle Buchungen (skip/import/link/replace)
+- ISIN→Ticker (Portfolio vor Yahoo); Zinsen → automatische `Interest`-Position
+- **Depot leeren:** alle Positionen eines Kontos inkl. Buchungen/Dividenden vor Neuimport löschen (optional per Checkbox)
+
+**Positionen zusammenführen** (Admin, Button „Zusammenführen“):
+
+- Duplikat-Vorschläge (gleiches Wertpapier, unterschiedlicher Ticker/ISIN-Lücke) oder manuelle Auswahl
+- Einträge und Dividenden werden auf die Ziel-Position verschoben, Menge neu berechnet
 
 ### Dividenden (`/dividenden`)
 
@@ -87,10 +105,11 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 ### Benutzer & Haushalt (`/household`)
 
 - Mitgliederliste mit Rollen (Owner, Admin, Member)
-- User direkt anlegen (Owner): **Mitglied dieses Haushalts** oder **eigener Haushalt (Tenant)** — Tenant-User erscheinen nicht in der Mitgliederliste und sind datentechnisch isoliert
+- User direkt anlegen (Owner/Admin): **Mitglied dieses Haushalts** oder **eigener Haushalt (Tenant)** — Tenant-User erscheinen nicht in der Mitgliederliste und sind datentechnisch isoliert
+- **Angelegte Benutzer (eigene Haushalte):** Tenant-User des Haushalts-Owners bearbeiten, 2FA umschalten, löschen (Owner und Admin)
 - Einladungslink (7-Tage-Token) für den aktiven Haushalt
 - Haushalts-Switcher in der Sidebar
-- Admin: andere User bearbeiten (Name, Username, Passwort zurücksetzen)
+- Admin: Haushaltsmitglieder bearbeiten (Name, Username, Passwort zurücksetzen)
 - 2FA für User per Admin-Toggle aktivierbar
 
 ### Einstellungen (`/settings`)
@@ -99,6 +118,7 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 - 2FA einrichten/deaktivieren (TOTP mit QR-Code)
 - Sprache: Deutsch / Englisch
 - Datensicherung: JSON-Export + Restore
+- Release-Notes / Update-Dialog (auch in der Sidebar über „Release Notes“)
 
 ---
 
@@ -246,7 +266,7 @@ cp .env.example .env && nano .env
 docker compose up -d --build
 ```
 
-In `.env` optional `FINANCER_DEPLOY_MODE=ghcr` für Updates ohne lokalen Build (siehe Abschnitt 7).
+In `.env` setzen: `FINANCER_DEPLOY_MODE=build` (Default) oder `ghcr` — siehe [Abschnitt 7](#7-starten--updates) und [plan/deploy.md](plan/deploy.md).
 
 ### Option C: Manuell per `scp`
 
@@ -284,6 +304,9 @@ NEXTAUTH_SECRET=<langer_zufaelliger_schluessel>
 
 # URL unter der die App erreichbar ist
 NEXTAUTH_URL=http://YOUR_SERVER:3000
+
+# Deploy-Modus: build (git pull + lokal bauen) oder ghcr (Image pull)
+FINANCER_DEPLOY_MODE=build
 
 # Optional: ohne Outbound-HTTPS zu api.nasdaq.com (gesperrter LXC)
 # MARKET_CALENDAR_EXTERNAL=false
@@ -325,7 +348,7 @@ Die App ist erreichbar unter: `http://YOUR_SERVER:3000` (oder der in `NEXTAUTH_U
 
 ### Updates einspielen
 
-Modus in `.env`: `FINANCER_DEPLOY_MODE=build` (Default) oder `ghcr`.
+Modus in `.env`: `FINANCER_DEPLOY_MODE=build` (Default) oder `ghcr`. Ausführliche Referenz: **[plan/deploy.md](plan/deploy.md)**.
 
 **Ein Befehl (beide Modi):**
 
@@ -524,27 +547,25 @@ Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. 
 
 ## 12. Tests
 
-**118 Unit-Tests** in 10 Dateien (Vitest + Testing Library), alle grün:
+**196 Unit-Tests** in 25 Dateien (Vitest + Testing Library):
 
 ```bash
 npm run test          # einmalig
 npm run test:watch    # Watch-Modus
 ```
 
-| Datei | Fokus |
+| Bereich | Dateien (Auswahl) |
 |---|---|
-| `calculations.test.ts` | VWAP, G/V, Portfolio-/G/V-Historie (inkl. QUANTITY_UPDATE, VWAP_UPDATE) |
-| `validations.test.ts` | Zod-Schemas (Auth, Assets, Backup, Simulation, …) |
-| `i18n.test.ts` | Formatierung, API-Fehler-Übersetzung |
-| `dividends.test.ts` | Manuelle Dividenden, KPIs |
-| `household-finance.test.ts` | Monatsbereiche, Quartalsbonus, Simulation |
-| `security-price.test.ts` | `resolveStoredPrice` (EUR vs. Fremdwährung) |
-| `nasdaq-calendar.test.ts` | Symbol-Filter, `MARKET_CALENDAR_EXTERNAL` |
-| `currency.test.ts` | `getEurRate` |
-| `release-notes.test.ts` | Versionsvergleich, Update-Dialog |
-| `interest-asset.test.ts` | Zins-/Tagesgeld-Positionen |
+| Kern | `calculations.test.ts`, `validations.test.ts`, `currency.test.ts`, `security-price.test.ts` |
+| Haushalt | `household-finance.test.ts` |
+| Dividenden | `dividends.test.ts`, `interest-asset.test.ts` |
+| Dashboard | `nasdaq-calendar.test.ts`, `release-notes.test.ts` |
+| TR-Import | `trade-republic-csv.test.ts`, `tr-import-*.test.ts` (Parser, Routes, Auswahl, Sort, Ticker, ISIN) |
+| Merge / Depot | `asset-merge.test.ts`, `merge-apply.test.ts`, `merge-suggestions-route.test.ts`, `delete-investment-account*.test.ts` |
+| Admin | `delete-provisioned-user.test.ts` |
+| Sonstiges | `i18n.test.ts`, `isin-resolver.test.ts` |
 
-Nur Unit-Tests — keine E2E- oder API-Integration-Tests.
+Vollständige Liste: `src/test/`. Nur Unit-Tests — keine E2E- oder API-Integration-Tests.
 
 ---
 
@@ -644,10 +665,15 @@ docker compose restart app
 financer/
 ├── docs/
 │   └── screenshots/           # README-Vorschau (Dashboard Light/Dark)
-├── plan/                      # Projektdokumentation, Architektur, Backlogs, Änderungslog
+├── plan/                      # Projektdokumentation, Architektur, Backlogs, deploy.md
+├── scripts/
+│   ├── update.sh              # Server-Update (build oder ghcr)
+│   └── deploy.sh              # Hard-Reset auf origin/main + Rebuild
 ├── README.md                  # Diese Datei
+├── CHANGELOG.md               # Release-Historie (Keep a Changelog)
 ├── .env.example               # Env-Template
 ├── docker-compose.yml         # PostgreSQL + Next.js
+├── docker-compose.prod.yml    # GHCR-Overlay (Pull-Deploy)
 ├── Dockerfile                 # Multi-Stage Build (standalone)
 ├── push.example.ps1           # Deploy-Vorlage (lokal → push.ps1 kopieren)
 ├── pack.example.ps1           # Pack-Vorlage (lokal → pack.ps1 kopieren)

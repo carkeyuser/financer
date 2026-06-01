@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-01 | **README:** v0.0.9, TR-Import/Merge/Deploy/Tenant-Löschen, 196 Tests; CHANGELOG 0.0.9 |
 | 2026-06-01 | **Tenant-Benutzer löschen:** `DELETE /api/admin/users/[userId]` für provisionierte User; Haushalts-Admin darf Tenant-User des Owners verwalten/löschen; UI Löschen-Button unter „Angelegte Benutzer" |
 | 2026-06-01 | **CI:** Docker-Job — `setup-buildx-action` vor GHCR-Build (GHA-Cache braucht Buildx, nicht default docker driver) |
 | 2026-06-01 | **Deploy:** Zwei gleichwertige Update-Pfade — `FINANCER_DEPLOY_MODE=build` (git pull + `--build`) oder `ghcr` (compose pull + up -d); `./scripts/update.sh`; CI pusht GHCR-Image bei jedem Push auf `main` |
