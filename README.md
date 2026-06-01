@@ -12,6 +12,12 @@ Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Pos
 |---|---|
 | ![Dashboard — Light Mode](docs/screenshots/dashboard-light.png) | ![Dashboard — Dark Mode](docs/screenshots/dashboard-dark.png) |
 
+**Mobile:** Responsives Layout für Smartphone und Tablet — Hamburger-Menü, touch-freundliche Widget-Karten (Verschieben/Schließen) und einspaltiges Dashboard-Grid. Gleiche Funktionen wie am Desktop, optimiert für kleine Viewports (Dark Mode):
+
+| Dashboard (mobil) | Navigation (mobil) |
+|---|---|
+| ![Dashboard — mobil, Dark Mode](docs/screenshots/dashboard-mobile-dark.png) | ![Sidebar — mobil, Dark Mode](docs/screenshots/sidebar-mobile-dark.png) |
+
 | Bereich | Inhalt |
 |---|---|
 | **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven, Auto-Refresh (2h) |
@@ -664,7 +670,7 @@ docker compose restart app
 ```
 financer/
 ├── docs/
-│   └── screenshots/           # README-Vorschau (Dashboard Light/Dark)
+│   └── screenshots/           # README-Vorschau (Desktop Light/Dark, Mobile)
 ├── plan/                      # Projektdokumentation, Architektur, Backlogs, deploy.md
 ├── scripts/
 │   ├── update.sh              # Server-Update (build oder ghcr)
