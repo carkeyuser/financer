@@ -28,8 +28,5 @@ export function createTotpSchema(locale: Locale) {
   return z.object({ token: z.string().length(6, t("validation.totpLength")) })
 }
 
-export const profileSchema = createProfileSchema("de")
-export const passwordSchema = createPasswordSchema("de")
-
 export type ProfileInput = z.infer<ReturnType<typeof createProfileSchema>>
 export type PasswordInput = z.infer<ReturnType<typeof createPasswordSchema>>

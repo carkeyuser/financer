@@ -65,11 +65,6 @@ export function buildUpdateHouseholdNameSchema(locale: Locale) {
   })
 }
 
-export const acceptInviteSchema = createAcceptInviteSchema("de")
-export const createUserSchema = buildCreateUserSchema("de")
-export const editUserSchema = buildEditUserSchema("de")
-export const updateHouseholdNameSchema = buildUpdateHouseholdNameSchema("de")
-
 export type InviteInput = z.infer<typeof inviteSchema>
 export type AcceptInviteInput = z.infer<ReturnType<typeof createAcceptInviteSchema>>
 export type CreateUserInput = z.infer<ReturnType<typeof buildCreateUserSchema>>

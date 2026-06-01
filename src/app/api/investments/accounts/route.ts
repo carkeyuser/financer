@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { canManageHousehold, requireSession } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
 import { deleteInvestmentAccountData } from "@/lib/services/delete-investment-account"
-import { deleteInvestmentAccountSchema } from "@/lib/validations/investment-account"
+import { createDeleteInvestmentAccountSchema } from "@/lib/validations/investment-account"
+import { sessionLocale } from "@/lib/session-locale"
 
 async function resolveTargetUserId(
   ctx: { userId: string; householdId: string },
@@ -34,7 +35,7 @@ export async function DELETE(request: Request) {
   if ("error" in ctx) return NextResponse.json({ error: ctx.error }, { status: ctx.status })
 
   const body = await request.json().catch(() => null)
-  const parsed = deleteInvestmentAccountSchema.safeParse(body)
+  const parsed = createDeleteInvestmentAccountSchema(sessionLocale(ctx.session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

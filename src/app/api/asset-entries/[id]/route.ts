@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { requireHouseholdAdmin } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
-import { assetEntryUpdateSchema } from "@/lib/validations/asset"
+import { createAssetEntryUpdateSchema } from "@/lib/validations/asset"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const admin = await requireHouseholdAdmin()
@@ -12,7 +13,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const householdId = admin.householdId
 
   const body = await req.json()
-  const parsed = assetEntryUpdateSchema.safeParse(body)
+  const parsed = createAssetEntryUpdateSchema(sessionLocale(admin.session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

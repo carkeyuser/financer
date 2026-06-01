@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest"
 import { formatMoney, formatDate, formatPercent, getDateFnsLocale } from "@/i18n/format"
 import { mapApiError, translateApiError } from "@/i18n/api-errors"
+import { deMessages } from "@/i18n/messages/de"
+import { enMessages } from "@/i18n/messages/en"
+import { collectMessageKeys } from "@/i18n/message-keys"
+import { createSimulationSchema } from "@/lib/validations/household-finance-simulation"
 import { de } from "date-fns/locale"
 import { enUS } from "date-fns/locale"
 
@@ -65,5 +69,44 @@ describe("translateApiError", () => {
 
   it("returns generic for unknown shape", () => {
     expect(translateApiError(null, "en")).toBe("An error occurred")
+  })
+
+  it("translates FX load error", () => {
+    expect(mapApiError("Wechselkurse konnten nicht geladen werden", "en")).toBe(
+      "Exchange rates could not be loaded"
+    )
+  })
+})
+
+describe("message key parity", () => {
+  it("en has every de message key", () => {
+    const deKeys = new Set(collectMessageKeys(deMessages as unknown as Record<string, unknown>))
+    const enKeys = new Set(collectMessageKeys(enMessages as unknown as Record<string, unknown>))
+    const missingInEn = [...deKeys].filter((k) => !enKeys.has(k)).sort()
+    expect(missingInEn).toEqual([])
+  })
+
+  it("de has every en message key", () => {
+    const deKeys = new Set(collectMessageKeys(deMessages as unknown as Record<string, unknown>))
+    const enKeys = new Set(collectMessageKeys(enMessages as unknown as Record<string, unknown>))
+    const missingInDe = [...enKeys].filter((k) => !deKeys.has(k)).sort()
+    expect(missingInDe).toEqual([])
+  })
+})
+
+describe("locale-aware simulation validation", () => {
+  it("returns English message for invalid range", () => {
+    const result = createSimulationSchema("en").safeParse({
+      name: "Test",
+      startYear: 2026,
+      startMonth: 10,
+      endYear: 2026,
+      endMonth: 9,
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const messages = result.error.issues.map((i) => i.message)
+      expect(messages).toContain("End must be after start")
+    }
   })
 })

@@ -35,8 +35,5 @@ export function createLoginSchema(locale: Locale) {
   })
 }
 
-export const registerSchema = createRegisterSchema("de")
-export const loginSchema = createLoginSchema("de")
-
 export type RegisterInput = z.infer<ReturnType<typeof createRegisterSchema>>
 export type LoginInput = z.infer<ReturnType<typeof createLoginSchema>>

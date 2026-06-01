@@ -8,6 +8,24 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.0.10",
+    date: "2026-06-01",
+    highlights: {
+      de: [
+        "i18n: API-Validierung und Zod-Fehlermeldungen folgen der Nutzer-Sprache (de/en)",
+        "i18n: Erweiterte Übersetzung von API-Fehlern (FX, TR-Import, Interest-Position u. a.)",
+        "i18n: HTML lang aus Session; Dialog/Sheet-Schließen übersetzt",
+        "Tests: automatische Key-Parität zwischen de.ts und en.ts",
+      ],
+      en: [
+        "i18n: API validation and Zod messages follow the user locale (de/en)",
+        "i18n: More API errors translated (FX, TR import, interest position, etc.)",
+        "i18n: HTML lang from session; translated close label on dialogs/sheets",
+        "Tests: automatic key parity check between de.ts and en.ts",
+      ],
+    },
+  },
+  {
     version: "0.0.9",
     date: "2026-06-01",
     highlights: {
