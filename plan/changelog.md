@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-01 | **README:** Mobile-Vorschau (Dashboard + Sidebar), Hinweis auf responsive UI |
+| 2026-06-01 | **Backlog Ä-12/Ä-13:** TR-Import — Dividenden-Vorschau mit Auswahl; Zeitraum-Filter (von/bis) mit Häkchen vor Import |
 | 2026-06-01 | **README:** v0.0.9, TR-Import/Merge/Deploy/Tenant-Löschen, 196 Tests; CHANGELOG 0.0.9 |
 | 2026-06-01 | **Tenant-Benutzer löschen:** `DELETE /api/admin/users/[userId]` für provisionierte User; Haushalts-Admin darf Tenant-User des Owners verwalten/löschen; UI Löschen-Button unter „Angelegte Benutzer" |
 | 2026-06-01 | **CI:** Docker-Job — `setup-buildx-action` vor GHCR-Build (GHA-Cache braucht Buildx, nicht default docker driver) |
