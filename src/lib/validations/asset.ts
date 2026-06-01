@@ -54,11 +54,6 @@ export function createAssetEntryUpdateSchema(locale: Locale) {
   })
 }
 
-export const assetSchema = createAssetSchema("de")
-export const assetEntrySchema = createAssetEntrySchema("de")
-export const assetEditSchema = createAssetEditSchema("de")
-export const assetEntryUpdateSchema = createAssetEntryUpdateSchema("de")
-
 export type AssetInput = z.infer<ReturnType<typeof createAssetSchema>>
 export type AssetEntryInput = z.infer<ReturnType<typeof createAssetEntrySchema>>
 export type AssetEntryUpdateInput = z.infer<ReturnType<typeof createAssetEntryUpdateSchema>>

@@ -33,6 +33,7 @@ export const deMessages = {
     noData: "Keine Daten",
     error: "Fehler",
     themeToggle: "Theme wechseln",
+    close: "Schließen",
   },
   nav: {
     menu: "Menü",
@@ -758,6 +759,10 @@ export const deMessages = {
     usernameChars30: "Nur Buchstaben, Zahlen, _ und -",
     min8Chars: "Mindestens 8 Zeichen",
     tokenMissing: "Token fehlt",
+    positionRequired: "Position ist erforderlich",
+    simulationEndBeforeStart: "Ende muss nach dem Start liegen",
+    simulationMaxMonths: "Zeitraum darf maximal {max} Monate umfassen",
+    simulationDuplicateUserPerMonth: "User darf pro Monat nur einmal vorkommen",
   },
 }
 

@@ -3,7 +3,8 @@ import bcrypt from "bcryptjs"
 import { fixedCostsForHousehold } from "@/lib/constants/default-fixed-costs"
 import { requireHouseholdAdmin } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
-import { createUserSchema } from "@/lib/validations/household"
+import { buildCreateUserSchema } from "@/lib/validations/household"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function POST(request: Request) {
   const admin = await requireHouseholdAdmin()
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const parsed = createUserSchema.safeParse(body)
+  const parsed = buildCreateUserSchema(sessionLocale(admin.session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

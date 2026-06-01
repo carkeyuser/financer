@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { createSimulationSchema } from "@/lib/validations/household-finance-simulation"
+import { sessionLocale } from "@/lib/session-locale"
 import { buildSimulationBaseline, simulationMonthEntries } from "@/lib/services/household-finance-simulation"
 
 export async function GET() {
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.householdId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await req.json()
-  const parsed = createSimulationSchema.safeParse(body)
+  const parsed = createSimulationSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   const householdId = session.user.householdId

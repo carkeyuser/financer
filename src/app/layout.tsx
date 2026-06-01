@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import { QueryProvider } from "@/components/providers/QueryProvider"
 import { AppProviders } from "@/components/providers/AppProviders"
+import { auth } from "@/lib/auth"
+import { sessionLocale } from "@/lib/session-locale"
 import "./globals.css"
 
 const geist = Geist({ subsets: ["latin"] })
@@ -13,9 +15,12 @@ export const metadata: Metadata = {
   description: "Personal finance dashboard",
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth()
+  const lang = sessionLocale(session)
+
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className={geist.className}>
         <AppProviders>
           <QueryProvider>

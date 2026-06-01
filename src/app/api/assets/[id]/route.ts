@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth"
 import { excludeInterestTicker, isInterestAsset } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
 import { requireSession } from "@/lib/household-auth"
-import { assetEditSchema } from "@/lib/validations/asset"
+import { createAssetEditSchema } from "@/lib/validations/asset"
+import { sessionLocale } from "@/lib/session-locale"
 import { getEurRate } from "@/lib/utils/currency"
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -54,7 +55,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const householdId = session.user.householdId
 
   const body = await request.json()
-  const parsed = assetEditSchema.safeParse(body)
+  const parsed = createAssetEditSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

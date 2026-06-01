@@ -7,7 +7,9 @@ import {
   type DividendAssetOption,
   type ManualDividendPayment,
 } from "@/lib/utils/dividends"
-import { dividendPaymentSchema } from "@/lib/validations/dividend"
+import { createDividendPaymentSchema } from "@/lib/validations/dividend"
+
+const dividendPaymentSchema = createDividendPaymentSchema("de")
 
 const asset: DividendAssetOption = {
   id: "a1",

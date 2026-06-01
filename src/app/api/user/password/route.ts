@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { passwordSchema } from "@/lib/validations/settings"
+import { createPasswordSchema } from "@/lib/validations/settings"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function PATCH(request: Request) {
   const session = await auth()
@@ -11,7 +12,7 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const parsed = passwordSchema.safeParse(body)
+  const parsed = createPasswordSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

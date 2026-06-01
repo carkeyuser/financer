@@ -167,7 +167,16 @@ Nutzer sehen nach dem Deploy einmalig den Update-Dialog; Erstbesuch nach frische
 
 ## Tests
 
-**196 Unit-Tests, alle grün** (Stand 2026-06-01). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
+**200 Unit-Tests, alle grün** (Stand 2026-06-01). Vitest + Testing Library. **Keine E2E- oder API-Integration-Tests.**
+
+### i18n (Deutsch / Englisch)
+
+- Locales: `de` (Default), `en` — pro User in `User.locale`, JWT/Session, Umschalter unter `/settings`
+- UI-Texte: `src/i18n/messages/de.ts` + `en.ts`, Client via `useI18n()` / `t("namespace.key")`
+- API-Validierung: `createXSchema(sessionLocale(session))` in Routen — **keine** statischen `createXSchema("de")`-Exports
+- API-Fehler: deutsche Server-Strings werden clientseitig über `translateApiError` / `API_ERROR_MAP` gemappt; neue Fehler dort ergänzen
+- Release Notes: `src/data/release-notes.ts` — `highlights.de` und `highlights.en`
+- Tests: `i18n.test.ts` prüft Formatierung, API-Fehler-Mapping und **Key-Parität** de/en
 
 ```bash
 npm run test          # vitest run (einmalig)
@@ -181,7 +190,7 @@ npm run test:watch    # vitest (watch-Modus)
 | `asset-merge.test.ts` | Merge-Vorschläge, Matching, Clique-Split | 16 |
 | `tr-import-progress.test.ts` | NDJSON-Progress, ETA, gewichtete Phasen | 11 |
 | `trade-republic-csv.test.ts` | CSV-Parser, Spalten, Betrag÷Stück | 9 |
-| `i18n.test.ts` | Geld/Datum/%, Locale, API-Fehler | 12 |
+| `i18n.test.ts` | Geld/Datum/%, Locale, API-Fehler, Key-Parität de/en | 16 |
 | `release-notes.test.ts` | Version-Vergleich, Release-Notes | 8 |
 | `household-finance.test.ts` | Monatsbereiche, Quartalsbonus, Simulation | 8 |
 | `dividends.test.ts` | Manuelle Dividenden, KPIs | 6 |

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { assetEntrySchema } from "@/lib/validations/asset"
+import { createAssetEntrySchema } from "@/lib/validations/asset"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
   const householdId = session.user.householdId
 
   const body = await request.json()
-  const parsed = assetEntrySchema.safeParse(body)
+  const parsed = createAssetEntrySchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

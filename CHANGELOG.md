@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.10] - 2026-06-01
+
+### Changed
+
+- **i18n** — Locale-aware Zod schemas on API routes (`sessionLocale`); simulation, dividend, and depot validation use message keys in de/en
+- **i18n** — Extended `API_ERROR_MAP` for English users (FX, TR import, interest asset, etc.)
+- **i18n** — Root layout sets `html lang` from session; accessible close label on dialogs/sheets
+
+### Added
+
+- **Tests** — i18n key parity between `de.ts` and `en.ts`; 200 unit tests total
+
 ## [0.0.9] - 2026-06-01
 
 ### Added

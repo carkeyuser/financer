@@ -35,6 +35,7 @@ export const enMessages = {
     noData: "No data",
     error: "Error",
     themeToggle: "Toggle theme",
+    close: "Close",
   },
   nav: {
     menu: "Menu",
@@ -760,5 +761,9 @@ export const enMessages = {
     usernameChars30: "Only letters, numbers, _ and -",
     min8Chars: "At least 8 characters",
     tokenMissing: "Token missing",
+    positionRequired: "Position is required",
+    simulationEndBeforeStart: "End must be after start",
+    simulationMaxMonths: "Range may span at most {max} months",
+    simulationDuplicateUserPerMonth: "Each user may only appear once per month",
   },
 } satisfies Messages

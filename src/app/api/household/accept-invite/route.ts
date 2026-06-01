@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { acceptInviteSchema } from "@/lib/validations/household"
+import { createAcceptInviteSchema } from "@/lib/validations/household"
+import { sessionLocale } from "@/lib/session-locale"
 
 async function findValidInvite(token: string) {
   const invite = await prisma.householdInvite.findUnique({
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const parsed = acceptInviteSchema.safeParse(body)
+  const parsed = createAcceptInviteSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
 
   const invite = await findValidInvite(parsed.data.token)
