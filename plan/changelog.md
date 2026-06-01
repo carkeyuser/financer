@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-01 | **Release v0.0.10** — i18n: locale-aware API-Validierung, erweiterte API-Fehler-Übersetzung, `html lang` aus Session, Key-Parität-Tests; 200 Unit-Tests |
+| 2026-06-01 | **i18n vervollständigt:** API-Routen nutzen `sessionLocale` + locale-aware Zod-Schemas; Simulation/Dividend/Depot-Validierung mit Message-Keys; erweiterte `API_ERROR_MAP`; Root-`html lang` aus Session; Key-Parität-Test de/en; `common.close` für Dialog/Sheet |
 | 2026-06-01 | **README:** Mobile-Vorschau (Dashboard + Sidebar), Hinweis auf responsive UI |
 | 2026-06-01 | **Backlog Ä-12/Ä-13:** TR-Import — Dividenden-Vorschau mit Auswahl; Zeitraum-Filter (von/bis) mit Häkchen vor Import |
 | 2026-06-01 | **README:** v0.0.9, TR-Import/Merge/Deploy/Tenant-Löschen, 196 Tests; CHANGELOG 0.0.9 |

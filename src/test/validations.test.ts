@@ -1,12 +1,20 @@
 import { describe, it, expect } from "vitest"
-import { registerSchema, loginSchema } from "@/lib/validations/auth"
-import { assetSchema, assetEntrySchema, assetEditSchema } from "@/lib/validations/asset"
+import { createRegisterSchema, createLoginSchema } from "@/lib/validations/auth"
+import { createAssetSchema, createAssetEntrySchema, createAssetEditSchema } from "@/lib/validations/asset"
 import { backupSchema } from "@/lib/validations/backup"
 import {
   createSimulationSchema,
   updateSimulationMonthSchema,
 } from "@/lib/validations/household-finance-simulation"
 import { buildCreateUserSchema } from "@/lib/validations/household"
+
+const registerSchema = createRegisterSchema("de")
+const loginSchema = createLoginSchema("de")
+const assetSchema = createAssetSchema("de")
+const assetEntrySchema = createAssetEntrySchema("de")
+const assetEditSchema = createAssetEditSchema("de")
+const createSimulationSchemaDe = createSimulationSchema("de")
+const updateSimulationMonthSchemaDe = updateSimulationMonthSchema("de")
 
 describe("registerSchema", () => {
   const validBase = {
@@ -358,15 +366,15 @@ describe("createSimulationSchema", () => {
   }
 
   it("accepts a custom range across years", () => {
-    expect(createSimulationSchema.safeParse(validSimulation).success).toBe(true)
+    expect(createSimulationSchemaDe.safeParse(validSimulation).success).toBe(true)
   })
 
   it("rejects an end month before the start month", () => {
-    expect(createSimulationSchema.safeParse({ ...validSimulation, endYear: 2026, endMonth: 9 }).success).toBe(false)
+    expect(createSimulationSchemaDe.safeParse({ ...validSimulation, endYear: 2026, endMonth: 9 }).success).toBe(false)
   })
 
   it("rejects ranges longer than 36 months", () => {
-    expect(createSimulationSchema.safeParse({ ...validSimulation, endYear: 2030, endMonth: 1 }).success).toBe(false)
+    expect(createSimulationSchemaDe.safeParse({ ...validSimulation, endYear: 2030, endMonth: 1 }).success).toBe(false)
   })
 })
 
@@ -380,17 +388,17 @@ describe("updateSimulationMonthSchema", () => {
   }
 
   it("accepts valid month values", () => {
-    expect(updateSimulationMonthSchema.safeParse(validMonth).success).toBe(true)
+    expect(updateSimulationMonthSchemaDe.safeParse(validMonth).success).toBe(true)
   })
 
   it("rejects negative amounts", () => {
-    expect(updateSimulationMonthSchema.safeParse({ ...validMonth, fixedCosts: -1 }).success).toBe(false)
-    expect(updateSimulationMonthSchema.safeParse({ ...validMonth, incomes: [{ userId: "u1", amount: -1 }] }).success).toBe(false)
+    expect(updateSimulationMonthSchemaDe.safeParse({ ...validMonth, fixedCosts: -1 }).success).toBe(false)
+    expect(updateSimulationMonthSchemaDe.safeParse({ ...validMonth, incomes: [{ userId: "u1", amount: -1 }] }).success).toBe(false)
   })
 
   it("rejects duplicate users per value type", () => {
     expect(
-      updateSimulationMonthSchema.safeParse({
+      updateSimulationMonthSchemaDe.safeParse({
         ...validMonth,
         incomes: [
           { userId: "u1", amount: 1000 },

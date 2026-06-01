@@ -4,7 +4,8 @@ import { requireHouseholdAdmin } from "@/lib/household-auth"
 import { prisma } from "@/lib/prisma"
 import { assertOwnerCanManageUser } from "@/lib/provisioned-users"
 import { deleteProvisionedUserAccount } from "@/lib/services/delete-provisioned-user"
-import { editUserSchema } from "@/lib/validations/household"
+import { buildEditUserSchema } from "@/lib/validations/household"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function PATCH(
   request: Request,
@@ -27,7 +28,7 @@ export async function PATCH(
   }
 
   const body = await request.json()
-  const parsed = editUserSchema.safeParse(body)
+  const parsed = buildEditUserSchema(sessionLocale(admin.session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

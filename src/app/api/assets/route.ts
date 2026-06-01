@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { excludeInterestTicker, isInterestAsset } from "@/lib/constants/interest-asset"
 import { prisma } from "@/lib/prisma"
-import { assetSchema } from "@/lib/validations/asset"
+import { createAssetSchema } from "@/lib/validations/asset"
+import { sessionLocale } from "@/lib/session-locale"
 import { getEurRate } from "@/lib/utils/currency"
 
 export async function GET() {
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
   const userId = session.user.id
 
   const body = await request.json()
-  const parsed = assetSchema.safeParse(body)
+  const parsed = createAssetSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

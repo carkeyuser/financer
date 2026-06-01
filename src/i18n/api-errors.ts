@@ -52,6 +52,57 @@ const API_ERROR_MAP: Record<string, { de: string; en: string }> = {
   "User not in household": { de: "Benutzer nicht im Haushalt", en: "User not in household" },
   "Not found": { de: "Nicht gefunden", en: "Not found" },
   "widgetId required": { de: "widgetId erforderlich", en: "widgetId required" },
+  "Wechselkurs konnte nicht geladen werden": {
+    de: "Wechselkurs konnte nicht geladen werden",
+    en: "Exchange rate could not be loaded",
+  },
+  "Wechselkurse konnten nicht geladen werden": {
+    de: "Wechselkurse konnten nicht geladen werden",
+    en: "Exchange rates could not be loaded",
+  },
+  "interval muss 1d, 1wk oder 1mo sein": {
+    de: "interval muss 1d, 1wk oder 1mo sein",
+    en: "interval must be 1d, 1wk or 1mo",
+  },
+  "Interest-Position kann nicht bearbeitet werden": {
+    de: "Interest-Position kann nicht bearbeitet werden",
+    en: "Interest position cannot be edited",
+  },
+  "Interest-Position kann nicht gelöscht werden": {
+    de: "Interest-Position kann nicht gelöscht werden",
+    en: "Interest position cannot be deleted",
+  },
+  "Interest ist eine reservierte Dividenden-Position": {
+    de: "Interest ist eine reservierte Dividenden-Position",
+    en: "Interest is a reserved dividend position",
+  },
+  "Keine CSV-Datei hochgeladen": { de: "Keine CSV-Datei hochgeladen", en: "No CSV file uploaded" },
+  "Datei zu groß (max. 5 MB)": { de: "Datei zu groß (max. 5 MB)", en: "File too large (max. 5 MB)" },
+  "Zielbenutzer nicht im Haushalt": {
+    de: "Zielbenutzer nicht im Haushalt",
+    en: "Target user is not in the household",
+  },
+  "Import fehlgeschlagen": { de: "Import fehlgeschlagen", en: "Import failed" },
+  "Bitte einen Moment warten und erneut versuchen": {
+    de: "Bitte einen Moment warten und erneut versuchen",
+    en: "Please wait a moment and try again",
+  },
+  "Ungültiger Request": { de: "Ungültiger Request", en: "Invalid request" },
+  "Vorschau abgelaufen — bitte CSV erneut hochladen": {
+    de: "Vorschau abgelaufen — bitte CSV erneut hochladen",
+    en: "Preview expired — please upload the CSV again",
+  },
+  "Stream ohne Ergebnis": { de: "Stream ohne Ergebnis", en: "Stream ended without result" },
+  "Request failed": { de: "Anfrage fehlgeschlagen", en: "Request failed" },
+  "Löschen fehlgeschlagen": { de: "Löschen fehlgeschlagen", en: "Delete failed" },
+  "Month outside simulation": {
+    de: "Monat liegt außerhalb der Simulation",
+    en: "Month is outside the simulation",
+  },
+  "Aktuelles Passwort ist falsch": {
+    de: "Aktuelles Passwort ist falsch",
+    en: "Current password is incorrect",
+  },
 }
 
 export function mapApiError(message: string, locale: Locale): string {

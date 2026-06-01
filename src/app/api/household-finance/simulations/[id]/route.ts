@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { calculateHouseholdFinance, monthKey } from "@/lib/utils/household-finance"
 import { updateSimulationSchema } from "@/lib/validations/household-finance-simulation"
+import { sessionLocale } from "@/lib/session-locale"
 import {
   buildSimulationBaseline,
   getHouseholdFinanceMembers,
@@ -71,7 +72,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { id } = await params
   const body = await req.json()
-  const parsed = updateSimulationSchema.safeParse(body)
+  const parsed = updateSimulationSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   const householdId = session.user.householdId

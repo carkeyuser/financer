@@ -1,7 +1,8 @@
 ﻿import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireSession } from "@/lib/household-auth"
-import { dividendPaymentSchema } from "@/lib/validations/dividend"
+import { createDividendPaymentSchema } from "@/lib/validations/dividend"
+import { sessionLocale } from "@/lib/session-locale"
 import { statusForDate, toDateKey } from "@/lib/utils/dividends"
 import type { DividendPaymentInput } from "@/lib/validations/dividend"
 
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
   if ("error" in ctx) return NextResponse.json({ error: ctx.error }, { status: ctx.status })
 
   const body = await request.json()
-  const parsed = dividendPaymentSchema.safeParse(body)
+  const parsed = createDividendPaymentSchema(sessionLocale(ctx.session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
   }

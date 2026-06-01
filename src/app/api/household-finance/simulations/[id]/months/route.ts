@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { compareYearMonth } from "@/lib/utils/household-finance"
 import { updateSimulationMonthSchema } from "@/lib/validations/household-finance-simulation"
+import { sessionLocale } from "@/lib/session-locale"
 import { simulationMonthEntries } from "@/lib/services/household-finance-simulation"
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -11,7 +12,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { id } = await params
   const body = await req.json()
-  const parsed = updateSimulationMonthSchema.safeParse(body)
+  const parsed = updateSimulationMonthSchema(sessionLocale(session)).safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   const householdId = session.user.householdId

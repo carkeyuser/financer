@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { canManageHousehold, getMembership } from "@/lib/household-auth"
-import { updateHouseholdNameSchema } from "@/lib/validations/household"
+import { buildUpdateHouseholdNameSchema } from "@/lib/validations/household"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function GET() {
   const session = await auth()
@@ -149,7 +150,7 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const result = updateHouseholdNameSchema.safeParse(body)
+  const result = buildUpdateHouseholdNameSchema(sessionLocale(session)).safeParse(body)
   if (!result.success) {
     return NextResponse.json({ error: result.error.flatten().fieldErrors }, { status: 400 })
   }

@@ -2,11 +2,12 @@ import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { fixedCostsForHousehold } from "@/lib/constants/default-fixed-costs"
-import { registerSchema } from "@/lib/validations/auth"
+import { DEFAULT_LOCALE } from "@/i18n/locales"
+import { createRegisterSchema } from "@/lib/validations/auth"
 
 export async function POST(request: Request) {
   const body = await request.json()
-  const parsed = registerSchema.safeParse(body)
+  const parsed = createRegisterSchema(DEFAULT_LOCALE).safeParse(body)
 
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
