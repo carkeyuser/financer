@@ -4,6 +4,9 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-01 | **F-40–F-44 Daily Habit (Implementierung):** `/heute`, Notification Bell, Portfolio-Snapshots, Monats-Checkliste, Kalender Depot-Filter; Prisma-Migration `20260601_daily_habit_features`; 202 Tests |
+| 2026-06-02 | **Plan F-41 + F-43:** Implementierungsspezifikationen in `plan/feature-f41-portfolio-snapshot.md` und `plan/feature-f43-household-month-routine.md`; Kurzpläne in `plan/features.md`; README-Stand |
+| 2026-06-01 | **Backlog F-40–F-44:** Daily-Habit-Features in `plan/features.md` — Heute-Briefing, Vermögens-Snapshot, Notification Bell, Haushaltskasse-Monatsroutine, Dein Kalender (F-35 Nummer bereits für Interest vergeben) |
 | 2026-06-01 | **Release v0.0.10** — i18n: locale-aware API-Validierung, erweiterte API-Fehler-Übersetzung, `html lang` aus Session, Key-Parität-Tests; 200 Unit-Tests |
 | 2026-06-01 | **i18n vervollständigt:** API-Routen nutzen `sessionLocale` + locale-aware Zod-Schemas; Simulation/Dividend/Depot-Validierung mit Message-Keys; erweiterte `API_ERROR_MAP`; Root-`html lang` aus Session; Key-Parität-Test de/en; `common.close` für Dialog/Sheet |
 | 2026-06-01 | **README:** Mobile-Vorschau (Dashboard + Sidebar), Hinweis auf responsive UI |

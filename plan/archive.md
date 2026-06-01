@@ -44,6 +44,11 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | F-38 | Investments | **Trade-Republic-CSV-Import (Wizard):** Offizieller TR-Transaktionsexport → 7-Schritte-Wizard (Intro, Upload, Übersicht, Konflikte, Ticker, Bestätigen, Ergebnis). Hard-Dedup via `importRef` (Order ID); Soft-Match gegen manuelle Buchungen; Konflikt-Aktionen skip/import/link/replace. API `preview` + `apply`; ISIN→Ticker via Yahoo; Zinsen → Interest-Asset. Migration `importRef` auf `AssetEntry` + `DividendPayment`. | ✅ erledigt 2026-05-31 |
 | F-38b | Investments | **Depot leeren vor TR-Import:** `DELETE /api/investments/accounts`; Button + Checkbox im Import-Wizard; löscht alle Positionen eines Depot-Namens inkl. Buchungen/Dividenden (Interest ausgenommen) für sauberen Neuimport. | ✅ erledigt 2026-06-01 |
 | F-39 | Investments | **Positionen zusammenführen + Null-Filter:** Merge-Wizard mit ISIN-/Ticker-Vorschlägen und manueller Zuordnung; API `GET merge-suggestions`, `POST merge`, `POST merge/batch`; verschiebt Einträge + Dividenden; Filter „Leere ausblenden“ (default an); TR-Import ISIN-Lookup + Merge-CTA. | ✅ erledigt 2026-06-01 |
+| F-40 | Dashboard | **Heute-Briefing:** `/heute`, `GET /api/today`, Portfolio/Top-Flop/Kalender/Haushalt/Dividenden/Checklist; „seit letztem Besuch“ via localStorage | ✅ erledigt 2026-06-01 |
+| F-41 | Dashboard | **Vermögens-Snapshot:** `PortfolioDailySnapshot`, `GET /api/portfolio/snapshots`, Widget `portfolio-snapshot`, Upsert bei `refresh-prices` | ✅ erledigt 2026-06-01 |
+| F-42 | App | **Notification Bell:** Glocke Sidebar/Mobile, `Notification` + `NotificationRead`, Generator (Kurs, Kalender, Haushalt, Quartal, Dividende, Partner), APIs | ✅ erledigt 2026-06-01 |
+| F-43 | Haushaltskasse | **Monatsroutine:** `HouseholdMonthChecklist`, UI auf `/haushaltskasse` + `/heute`, `GET/PUT /api/household-finance/checklist` | ✅ erledigt 2026-06-01 |
+| F-44 | Dashboard | **Dein Kalender:** Marktkalender filtert Depot + `?days=`, Hinweis im Widget, Briefing nutzt 7-Tage-Filter | ✅ erledigt 2026-06-01 |
 | F-30 | DevOps | **GitHub-ready für Push:** `.gitignore` (Secrets, persönliche Deploy-Skripte, IDE-Config); IPs/Usernames anonymisiert; `push.example.ps1`/`pack.example.ps1`; MIT LICENSE; GitHub Actions CI; Initial Commit. | ✅ erledigt 2026-05-31 |
 
 ## Änderungen

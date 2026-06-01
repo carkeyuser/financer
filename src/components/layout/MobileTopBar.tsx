@@ -19,6 +19,7 @@ import { ReleaseNotesMenuButton } from "./ReleaseNotesMenuButton"
 import { ThemeToggle } from "./ThemeToggle"
 import { useI18n } from "@/i18n/context"
 import { cn } from "@/lib/utils"
+import { NotificationBell } from "./NotificationBell"
 import { navItems } from "./navigation"
 
 interface MobileTopBarProps {
@@ -133,6 +134,7 @@ export function MobileTopBar({ householdName }: MobileTopBarProps) {
             </p>
           </div>
         </div>
+        <NotificationBell variant="mobile" />
         <ThemeToggle />
       </div>
     </header>

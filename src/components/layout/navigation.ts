@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react"
 import {
   LayoutDashboard,
+  Sun,
   TrendingUp,
   DollarSign,
   PiggyBank,
@@ -19,6 +20,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/heute", labelKey: "nav.today", icon: Sun },
   { href: "/investments", labelKey: "nav.investments", icon: TrendingUp },
   { href: "/dividenden", labelKey: "nav.dividends", icon: DollarSign },
   {
