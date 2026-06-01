@@ -20,12 +20,14 @@ export function MarketCalendarWidget() {
       <div className="flex flex-col items-center justify-center h-full gap-2 text-center">
         <CalendarDays className="h-8 w-8 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">{t("investments.noCalendarEvents")}</p>
+        <p className="text-xs text-muted-foreground">{t("investments.calendarPortfolioOnly")}</p>
       </div>
     )
   }
 
   return (
     <div className="overflow-auto h-full">
+      <p className="text-[10px] text-muted-foreground px-1 pb-1">{t("investments.calendarPortfolioOnly")}</p>
       <div className="space-y-2 p-1">
         {events.map((event, i) => (
           <div key={i} className="flex items-center gap-3 py-1.5 border-b last:border-0">

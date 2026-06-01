@@ -6,23 +6,26 @@ import {
   fetchCalendarEvents,
   type CalendarEvent,
 } from "@/lib/services/nasdaq-calendar"
+import { filterCalendarEventsWithinDays } from "@/lib/utils/market-calendar-utils"
 
 export type { CalendarEvent }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await auth()
     if (!session?.user?.householdId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const daysParam = new URL(req.url).searchParams.get("days")
+    const daysAhead = daysParam ? Math.min(60, Math.max(1, parseInt(daysParam, 10) || 14)) : 14
+
     const assets = await prisma.asset.findMany({
       where: { householdId: session.user.householdId, ticker: excludeInterestTicker },
       select: { ticker: true, name: true },
     })
 
-    const events = (await fetchCalendarEvents(assets))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    const events = filterCalendarEventsWithinDays(await fetchCalendarEvents(assets), daysAhead)
 
     return NextResponse.json(events)
   } catch (error) {

@@ -24,6 +24,7 @@ export const WIDGET_REGISTRY: Record<string, { titleKey: string; defaultW: numbe
   "currency-exposure":   { titleKey: "widgets.currencyExposure", defaultW: 5,  defaultH: 5 },
   "net-worth":           { titleKey: "widgets.netWorth",       defaultW: 4,  defaultH: 3 },
   "dividend-summary":    { titleKey: "widgets.dividendSummary", defaultW: 5,  defaultH: 3 },
+  "portfolio-snapshot":  { titleKey: "widgets.portfolioSnapshot", defaultW: 6,  defaultH: 4 },
 }
 
 export const DEFAULT_LAYOUT: LayoutItem[] = [
@@ -68,7 +69,7 @@ export function useMarketCalendar() {
   return useQuery({
     queryKey: ["market-calendar"],
     queryFn: async (): Promise<CalendarEvent[]> => {
-      const res = await fetch("/api/dashboard/market-calendar")
+      const res = await fetch("/api/dashboard/market-calendar?days=14")
       if (!res.ok) return []
       return res.json()
     },
