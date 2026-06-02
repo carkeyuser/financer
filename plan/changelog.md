@@ -1,15 +1,18 @@
 ﻿# Changelog
 
-Ã„nderungslog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
+Änderungslog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
-| Datum | Ã„nderung |
+| Datum | Änderung |
 |---|---|
+| 2026-06-02 | **Git:** `git filter-repo` — leakende Commit-E-Mail in den letzten 2 Commits durch GitHub-No-Reply ersetzt; Force-Push `main` + `cursor/security-anonymization-and-hardening`; Anleitung in `plan/setup.md` |
+| 2026-06-02 | **Security-Review:** JWT `householdId` nur nach DB-Mitgliedschaft bei `session.update`; Backup-Restore ohne Admin-Fallback bei unbekanntem Username, 10 MB-Limit; `ALLOW_REGISTRATION`; Security-Header in `next.config.ts`; Securities-Symbol/Query-Validierung; TR-Preview-Rate-Limit; API-Tests personal-income; Seed-Warnung `SEED_DEMO_PASSWORD` |
+| 2026-06-02 | **Security — Docs/Seed anonymisiert:** Deployment-Doku (README, `plan/deploy.md`, `plan/setup.md`, CLAUDE.md, Skripte) ohne Proxmox/LXC/Debian/`/opt/financer`; Seed + `default-fixed-costs.ts` mit generischen Fixkosten-Namen (Housing, Insurance, …) statt persönlicher deutscher Haushaltspositionen |
 | 2026-06-02 | **Git-Historie anonymisiert:** git filter-repo (Mailmap Financer <financer@users.noreply.github.com>, Blob-Ersetzungen: E-Mail, 10.1.1.130→YOUR_SERVER, 192.168.1.50→192.168.x.x, Seed-Beträge, TR-UUIDs); origin entfernt — Push nur mit git push --force nach Re-Add Remote |
-| 2026-06-02 | **Anonymisierung:** Seed-Demo mit runden FiktivbetrÃ¤gen; TR-Fixture-UUIDs synthetisch; LAN-IP in `plan/setup.md`/`next.config.ts` generisch (`192.168.x.x`) |
-| 2026-06-02 | **README:** vollstÃ¤ndig auf Englisch (Git-Reichweite) |
-| 2026-06-02 | **Release v0.1.0** â€” F-45 PersÃ¶nlicher Einkommen-Tab (`/einkommen`); 206 Tests; GitHub Release |
-| 2026-06-02 | **F-45 PersÃ¶nlicher Einkommen-Tab:** Route `/einkommen`, Brutto/Netto/Monatsbonus + Sonder-Boni, Mehrjahres-Matrix, Sync Netto â†’ Haushaltskasse; nur eigener User; Backup nur eigene Privatdaten; Migration `20260602_f45_personal_income` |
-| 2026-06-01 | **F-40â€“F-44 Daily Habit (Implementierung):** `/heute`, Notification Bell, Portfolio-Snapshots, Monats-Checkliste, Kalender Depot-Filter; Prisma-Migration `20260601_daily_habit_features`; 202 Tests |
+| 2026-06-02 | **Anonymisierung:** Seed-Demo mit runden Fiktivbeträgen; TR-Fixture-UUIDs synthetisch; LAN-IP in `plan/setup.md`/`next.config.ts` generisch (`192.168.x.x`) |
+| 2026-06-02 | **README:** vollständig auf Englisch (Git-Reichweite) |
+| 2026-06-02 | **Release v0.1.0** — F-45 Persönlicher Einkommen-Tab (`/einkommen`); 206 Tests; GitHub Release |
+| 2026-06-02 | **F-45 Persönlicher Einkommen-Tab:** Route `/einkommen`, Brutto/Netto/Monatsbonus + Sonder-Boni, Mehrjahres-Matrix, Sync Netto → Haushaltskasse; nur eigener User; Backup nur eigene Privatdaten; Migration `20260602_f45_personal_income` |
+| 2026-06-01 | **F-40–F-44 Daily Habit (Implementierung):** `/heute`, Notification Bell, Portfolio-Snapshots, Monats-Checkliste, Kalender Depot-Filter; Prisma-Migration `20260601_daily_habit_features`; 202 Tests |
 | 2026-06-02 | **Plan F-41 + F-43:** Implementierungsspezifikationen in `plan/feature-f41-portfolio-snapshot.md` und `plan/feature-f43-household-month-routine.md`; KurzplÃ¤ne in `plan/features.md`; README-Stand |
 | 2026-06-01 | **Backlog F-40â€“F-44:** Daily-Habit-Features in `plan/features.md` â€” Heute-Briefing, VermÃ¶gens-Snapshot, Notification Bell, Haushaltskasse-Monatsroutine, Dein Kalender (F-35 Nummer bereits fÃ¼r Interest vergeben) |
 | 2026-06-01 | **Release v0.0.10** â€” i18n: locale-aware API-Validierung, erweiterte API-Fehler-Ãœbersetzung, `html lang` aus Session, Key-ParitÃ¤t-Tests; 200 Unit-Tests |

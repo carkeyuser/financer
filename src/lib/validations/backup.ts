@@ -1,5 +1,8 @@
 import { z } from "zod"
 
+/** Max POST body size for restore (also enforced via Content-Length in the route). */
+export const BACKUP_RESTORE_MAX_BYTES = 10 * 1024 * 1024
+
 export const backupAssetEntryTypes = ["PURCHASE", "SALE", "PRICE_UPDATE", "QUANTITY_UPDATE", "VWAP_UPDATE"] as const
 export const backupDividendStatuses = ["EXPECTED", "RECEIVED"] as const
 export const backupDividendSources = ["YAHOO", "MANUAL"] as const

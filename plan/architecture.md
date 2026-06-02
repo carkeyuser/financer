@@ -47,7 +47,7 @@ financer/
 ├── package.json
 ├── docker-compose.yml
 ├── Dockerfile
-├── push.ps1                          # Windows → LXC Deploy-Skript
+├── push.ps1                          # Windows → Server Deploy-Skript
 │
 ├── prisma/
 │   ├── schema.prisma                 # aktuelles Schema

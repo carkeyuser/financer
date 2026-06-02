@@ -50,7 +50,9 @@ Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. 
 
 **`next.config.ts`:** `allowedDevOrigins: ["192.168.x.x"]` (eigene LAN-IP eintragen)  
 **`.env.local`:** `AUTH_TRUST_HOST=true`  
-**`src/lib/auth.ts`:** `trustHost: true` direkt im `NextAuth({...})`-Objekt setzen.
+**`src/lib/auth.ts`:** `trustHost: true` direkt im `NextAuth({...})`-Objekt setzen — nötig, wenn der Browser-Host von `NEXTAUTH_URL` abweicht (LAN-IP vs. localhost); ohne diesen Wert schlagen Login/Callbacks auf Self-hosted fehl.
+
+**Produktion:** `ALLOW_REGISTRATION=false` in `.env`, wenn keine öffentliche Registrierung gewünscht ist (Invite-only bleibt über Token möglich).
 
 ### Layout-Regel: AuthGuard nur im `layout.tsx`
 
@@ -80,7 +82,40 @@ npx prisma db seed                     # Demo-Daten
 npx prisma generate                    # Client nach Schema-Änderung
 ```
 
-### Deploy auf LXC (Proxmox)
+### Git: Commit-E-Mail privat halten
+
+GitHub zeigt in `.patch`-URLs die **Author-/Committer-E-Mail** aus dem Commit — nicht nur den Hash. Für öffentliche Repos:
+
+1. GitHub → **Settings → Emails** → „Keep my email addresses private“ aktivieren.
+2. Commits nur mit der No-Reply-Adresse (Format `ID+login@users.noreply.github.com`, bei diesem Repo z. B. `289468508+carkeyuser@users.noreply.github.com`).
+
+**Nur für dieses Repo** (ohne globale `git config`):
+
+```powershell
+git config user.email "289468508+carkeyuser@users.noreply.github.com"
+git config user.name "Financer"
+```
+
+Oder pro Commit:
+
+```powershell
+git -c user.email="289468508+carkeyuser@users.noreply.github.com" -c user.name="Financer" commit -m "..."
+```
+
+**Bereits gepushte Commits mit echter E-Mail umschreiben** (History ändert sich — Force-Push nötig):
+
+```powershell
+git filter-repo --force --email-callback "if email == b'<alte-email>':
+    return b'289468508+carkeyuser@users.noreply.github.com'
+return email"
+git remote add origin https://github.com/carkeyuser/financer.git   # filter-repo entfernt origin
+git push --force origin main
+git push --force origin <branch>
+```
+
+Prüfen: `https://github.com/carkeyuser/financer/commit/<hash>.patch` — dort nur noch No-Reply. Alte Hashes sind nach Force-Push in der Regel nicht mehr erreichbar; GitHub kann Diffs kurz cachen.
+
+### Deploy auf dem Server (Docker)
 
 → Vollständige Anleitung: **[`deploy.md`](deploy.md)**
 
@@ -93,7 +128,7 @@ npx prisma generate                    # Client nach Schema-Änderung
 
 Beide: `./scripts/update.sh` — Details in [`deploy.md`](deploy.md)
 
-Hard-Reset: `bash /opt/financer/scripts/deploy.sh`
+Hard-Reset: `bash /path/to/financer/scripts/deploy.sh`
 
 `docker-entrypoint.sh` führt bei Start `prisma db push` aus (Produktions-DB ohne Migrationshistorie — siehe D-01 in `README.md`). Runtime-Image: Standalone + nur Prisma-CLI/dotenv, kein Builder-`node_modules`. Lokal: `npx prisma migrate deploy` für vollständige Migrationen.
 
@@ -101,7 +136,7 @@ Hard-Reset: `bash /opt/financer/scripts/deploy.sh`
 
 ## Docker-Setup
 
-> Vollständige Deployment-Dokumentation (LXC-Setup, Docker-Install auf Debian, Backup, Troubleshooting): [`../README.md`](../README.md)
+> Vollständige Deployment-Dokumentation (Server-Setup, Docker-Install, Backup, Troubleshooting): [`../README.md`](../README.md)
 
 ### Architektur
 
@@ -146,7 +181,7 @@ networks:
 # Nur kopieren (Build manuell auf dem Server):
 .\push
 ssh root@YOUR_SERVER
-cd /opt/financer
+cd /path/to/financer
 cp .env.example .env && nano .env   # einmalig
 docker compose up -d --build
 ```
@@ -212,7 +247,7 @@ Weitere Testdateien siehe `src/test/`. Aktuelle Gesamtzahl: `npm run test`.
 
 ---
 
-## Self-hosted (LXC) — Troubleshooting
+## Self-hosted — Troubleshooting
 
 | Symptom | Ursache | Maßnahme |
 |---|---|---|

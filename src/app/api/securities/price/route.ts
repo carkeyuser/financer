@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { fetchSecurityPriceFromYahoo } from "@/lib/services/security-price"
+import { parseSecuritySymbolParam } from "@/lib/validations/securities"
 
 export async function GET(request: Request) {
   const session = await auth()
@@ -9,11 +10,11 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const symbol = searchParams.get("symbol")?.trim()
-  if (!symbol) {
-    return NextResponse.json({ error: "Symbol fehlt" }, { status: 400 })
+  const parsed = parseSecuritySymbolParam(searchParams.get("symbol"))
+  if ("error" in parsed) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 })
   }
 
-  const quote = await fetchSecurityPriceFromYahoo(symbol)
+  const quote = await fetchSecurityPriceFromYahoo(parsed.symbol)
   return NextResponse.json(quote)
 }
