@@ -14,6 +14,7 @@ const loginSchema = z.object({
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
+  // LAN/self-hosted: browser host may differ from NEXTAUTH_URL (see plan/setup.md).
   trustHost: true,
   pages: {
     signIn: "/auth/login",
@@ -72,7 +73,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       if (trigger === "update") {
         if (session?.householdId !== undefined) {
-          token.householdId = session.householdId as string | null
+          const requested = session.householdId as string | null
+          if (requested === null) {
+            token.householdId = null
+          } else if (typeof requested === "string" && token.id) {
+            const membership = await prisma.householdMember.findUnique({
+              where: {
+                userId_householdId: { userId: token.id as string, householdId: requested },
+              },
+            })
+            if (membership) {
+              token.householdId = requested
+            }
+          }
         }
         if (session?.name !== undefined) {
           token.name = session.name as string | null

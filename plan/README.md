@@ -15,9 +15,9 @@ Persönliches Finanz-Dashboard für zwei Personen (WG/Paar). Zwei Kernbereiche:
 Das Ausgaben-Modul (Transaktionen/Kategorien/Budgets) wurde **entfernt** — es passte nicht zum Nutzungsmodell.
 Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die Haushaltskasse hat einen eigenen Sidebar-Tab inkl. Simulations-Subtab.
 
-Self-hosted via Docker auf einem Proxmox LXC.
+Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-02 (F-45 Persönliches Einkommen)
+**Stand:** 2026-06-02 (Security-Review-Fixes)
 
 ---
 
@@ -36,7 +36,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | **12** Persönliches Einkommen | ✅ erledigt | Tab `/einkommen`, privat pro User, HK-Sync, Jahresvergleich (F-45) |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
-| **Tests** | ✅ Unit-Tests | Vitest, **202 Tests** in 26 Dateien, alle grün |
+| **Tests** | ✅ Unit-Tests | Vitest, alle grün (siehe `npm run test`) |
 
 ---
 
@@ -45,7 +45,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | Thema | Details |
 |---|---|
 | **Wertpapiersuche** | Yahoo unterstützt keine deutschen **WKN**. Suche mit Ticker (`EUNL.DE`), Name oder ISIN. Krypto via CoinGecko-Fallback. |
-| **Outbound HTTPS (LXC)** | Yahoo (`query1.finance.yahoo.com`) und Nasdaq (`api.nasdaq.com`) müssen vom Container erreichbar sein — sonst keine Live-Kurse / leerer Marktkalender. |
+| **Outbound HTTPS** | Yahoo (`query1.finance.yahoo.com`) und Nasdaq (`api.nasdaq.com`) müssen vom App-Container erreichbar sein — sonst keine Live-Kurse / leerer Marktkalender. |
 | **Marktkalender** | Daten von **Nasdaq** (Earnings + Ex-Dividenden), primär US-Symbole ohne Suffix. Auf gesperrten Hosts: `MARKET_CALENDAR_EXTERNAL=false` in `.env` — App bleibt bedienbar. Erweiterung: **F-34**. |
 | **Dividenden** | Vollständig **manuell** (`/dividenden`); kein Yahoo-Dividenden-Import mehr. |
 

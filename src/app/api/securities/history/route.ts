@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { getEurRate } from "@/lib/utils/currency"
+import { parseSecuritySymbolParam } from "@/lib/validations/securities"
 
 export async function GET(request: Request) {
   const session = await auth()
@@ -9,14 +10,15 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const symbol = searchParams.get("symbol")?.trim()
+  const symbolParsed = parseSecuritySymbolParam(searchParams.get("symbol"))
   const from = searchParams.get("from")?.trim() // YYYY-MM-DD
   const intervalParam = searchParams.get("interval")?.trim() ?? "1mo"
   const allowedIntervals = ["1d", "1wk", "1mo"] as const
 
-  if (!symbol || !from) {
+  if ("error" in symbolParsed || !from) {
     return NextResponse.json({ error: "symbol und from sind erforderlich" }, { status: 400 })
   }
+  const symbol = symbolParsed.symbol
 
   if (!allowedIntervals.includes(intervalParam as (typeof allowedIntervals)[number])) {
     return NextResponse.json({ error: "interval muss 1d, 1wk oder 1mo sein" }, { status: 400 })

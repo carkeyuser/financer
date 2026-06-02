@@ -16,10 +16,21 @@ import { storePreview } from "@/lib/services/tr-import-preview-cache"
 import { parseTradeRepublicCsv } from "@/lib/services/trade-republic-csv"
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
+const previewTimestamps = new Map<string, number>()
+
+/** Clears in-memory preview rate limit (used by tests). */
+export function clearTrImportPreviewRateLimit() {
+  previewTimestamps.clear()
+}
 
 export async function POST(request: Request) {
   const ctx = await requireSession()
   if ("error" in ctx) return Response.json({ error: ctx.error }, { status: ctx.status })
+
+  const lastPreview = previewTimestamps.get(ctx.userId) ?? 0
+  if (Date.now() - lastPreview < 60_000) {
+    return Response.json({ error: "Bitte einen Moment warten und erneut versuchen" }, { status: 429 })
+  }
 
   const form = await request.formData()
   const file = form.get("file")
@@ -153,6 +164,7 @@ export async function POST(request: Request) {
       previewRows,
       createdAt: Date.now(),
     })
+    previewTimestamps.set(ctx.userId, Date.now())
 
     emit({
       type: "complete",

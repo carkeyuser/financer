@@ -10,7 +10,7 @@ Nach jeder Codeänderung **plan/README.md** und bei Bedarf die passende Datei in
 
 ## Project Overview
 
-Personal finance dashboard for a small family/team. Self-hosted via Docker on a Proxmox LXC (path: `/opt/financer`). Manual data entry only — no bank APIs or broker connections. Full plan starts in [plan/README.md](plan/README.md); backlogs and changelog live under [plan/](plan/).
+Personal finance dashboard for a small family/team. Self-hosted via Docker on your server. Manual data entry only — no bank APIs or broker connections. Full plan starts in [plan/README.md](plan/README.md); backlogs and changelog live under [plan/](plan/).
 
 ## Commands
 
@@ -32,7 +32,7 @@ npx prisma db seed                     # seed standard categories
 .\push -Deploy
 ```
 
-Vollständige Deployment-Dokumentation (LXC-Setup, Docker-Install, Backup, Troubleshooting): **[README.md](README.md)**
+Vollständige Deployment-Dokumentation (Server-Setup, Docker-Install, Backup, Troubleshooting): **[README.md](README.md)**
 
 Environment variables: `.env.local` (local dev, never commit), `.env` on server. Template: `.env.example`.
 
@@ -94,17 +94,17 @@ External: Yahoo Finance → /api/securities/search + /api/securities/price (prox
 
 ## Deployment
 
-Server-Pfad: `/opt/financer`. **Nach Push auf `main`:**
+Deployment-Verzeichnis auf dem Server (Platzhalter: `/path/to/financer`). **Nach Push auf `main`:**
 
 ```bash
-cd /opt/financer && git pull && docker compose up -d --build
+cd /path/to/financer && git pull && docker compose up -d --build
 ```
 
 Details, Fallstricke: **[plan/deploy.md](plan/deploy.md)** — zwei Modi: `build` (git pull + `--build`) und `ghcr` (compose pull + up -d)
 
 `docker-compose.yml` baut das Image auf dem Server (`build: .`) und startet PostgreSQL 16 + Next.js. Beim Container-Start: `prisma db push` via `docker-entrypoint.sh`.
 
-`push.example.ps1` (lokal als `push.ps1` kopieren) kopiert Source per robocopy + scp nach `/opt/financer`; `-Deploy` startet danach `docker compose up -d --build` per SSH.
+`push.example.ps1` (lokal als `push.ps1` kopieren) kopiert Source per robocopy + scp ins Deployment-Verzeichnis; `-Deploy` startet danach `docker compose up -d --build` per SSH.
 
 ## Implementation Phases
 

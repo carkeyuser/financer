@@ -60,7 +60,7 @@ flowchart LR
 
 Ein Skript (z. B. `install.sh` für Linux/macOS, optional `install.ps1` für Windows), das die komplette Erstinstallation abwickelt: Voraussetzungen prüfen (Docker + Compose), `.env` aus `.env.example` anlegen bzw. fehlende Secrets interaktiv abfragen (`NEXTAUTH_SECRET`, `DATABASE_URL`/Postgres-Passwort), `docker compose up -d --build` starten, auf DB-Health und App-Port warten, kurze Erfolgsmeldung mit URL.
 
-**Ziel:** Frischer Server/LXC ohne manuelle Schritte aus README. Bestehendes `docker-compose.yml` unverändert; `push.ps1` bleibt Update-Pfad für Entwickler.
+**Ziel:** Frischer Server ohne manuelle Schritte aus README. Bestehendes `docker-compose.yml` unverändert; `push.ps1` bleibt Update-Pfad für Entwickler.
 
 ---
 

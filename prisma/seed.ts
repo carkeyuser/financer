@@ -9,19 +9,10 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") })
 import { PrismaClient } from "../src/generated/prisma"
 import { PrismaPg } from "@prisma/adapter-pg"
 import bcrypt from "bcryptjs"
+import { fixedCostsForHousehold } from "../src/lib/constants/default-fixed-costs"
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter })
-
-const DEFAULT_FIXED_COSTS = [
-  { name: "Miete",         amount: 800.0, order: 1 },
-  { name: "Versicherung",  amount: 50.0,  order: 2 },
-  { name: "Auto",          amount: 120.0, order: 3 },
-  { name: "Strom",         amount: 80.0,  order: 4 },
-  { name: "Internet",      amount: 40.0,  order: 5 },
-  { name: "Lebensmittel",  amount: 300.0, order: 6 },
-  { name: "Puffer",        amount: 100.0, order: 7 },
-]
 
 async function main() {
   const username1 = "demo"
@@ -29,7 +20,7 @@ async function main() {
 
   let user1 = await prisma.user.findUnique({ where: { username: username1 } })
 
-  // Fixkosten nachträglich anlegen wenn noch keine existieren
+  // Backfill fixed costs when none exist yet
   if (user1) {
     const membership = await prisma.householdMember.findFirst({
       where: { userId: user1.id },
@@ -41,19 +32,25 @@ async function main() {
       })
       if (existingCosts === 0) {
         await prisma.fixedCost.createMany({
-          data: DEFAULT_FIXED_COSTS.map((c) => ({ ...c, householdId: membership.householdId })),
+          data: fixedCostsForHousehold(membership.householdId),
         })
-        console.log(`✓ ${DEFAULT_FIXED_COSTS.length} Fixkosten zu bestehendem Haushalt hinzugefügt`)
+        console.log(`✓ Default fixed costs added to existing household`)
       } else {
-        console.log("Demo-User und Fixkosten existieren bereits — Seed übersprungen.")
+        console.log("Demo users and fixed costs already exist — seed skipped.")
       }
       return
     }
   }
 
-  const passwordHash = await bcrypt.hash("demo1234", 12)
+  const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "demo1234"
+  if (!process.env.SEED_DEMO_PASSWORD) {
+    console.warn(
+      "⚠ SEED_DEMO_PASSWORD nicht gesetzt — Demo-Passwort ist \"demo1234\" (nur für lokale Entwicklung)."
+    )
+  }
+  const passwordHash = await bcrypt.hash(demoPassword, 12)
 
-  const household = await prisma.household.create({ data: { name: "Demo Haushalt" } })
+  const household = await prisma.household.create({ data: { name: "Demo Household" } })
 
   user1 = await prisma.user.create({
     data: {
@@ -81,9 +78,8 @@ async function main() {
     },
   })
 
-  await prisma.fixedCost.createMany({
-    data: DEFAULT_FIXED_COSTS.map((c) => ({ ...c, householdId: household.id })),
-  })
+  const fixedCosts = fixedCostsForHousehold(household.id)
+  await prisma.fixedCost.createMany({ data: fixedCosts })
 
   // Demo income + payouts for 2024 (fictional round amounts)
   const sampleMonths = [
@@ -115,11 +111,15 @@ async function main() {
     })
   }
 
-  console.log(`✓ Demo-User erstellt: username="${username1}" / demo1234 (OWNER)`)
-  console.log(`✓ Demo-User2 erstellt: username="${username2}" / demo1234 (MEMBER)`)
-  console.log(`✓ Haushalt: ${household.name}`)
-  console.log(`✓ ${DEFAULT_FIXED_COSTS.length} Fixkosten angelegt (Gesamt: ${DEFAULT_FIXED_COSTS.reduce((s, c) => s + c.amount, 0).toFixed(2)} €)`)
-  console.log(`✓ ${sampleMonths.length} Monate Beispieldaten (2024)`)
+  const totalFixed = fixedCosts.reduce((s, c) => s + c.amount, 0)
+  console.log(`✓ Demo user created: username="${username1}" (OWNER)`)
+  console.log(`✓ Demo user2 created: username="${username2}" (MEMBER)`)
+  if (!process.env.SEED_DEMO_PASSWORD) {
+    console.log("  Passwort: demo1234 (setze SEED_DEMO_PASSWORD für ein anderes Demo-Passwort)")
+  }
+  console.log(`✓ Household: ${household.name}`)
+  console.log(`✓ ${fixedCosts.length} fixed costs created (total: ${totalFixed.toFixed(2)} €)`)
+  console.log(`✓ ${sampleMonths.length} months of sample data (2024)`)
 }
 
 main()

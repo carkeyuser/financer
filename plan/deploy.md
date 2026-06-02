@@ -2,6 +2,8 @@
 
 Zwei gleichwertige Update-Pfade — Modus einmalig in `.env` setzen (`FINANCER_DEPLOY_MODE`).
 
+Setze `DEPLOY_DIR` auf dein Installationsverzeichnis (Beispiele unten: `/path/to/financer`).
+
 ---
 
 ## Modus wählen (einmalig)
@@ -31,8 +33,8 @@ Beide Modi: `./scripts/update.sh` (liest `FINANCER_DEPLOY_MODE` aus `.env`).
 **Erstinstallation** (Git-Clone):
 
 ```bash
-git clone https://github.com/carkeyuser/financer.git /opt/financer
-cd /opt/financer
+git clone https://github.com/carkeyuser/financer.git /path/to/financer
+cd /path/to/financer
 cp .env.example .env && nano .env   # FINANCER_DEPLOY_MODE=build (Default)
 docker compose up -d --build
 ```
@@ -40,7 +42,7 @@ docker compose up -d --build
 **Update nach Push auf `main`:**
 
 ```bash
-cd /opt/financer
+cd /path/to/financer
 git pull
 docker compose up -d --build
 ```
@@ -48,13 +50,13 @@ docker compose up -d --build
 **Oder:**
 
 ```bash
-bash /opt/financer/scripts/update.sh
+bash /path/to/financer/scripts/update.sh
 ```
 
 **Hard-Reset auf `origin/main`** (z. B. nach lokalem Experiment):
 
 ```bash
-bash /opt/financer/scripts/deploy.sh
+bash /path/to/financer/scripts/deploy.sh
 ```
 
 (`deploy.sh` = `git fetch` + `reset --hard origin/main` + `compose up -d --build` + Health-Check)
@@ -70,8 +72,8 @@ GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut.
 **Erstinstallation:**
 
 ```bash
-git clone https://github.com/carkeyuser/financer.git /opt/financer
-cd /opt/financer
+git clone https://github.com/carkeyuser/financer.git /path/to/financer
+cd /path/to/financer
 cp .env.example .env && nano .env
 # FINANCER_DEPLOY_MODE=ghcr setzen
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
@@ -83,7 +85,7 @@ Bei **privatem** GHCR-Paket einmalig: `docker login ghcr.io`
 **Update:**
 
 ```bash
-cd /opt/financer
+cd /path/to/financer
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
@@ -91,7 +93,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 **Oder:**
 
 ```bash
-bash /opt/financer/scripts/update.sh
+bash /path/to/financer/scripts/update.sh
 ```
 
 (`update.sh` zieht bei `ghcr` optional `git pull` für Compose-/Skript-Änderungen, App-Code kommt aus dem Image.)
@@ -106,7 +108,7 @@ Wenn der Code nicht per Git auf dem Server liegt:
 .\push -Deploy
 ```
 
-Kopiert nach `/opt/financer` und führt `docker compose up -d --build` aus.
+Kopiert ins Deployment-Verzeichnis (in `push.ps1` konfigurierbar) und führt `docker compose up -d --build` aus.
 
 ---
 
@@ -123,5 +125,5 @@ Release-Tag ist für Modus **build** nicht nötig. Für **ghcr** liefert CI `:la
 
 ## Pfad & SSH
 
-- Server-Pfad: `/opt/financer`
-- App-URL: Port **3000** (`NEXTAUTH_URL` in `.env`)
+- Deployment-Verzeichnis: frei wählbar (Platzhalter in Docs: `/path/to/financer`; in `push.ps1` `$Dest` anpassen)
+- App-URL: wie in `NEXTAUTH_URL` in `.env` (Compose mappt den App-Port standardmäßig auf den Host)
