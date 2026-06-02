@@ -1,214 +1,214 @@
-# Financer — Persönliches Finanz-Dashboard
+# Financer — Personal Finance Dashboard
 
-Self-hosted Finance-Dashboard für kleine Haushalte (Paar/WG). Manuelle Datenerfassung — keine Bank- oder Broker-APIs.
+Self-hosted finance dashboard for small households (couples, roommates). Manual data entry only — no bank or broker APIs.
 
-**Repository:** [github.com/carkeyuser/financer](https://github.com/carkeyuser/financer) · **Lizenz:** MIT
+**Repository:** [github.com/carkeyuser/financer](https://github.com/carkeyuser/financer) · **License:** MIT
 
-## Vorschau
+## Preview
 
-Konfigurierbares Dashboard mit Widget-Grid — Uhr, Top/Flop, Allokation und Positionen (Light/Dark):
+Configurable dashboard with a widget grid — clock, top/flop movers, allocation, and positions (light/dark):
 
 | Light | Dark |
 |---|---|
 | ![Dashboard — Light Mode](docs/screenshots/dashboard-light.png) | ![Dashboard — Dark Mode](docs/screenshots/dashboard-dark.png) |
 
-**Mobile:** Responsives Layout für Smartphone und Tablet — Hamburger-Menü, touch-freundliche Widget-Karten (Verschieben/Schließen) und einspaltiges Dashboard-Grid. Gleiche Funktionen wie am Desktop, optimiert für kleine Viewports (Dark Mode):
+**Mobile:** Responsive layout for phones and tablets — hamburger menu, touch-friendly widget cards (move/close), and a single-column dashboard grid. Same features as desktop, optimized for small viewports (dark mode):
 
-| Dashboard (mobil) | Navigation (mobil) |
+| Dashboard (mobile) | Navigation (mobile) |
 |---|---|
-| ![Dashboard — mobil, Dark Mode](docs/screenshots/dashboard-mobile-dark.png) | ![Sidebar — mobil, Dark Mode](docs/screenshots/sidebar-mobile-dark.png) |
+| ![Dashboard — mobile, dark mode](docs/screenshots/dashboard-mobile-dark.png) | ![Sidebar — mobile, dark mode](docs/screenshots/sidebar-mobile-dark.png) |
 
-**Investments — Wert-Verlauf** (Dark): Historischer Portfoliowert mit Zeitraum-Presets (1W bis Gesamt) und Yahoo-Kurven ab erstem Kaufdatum:
+**Investments — value history** (dark): Historical portfolio value with time-range presets (1W through all-time) and Yahoo curves from first purchase date:
 
-![Investments — Wert-Verlauf, Dark Mode](docs/screenshots/investments-value-chart-dark.png)
+![Investments — value history, dark mode](docs/screenshots/investments-value-chart-dark.png)
 
-**Dividenden — Monatsverlauf** (Dark): Manuell erfasste Dividenden und Bankzinsen als Balkendiagramm pro Monat:
+**Dividends — monthly chart** (dark): Manually recorded dividends and bank interest as a bar chart per month:
 
-![Dividenden — Monatsverlauf, Dark Mode](docs/screenshots/dividends-monthly-chart-dark.png)
+![Dividends — monthly chart, dark mode](docs/screenshots/dividends-monthly-chart-dark.png)
 
-**Einstellungen — 2FA** (Dark): TOTP-Zwei-Faktor-Authentifizierung (QR-Setup in den Einstellungen, Admin-Toggle unter Benutzer):
+**Settings — 2FA** (dark): TOTP two-factor authentication (QR setup in settings, admin toggle under Users):
 
-![Einstellungen — 2FA aktiv, Dark Mode](docs/screenshots/settings-2fa-dark.png)
+![Settings — 2FA enabled, dark mode](docs/screenshots/settings-2fa-dark.png)
 
-| Bereich | Inhalt |
+| Area | Contents |
 |---|---|
-| **Investments** | Portfolio-Tracking (Aktien, ETFs, Krypto), Yahoo-Finance-Kurse, VWAP, 4 Chart-Typen, historische Kurven, Auto-Refresh (2h) |
-| **TR-Import** | Trade-Republic-CSV (7-Schritte-Wizard), Auswahl-Step, Konflikt-Lösung, Depot leeren vor Neuimport |
-| **Positionen** | Duplikate zusammenführen (Merge-Wizard), Null-Positionen ausblendbar |
-| **Dividenden** | Manuelle Dividenden-Buchungen auf Positionen, Jahres-KPIs, Monats-Chart |
-| **Haushaltskasse** | Fixkosten, Monatseinkommen, Auszahlungslogik mit Quartals-Bonus; **Simulationen** (Was-wäre-wenn-Szenarien) |
-| **Dashboard** | Frei konfigurierbares Widget-Grid (Drag & Drop, **12 Widgets** inkl. Vermögens-Snapshot) |
-| **Heute** | Tages-Briefing (`/heute`): Portfolio, Top/Flop, Kalender, Haushalt, Dividenden, Monatsroutine |
-| **Benachrichtigungen** | Notification Bell in der Sidebar (Kurs, Termine, Haushalt, Dividenden) |
-| **Multi-User** | Haushalte, Rollen, Einladungen, Tenant-Provisioning, 2FA (TOTP) |
-| **Sicherheit** | Username + Passwort, JSON-Backup/Restore (inkl. Dividenden & Simulationen) |
-| **Sprache** | Deutsch / Englisch (pro User in Einstellungen) |
+| **Investments** | Portfolio tracking (stocks, ETFs, crypto), Yahoo Finance prices, VWAP, 4 chart types, historical curves, auto-refresh (2h) |
+| **TR import** | Trade Republic CSV (7-step wizard), selection step, conflict resolution, clear depot before re-import |
+| **Positions** | Merge duplicates (merge wizard), hide zero positions |
+| **Dividends** | Manual dividend entries on positions, annual KPIs, monthly chart |
+| **Household cash** | Fixed costs, monthly income, payout logic with quarterly bonus; **simulations** (what-if scenarios) |
+| **Dashboard** | Configurable widget grid (drag & drop, **12 widgets** including net-worth snapshot) |
+| **Today** | Daily briefing (`/heute`): portfolio, top/flop, calendar, household, dividends, month routine |
+| **Notifications** | Notification bell in the sidebar (prices, events, household, dividends) |
+| **Multi-user** | Households, roles, invites, tenant provisioning, 2FA (TOTP) |
+| **Security** | Username + password, JSON backup/restore (incl. dividends & simulations) |
+| **Language** | German / English (per user in settings) |
 
-**Release:** [v0.1.0](CHANGELOG.md#010---2026-06-02) · Kein Ausgaben-/Budget-Modul (entfernt — passt nicht zum Nutzungsmodell).
+**Release:** [v0.1.0](CHANGELOG.md#010---2026-06-02) · No expenses/budget module (removed — did not fit the usage model).
 
-**Tech-Stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
-**Deployment:** Docker Compose auf Proxmox LXC (Debian 12)  
-**Projektplan:** [plan/README.md](plan/README.md) — Architektur, Schema, Backlogs, Änderungslog
+**Tech stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
+**Deployment:** Docker Compose on Proxmox LXC (Debian 12)  
+**Project docs:** [plan/README.md](plan/README.md) — architecture, schema, backlogs, changelog
 
 ---
 
-## Inhaltsverzeichnis
+## Table of contents
 
-1. [Vorschau](#vorschau)
-2. [Funktionen im Überblick](#1-funktionen-im-überblick)
-3. [Tech-Stack & Architektur](#2-tech-stack--architektur)
-4. [Proxmox LXC einrichten](#3-proxmox-lxc-einrichten)
-5. [Docker auf Debian 12 installieren](#4-docker-auf-debian-12-installieren)
-6. [Projekt aufspielen](#5-projekt-aufspielen)
-7. [Konfiguration (.env)](#6-konfiguration-env)
-8. [Starten & Updates](#7-starten--updates)
-9. [Erster Login & Demo-Daten](#8-erster-login--demo-daten)
-10. [Datensicherung](#9-datensicherung)
-11. [Nützliche Befehle (Server)](#10-nützliche-befehle-server)
-12. [Lokale Entwicklung](#11-lokale-entwicklung)
+1. [Preview](#preview)
+2. [Feature overview](#1-feature-overview)
+3. [Tech stack & architecture](#2-tech-stack--architecture)
+4. [Set up Proxmox LXC](#3-set-up-proxmox-lxc)
+5. [Install Docker on Debian 12](#4-install-docker-on-debian-12)
+6. [Deploy the project](#5-deploy-the-project)
+7. [Configuration (.env)](#6-configuration-env)
+8. [Start & updates](#7-start--updates)
+9. [First login & demo data](#8-first-login--demo-data)
+10. [Backups](#9-backups)
+11. [Useful commands (server)](#10-useful-commands-server)
+12. [Local development](#11-local-development)
 13. [Tests](#12-tests)
 14. [Troubleshooting](#13-troubleshooting)
-15. [Bekannte Einschränkungen](#14-bekannte-einschränkungen)
-16. [Projektstruktur](#15-projektstruktur)
+15. [Known limitations](#14-known-limitations)
+16. [Project structure](#15-project-structure)
 
 ---
 
-## 1. Funktionen im Überblick
+## 1. Feature overview
 
 ### Dashboard (`/dashboard`)
 
-- Konfigurierbares Widget-Grid mit Drag & Drop und Resize
-- **11 Widgets:** Portfolio-KPIs, Wert-Verlauf, Allokation, Positionen-Tabelle, Uhr, Marktkalender (Nasdaq), Top/Flop, Haushalts-Übersicht, Währungsexposure, Vermögen, Dividenden-KPIs
-- Layout pro User in der DB gespeichert (Speichern nach Drag/Resize); Widget-Manager zum An-/Abschalten
-- Auto-Sort-Button ordnet Widgets lückenlos an
-- Marktkalender: primär US-Ticker ohne Suffix; ohne Outbound-HTTPS → `MARKET_CALENDAR_EXTERNAL=false` (siehe [Bekannte Einschränkungen](#14-bekannte-einschränkungen))
+- Configurable widget grid with drag & drop and resize
+- **11 widgets:** portfolio KPIs, value history, allocation, positions table, clock, market calendar (Nasdaq), top/flop, household overview, currency exposure, net worth, dividend KPIs
+- Layout saved per user in the DB (auto-save after drag/resize); widget manager to show/hide widgets
+- Auto-sort button packs widgets without gaps
+- Market calendar: primarily US tickers without suffix; without outbound HTTPS → `MARKET_CALENDAR_EXTERNAL=false` (see [Known limitations](#14-known-limitations))
 
 ### Investments (`/investments`)
 
-- Wertpapiersuche via Yahoo Finance + CoinGecko (Krypto-Fallback)
-- Positionen mit Depot/Konto, Besitzer, Notizen, ISIN/WKN
-- Kauf/Verkauf, Nachkauf-Logik (gleicher Ticker → Menge summiert, VWAP aktualisiert)
-- Inline-Korrekturen auf der Detailseite: Kurs, Menge, Ø-Kaufpreis
-- 4 umschaltbare Charts: Allokation (Torte), Wert-Verlauf, G/V-Verlauf, G/V pro Position
-- Historische Yahoo-Kurse in Charts (ab erstem Kaufdatum); Zeitraum-Presets (1W–Gesamt)
-- Alle Werte in EUR (Wechselkurse via Yahoo Forex; FX-Fehler → API 503, keine falschen EUR-Werte)
-- Card-/Listen-Ansicht, Sortierung (Depot/Besitzer/Wert), Drag & Drop für Reihenfolge
-- Null-Positionen standardmäßig ausblendbar (Filter in der Liste)
-- Auto-Refresh der Kurse alle 2h (`PortfolioPriceRefresh` in `AuthGuard`)
+- Security search via Yahoo Finance + CoinGecko (crypto fallback)
+- Positions with depot/account, owner, notes, ISIN/WKN
+- Buy/sell, add-to-position logic (same ticker → quantity summed, VWAP updated)
+- Inline corrections on the detail page: price, quantity, average buy price
+- 4 switchable charts: allocation (pie), value history, P/L history, P/L per position
+- Historical Yahoo prices in charts (from first purchase date); time presets (1W–all-time)
+- All values in EUR (FX via Yahoo Forex; FX errors → API 503, no wrong EUR figures)
+- Card/list view, sorting (depot/owner/value), drag & drop for order
+- Zero positions hidden by default (filter in the list)
+- Auto-refresh of prices every 2h (`PortfolioPriceRefresh` in `AuthGuard`)
 
-**Trade-Republic-Import** (Button „Import“):
+**Trade Republic import** (“Import” button):
 
-- CSV aus der TR-App; 7-Schritte-Wizard mit NDJSON-Fortschritt und ETA
-- Auswahl-Step: Zeilen per Checkbox, Schnellauswahl (Alle/Keine/Nur neue/…), Sortierung nach Betrag
-- Hard-Dedup über Order-ID (`importRef`); Soft-Match gegen manuelle Buchungen (skip/import/link/replace)
-- ISIN→Ticker (Portfolio vor Yahoo); Zinsen → automatische `Interest`-Position
-- **Depot leeren:** alle Positionen eines Kontos inkl. Buchungen/Dividenden vor Neuimport löschen (optional per Checkbox)
+- CSV from the TR app; 7-step wizard with NDJSON progress and ETA
+- Selection step: rows via checkbox, quick select (all/none/new only/…), sort by amount
+- Hard dedup via order ID (`importRef`); soft match against manual bookings (skip/import/link/replace)
+- ISIN→ticker (portfolio before Yahoo); interest → automatic `Interest` position
+- **Clear depot:** delete all positions of an account incl. bookings/dividends before re-import (optional checkbox)
 
-**Positionen zusammenführen** (Admin, Button „Zusammenführen“):
+**Merge positions** (admin, “Merge” button):
 
-- Duplikat-Vorschläge (gleiches Wertpapier, unterschiedlicher Ticker/ISIN-Lücke) oder manuelle Auswahl
-- Einträge und Dividenden werden auf die Ziel-Position verschoben, Menge neu berechnet
+- Duplicate suggestions (same security, different ticker/missing ISIN) or manual selection
+- Entries and dividends move to the target position; quantity recalculated
 
-### Dividenden (`/dividenden`)
+### Dividends (`/dividenden`)
 
-- Manuelle Dividenden-Zahlungen auf bestehende Positionen (kein Yahoo-Import)
-- Jahres-KPIs und Monats-Chart, Positionsübersicht
+- Manual dividend payments on existing positions (no Yahoo import)
+- Annual KPIs and monthly chart, position overview
 
-### Haushaltskasse (`/haushaltskasse`)
+### Household cash (`/haushaltskasse`)
 
-- Fixkosten verwalten (dauerhaft sichtbar oberhalb der Jahrestabelle)
-- Monatliche Einnahmen und Auszahlungen pro User
-- Fixkosten-Snapshot: beim ersten Einkommenseintrag eines Monats eingefroren
-- Quartals-Bonus aus Überschüssen (Theoretisch − Tatsächlich über 3 Monate)
-- **Simulation** (`/haushaltskasse/simulation`): gespeicherte Szenarien mit frei wählbarem Zeitraum — überschreibt keine echten Monatsdaten
+- Manage fixed costs (always visible above the annual table)
+- Monthly income and payouts per user
+- Fixed-cost snapshot: frozen on first income entry of a month
+- Quarterly bonus from surpluses (theoretical − actual over 3 months)
+- **Simulation** (`/haushaltskasse/simulation`): saved scenarios with a free time range — does not overwrite real monthly data
 
-### Benutzer & Haushalt (`/household`)
+### Users & household (`/household`)
 
-- Mitgliederliste mit Rollen (Owner, Admin, Member)
-- User direkt anlegen (Owner/Admin): **Mitglied dieses Haushalts** oder **eigener Haushalt (Tenant)** — Tenant-User erscheinen nicht in der Mitgliederliste und sind datentechnisch isoliert
-- **Angelegte Benutzer (eigene Haushalte):** Tenant-User des Haushalts-Owners bearbeiten, 2FA umschalten, löschen (Owner und Admin)
-- Einladungslink (7-Tage-Token) für den aktiven Haushalt
-- Haushalts-Switcher in der Sidebar
-- Admin: Haushaltsmitglieder bearbeiten (Name, Username, Passwort zurücksetzen)
-- 2FA für User per Admin-Toggle aktivierbar
+- Member list with roles (owner, admin, member)
+- Create users directly (owner/admin): **member of this household** or **own household (tenant)** — tenant users do not appear in the member list and are data-isolated
+- **Provisioned users (own households):** owner’s tenant users can be edited, 2FA toggled, deleted (owner and admin)
+- Invite link (7-day token) for the active household
+- Household switcher in the sidebar
+- Admin: edit household members (name, username, reset password)
+- 2FA per user via admin toggle
 
-### Einstellungen (`/settings`)
+### Settings (`/settings`)
 
-- Profil (Anzeigename, Username), Passwort ändern
-- 2FA einrichten/deaktivieren (TOTP mit QR-Code)
-- Sprache: Deutsch / Englisch
-- Datensicherung: JSON-Export + Restore
-- Release-Notes / Update-Dialog (auch in der Sidebar über „Release Notes“)
+- Profile (display name, username), change password
+- Enable/disable 2FA (TOTP with QR code)
+- Language: German / English
+- Backup: JSON export + restore
+- Release notes / update dialog (also in the sidebar via “Release Notes”)
 
 ---
 
-## 2. Tech-Stack & Architektur
+## 2. Tech stack & architecture
 
 ```
-Browser → Next.js App Router (Port 3000)
+Browser → Next.js App Router (port 3000)
               ↓
-         NextAuth v5 (JWT, Username + Passwort, optional 2FA)
+         NextAuth v5 (JWT, username + password, optional 2FA)
               ↓
          Prisma 7 + @prisma/adapter-pg
               ↓
-         PostgreSQL 16 (internes Docker-Netzwerk, Port 5432 nicht extern)
+         PostgreSQL 16 (internal Docker network, port 5432 not exposed)
 ```
 
-| Layer | Technologie |
+| Layer | Technology |
 |---|---|
 | Framework | Next.js 16 App Router + TypeScript |
-| Auth | NextAuth.js v5 (Credentials), bcryptjs, TOTP via otplib |
-| Datenbank | PostgreSQL 16 + Prisma 7 (Driver Adapter `@prisma/adapter-pg`) |
-| UI | shadcn/ui + Tailwind CSS v4 + next-themes (Dark/Light) |
+| Auth | NextAuth.js v5 (credentials), bcryptjs, TOTP via otplib |
+| Database | PostgreSQL 16 + Prisma 7 (driver adapter `@prisma/adapter-pg`) |
+| UI | shadcn/ui + Tailwind CSS v4 + next-themes (dark/light) |
 | Charts | Recharts |
-| Dashboard-Grid | react-grid-layout |
-| Data Fetching | TanStack Query v5 |
-| Formulare | React Hook Form + Zod (shared Schemas Frontend ↔ API) |
-| DnD | @dnd-kit (Investment-Reihenfolge) |
-| Kurse | Yahoo Finance (Aktien/ETFs/Forex) + CoinGecko (Krypto) |
-| i18n | React Context + de/en Messages (`src/i18n/`) |
+| Dashboard grid | react-grid-layout |
+| Data fetching | TanStack Query v5 |
+| Forms | React Hook Form + Zod (shared schemas frontend ↔ API) |
+| DnD | @dnd-kit (investment sort order) |
+| Prices | Yahoo Finance (stocks/ETFs/FX) + CoinGecko (crypto) |
+| i18n | React context + de/en messages (`src/i18n/`) |
 | Tests | Vitest + Testing Library |
 
-**Multi-Tenant:** Alle Daten sind an einen `householdId` gebunden. Die ID kommt immer aus der Session (JWT) — nie aus dem Request-Body.
+**Multi-tenant:** All data is bound to a `householdId`. The ID always comes from the session (JWT) — never from the request body.
 
-**Docker-Netzwerk:**
+**Docker network:**
 
 ```
-finance_app (Next.js :3000) ←── finance_net (Bridge) ────→ finance_db (PostgreSQL :5432)
+finance_app (Next.js :3000) ←── finance_net (bridge) ────→ finance_db (PostgreSQL :5432)
 ```
 
-Postgres-Port ist nicht nach außen exposed. Die App startet erst, wenn die DB healthy ist.
+Postgres port is not exposed externally. The app starts only after the DB is healthy.
 
 ---
 
-## 3. Proxmox LXC einrichten
+## 3. Set up Proxmox LXC
 
-### Container anlegen (Proxmox Web-UI)
+### Create container (Proxmox web UI)
 
-| Einstellung | Empfehlung |
+| Setting | Recommendation |
 |---|---|
 | Template | `debian-12-standard` |
-| CPU | 2 Kerne |
+| CPU | 2 cores |
 | RAM | 2048 MB |
 | Swap | 512 MB |
 | Disk | 20 GB |
-| Netzwerk | DHCP oder statische IP (z. B. `192.168.x.x`) |
-| **Unprivileged container** | **Nein** (Docker benötigt privilegierten Modus) |
+| Network | DHCP or static IP (e.g. `192.168.x.x`) |
+| **Unprivileged container** | **No** (Docker needs privileged mode) |
 
-> **Wichtig:** Der Container muss **privileged** sein, damit Docker-Volumes und `cgroups` korrekt funktionieren.
+> **Important:** The container must be **privileged** so Docker volumes and `cgroups` work correctly.
 
-### LXC-Optionen nach dem Erstellen (Proxmox Shell)
+### LXC options after creation (Proxmox shell)
 
-Damit Docker innerhalb des Containers läuft, müssen zwei Features aktiviert sein. In der Proxmox-Shell des Hosts (nicht des Containers):
+Two features must be enabled for Docker inside the container. On the Proxmox host shell (not inside the container):
 
 ```bash
-# Container-ID anpassen (z. B. 100)
+# Adjust container ID (e.g. 100)
 CTID=100
 
 pct set $CTID -features keyctl=1,nesting=1
 ```
 
-Anschließend den Container starten:
+Then start the container:
 
 ```bash
 pct start $CTID
@@ -217,66 +217,66 @@ pct enter $CTID
 
 ---
 
-## 4. Docker auf Debian 12 installieren
+## 4. Install Docker on Debian 12
 
-Alle Befehle **im LXC-Container** als `root` ausführen:
+Run all commands **inside the LXC container** as `root`:
 
 ```bash
-# Systemaktualisierung
+# System update
 apt update && apt upgrade -y
 
-# Abhängigkeiten
+# Dependencies
 apt install -y ca-certificates curl gnupg
 
-# Docker-GPG-Schlüssel
+# Docker GPG key
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/debian/gpg \
   -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
 
-# Docker-Repository hinzufügen
+# Add Docker repository
 echo "deb [arch=$(dpkg --print-architecture) \
   signed-by=/etc/apt/keyrings/docker.asc] \
   https://download.docker.com/linux/debian \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
   | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Docker installieren
+# Install Docker
 apt update
 apt install -y docker-ce docker-ce-cli containerd.io \
   docker-buildx-plugin docker-compose-plugin
 
-# Docker beim Systemstart aktivieren
+# Enable Docker on boot
 systemctl enable docker
 systemctl start docker
 
-# Prüfen
+# Verify
 docker --version
 docker compose version
 ```
 
 ---
 
-## 5. Projekt aufspielen
+## 5. Deploy the project
 
-### Option A: Von Windows mit `push.ps1` (empfohlen)
+### Option A: From Windows with `push.ps1` (recommended)
 
-> **Entwickler-Deploy (optional):** Das Repo enthält `push.example.ps1` und `pack.example.ps1`. Kopiere sie lokal nach `push.ps1` bzw. `pack.ps1` und trage deine Server-IP ein — diese Dateien werden **nicht** committed (siehe `.gitignore`).
+> **Developer deploy (optional):** The repo includes `push.example.ps1` and `pack.example.ps1`. Copy them locally to `push.ps1` and `pack.ps1` and set your server IP — these files are **not** committed (see `.gitignore`).
 
 ```powershell
-# Einmalig: push.example.ps1 → push.ps1 kopieren, YOUR_SERVER anpassen
+# One-time: copy push.example.ps1 → push.ps1, set YOUR_SERVER
 Copy-Item push.example.ps1 push.ps1
 
-# Im Projektverzeichnis
-.\push              # nur kopieren
-.\push -Deploy      # kopieren + docker compose up -d --build auf dem Server
+# In the project directory
+.\push              # copy only
+.\push -Deploy      # copy + docker compose up -d --build on the server
 ```
 
-Das Skript kopiert alle relevanten Dateien per `robocopy` + `scp` nach `/opt/financer` auf dem Server. Mit `-Deploy` folgt direkt der Docker-Rebuild per SSH. Mehrere `ssh`/`scp`-Aufrufe teilen sich eine Session (Passwort nur einmal, sofern kein SSH-Key hinterlegt ist).
+The script copies relevant files via `robocopy` + `scp` to `/opt/financer` on the server. With `-Deploy`, a Docker rebuild follows over SSH. Multiple `ssh`/`scp` calls can share one session (password once if no SSH key is configured).
 
-**Ausgeschlossen:** `node_modules`, `.next`, `src/generated`, `.env`/`.env.local`, `.codegraph`, `*.tsbuildinfo`, `.claude`
+**Excluded:** `node_modules`, `.next`, `src/generated`, `.env`/`.env.local`, `.codegraph`, `*.tsbuildinfo`, `.claude`
 
-### Option B: Git-Clone auf dem Server
+### Option B: Git clone on the server
 
 ```bash
 ssh root@YOUR_SERVER
@@ -286,20 +286,20 @@ cp .env.example .env && nano .env
 docker compose up -d --build
 ```
 
-In `.env` setzen: `FINANCER_DEPLOY_MODE=build` (Default) oder `ghcr` — siehe [Abschnitt 7](#7-starten--updates) und [plan/deploy.md](plan/deploy.md).
+In `.env` set: `FINANCER_DEPLOY_MODE=build` (default) or `ghcr` — see [section 7](#7-start--updates) and [plan/deploy.md](plan/deploy.md).
 
-### Option C: Manuell per `scp`
+### Option C: Manual via `scp`
 
 ```powershell
 scp -r . root@YOUR_SERVER:/opt/financer/
-# node_modules, .next und Secrets vorher manuell ausschließen
+# Exclude node_modules, .next, and secrets manually beforehand
 ```
 
 ---
 
-## 6. Konfiguration (.env)
+## 6. Configuration (.env)
 
-**Einmalig auf dem Server:**
+**One-time on the server:**
 
 ```bash
 ssh root@YOUR_SERVER
@@ -308,33 +308,33 @@ cp .env.example .env
 nano .env
 ```
 
-Datei befüllen:
+Fill in the file:
 
 ```env
 # PostgreSQL
 POSTGRES_USER=financeuser
-POSTGRES_PASSWORD=<sicheres_passwort_hier>
+POSTGRES_PASSWORD=<secure_password_here>
 POSTGRES_DB=finance
 
-# Wird von der App intern genutzt (db = Docker-Dienst-Name)
-DATABASE_URL=postgresql://financeuser:<passwort>@db:5432/finance
+# Used internally by the app (db = Docker service name)
+DATABASE_URL=postgresql://financeuser:<password>@db:5432/finance
 
-# Zufälligen Schlüssel generieren: openssl rand -base64 32
-NEXTAUTH_SECRET=<langer_zufaelliger_schluessel>
+# Generate random key: openssl rand -base64 32
+NEXTAUTH_SECRET=<long_random_key>
 
-# URL unter der die App erreichbar ist
+# URL where the app is reachable
 NEXTAUTH_URL=http://YOUR_SERVER:3000
 
-# Deploy-Modus: build (git pull + lokal bauen) oder ghcr (Image pull)
+# Deploy mode: build (git pull + local build) or ghcr (image pull)
 FINANCER_DEPLOY_MODE=build
 
-# Optional: ohne Outbound-HTTPS zu api.nasdaq.com (gesperrter LXC)
+# Optional: no outbound HTTPS to api.nasdaq.com (locked-down LXC)
 # MARKET_CALENDAR_EXTERNAL=false
 ```
 
-> `.env` **nie committen** — sie enthält Secrets. Die Datei bleibt ausschließlich auf dem Server.
+> **Never commit** `.env` — it contains secrets. The file stays on the server only.
 
-**Lokal (`.env.local`):** Gleiche Variablen, aber `DATABASE_URL` zeigt auf lokale PostgreSQL (z. B. `postgresql://financeuser:pass@localhost:5432/finance`). Zusätzlich für LAN-Zugriff im Dev-Modus:
+**Local (`.env.local`):** Same variables, but `DATABASE_URL` points to local PostgreSQL (e.g. `postgresql://financeuser:pass@localhost:5432/finance`). For LAN access in dev mode also:
 
 ```env
 AUTH_TRUST_HOST=true
@@ -343,9 +343,9 @@ NEXTAUTH_URL=http://192.168.x.x:3000
 
 ---
 
-## 7. Starten & Updates
+## 7. Start & updates
 
-### Erstmalig starten
+### First start
 
 ```bash
 ssh root@YOUR_SERVER
@@ -353,31 +353,31 @@ cd /opt/financer
 docker compose up -d --build
 ```
 
-Beim Start führt `docker-entrypoint.sh` automatisch `prisma db push` aus — das aktuelle Schema wird direkt auf die Datenbank angewendet (idempotent). Im Image liegt nur die Prisma-CLI (kein volles `node_modules` aus dem Builder).
+On startup, `docker-entrypoint.sh` runs `prisma db push` automatically — the current schema is applied to the database (idempotent). The image only includes the Prisma CLI (not the full builder `node_modules`).
 
-> **Hinweis:** Production nutzt `db push`, weil die DB ursprünglich ohne Migrationshistorie aufgebaut wurde. Lokal werden die Migrationen aus `prisma/migrations/` per `npx prisma migrate deploy` angewendet.
+> **Note:** Production uses `db push` because the DB was originally created without migration history. Locally, migrations from `prisma/migrations/` are applied via `npx prisma migrate deploy`.
 
-**Status prüfen:**
+**Check status:**
 
 ```bash
 docker compose ps
 docker compose logs -f app
 ```
 
-Die App ist erreichbar unter: `http://YOUR_SERVER:3000` (oder der in `NEXTAUTH_URL` gesetzten URL)
+App URL: `http://YOUR_SERVER:3000` (or the URL set in `NEXTAUTH_URL`)
 
-### Updates einspielen
+### Applying updates
 
-Modus in `.env`: `FINANCER_DEPLOY_MODE=build` (Default) oder `ghcr`. Ausführliche Referenz: **[plan/deploy.md](plan/deploy.md)**.
+Mode in `.env`: `FINANCER_DEPLOY_MODE=build` (default) or `ghcr`. Full reference: **[plan/deploy.md](plan/deploy.md)**.
 
-**Ein Befehl (beide Modi):**
+**One command (both modes):**
 
 ```bash
 cd /opt/financer
 ./scripts/update.sh
 ```
 
-**Modus `build`** — Git-Clone, lokaler Build:
+**Mode `build`** — git clone, local build:
 
 ```bash
 cd /opt/financer
@@ -385,11 +385,11 @@ git pull
 docker compose up -d --build
 ```
 
-Hard-Reset auf `origin/main`: `./scripts/deploy.sh`
+Hard reset to `origin/main`: `./scripts/deploy.sh`
 
-> **`--build` ist nötig** — nur `docker compose up -d` startet den alten Container neu.
+> **`--build` is required** — `docker compose up -d` alone only restarts the old container.
 
-**Modus `ghcr`** — vorgefertigtes Image (CI pusht `:latest` bei jedem Push auf `main`):
+**Mode `ghcr`** — pre-built image (CI pushes `:latest` on every push to `main`):
 
 ```bash
 cd /opt/financer
@@ -397,77 +397,77 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-In `.env`: `FINANCER_DEPLOY_MODE=ghcr`. Bei privatem Paket: einmalig `docker login ghcr.io`.
+In `.env`: `FINANCER_DEPLOY_MODE=ghcr`. For a private package: `docker login ghcr.io` once.
 
-Image: `ghcr.io/carkeyuser/financer:latest` (überschreibbar via `FINANCER_IMAGE`).
+Image: `ghcr.io/carkeyuser/financer:latest` (override via `FINANCER_IMAGE`).
 
-**Von Windows (optional, Modus `build`, mit `push.ps1`):**
+**From Windows (optional, mode `build`, with `push.ps1`):**
 
 ```powershell
 .\push -Deploy
 ```
 
-Nur kopieren ohne Build: `.\push`
+Copy only without build: `.\push`
 
-Schema-Änderungen werden beim Container-Start automatisch via `prisma db push` angewendet.
+Schema changes are applied automatically on container start via `prisma db push`.
 
 ---
 
-## 8. Erster Login & Demo-Daten
+## 8. First login & demo data
 
-Nach dem ersten Start gibt es noch keinen Benutzer. Den ersten Account über die Registrierungsseite anlegen:
+After the first start there is no user yet. Create the first account via the registration page:
 
 ```
 http://YOUR_SERVER:3000/auth/register
 ```
 
-Dieser erste Account wird automatisch **Owner** des Haushalts. Weitere Benutzer können anschließend über **Benutzer → Benutzer anlegen** oder per Einladungslink hinzugefügt werden.
+That first account automatically becomes **owner** of the household. Additional users can be added via **Users → Create user** or an invite link.
 
-**Optional: Demo-Daten laden**
+**Optional: load demo data**
 
 ```bash
-docker compose exec app ./node_modules/.bin/prisma db seed   # Seed braucht tsx — bei Fehler lokal mit DATABASE_URL seeden
+docker compose exec app ./node_modules/.bin/prisma db seed   # seed needs tsx — on failure seed locally with DATABASE_URL
 ```
 
-Legt Demo-Benutzer + Standard-Fixkosten an (Miete, Versicherung, Auto, etc.).
+Creates demo users + default fixed costs (rent, insurance, car, etc.).
 
 ---
 
-## 9. Datensicherung
+## 9. Backups
 
-Es gibt zwei unabhängige Backup-Strategien:
+There are two independent backup strategies:
 
-### In-App-Backup (empfohlen für Datenmigration)
+### In-app backup (recommended for data migration)
 
-Unter **Einstellungen → Datensicherung**.
+Under **Settings → Backup**.
 
-**Export** (alle Haushaltsmitglieder):
-- Button „Backup erstellen" → JSON-Datei `financer-backup-YYYY-MM-DD.json`
-- Enthält: Fixkosten, Monatseinkommen, Auszahlungen, Snapshots, Wertpapiere + Kaufhistorie, **Dividenden**, **Haushaltskassen-Simulationen**
-- Enthält nicht: Passwörter, Sessions, Auth-Tokens, 2FA-Secrets, Dashboard-Widget-Layouts
+**Export** (all household members):
+- Button “Create backup” → JSON file `financer-backup-YYYY-MM-DD.json`
+- Includes: fixed costs, monthly income, payouts, snapshots, securities + purchase history, **dividends**, **household-cash simulations**
+- Excludes: passwords, sessions, auth tokens, 2FA secrets, dashboard widget layouts
 
-**Restore** (nur Owner/Admin):
-- JSON-Datei auswählen → Bestätigungsdialog
-- Löscht alle aktuellen Haushaltsdaten und ersetzt sie vollständig
-- Usernames aus dem Backup werden auf aktuelle Haushaltsmitglieder gemappt
+**Restore** (owner/admin only):
+- Select JSON file → confirmation dialog
+- Deletes all current household data and replaces it completely
+- Usernames from the backup are mapped to current household members
 
-> **Wofür:** Umzug auf neuen Server, Wiederherstellung nach Fehleingaben, Datenmigration.
+> **Use for:** moving to a new server, recovery after mistakes, data migration.
 
-### Datenbank-Dump (empfohlen für vollständige Server-Backups)
+### Database dump (recommended for full server backups)
 
-Sichert die gesamte PostgreSQL-Datenbank inklusive User-Accounts und Auth-Daten:
+Backs up the entire PostgreSQL database including user accounts and auth data:
 
 ```bash
-# Dump erstellen (auf dem Server)
+# Create dump (on the server)
 docker compose exec db pg_dump -U financeuser finance > backup_$(date +%Y%m%d).sql
 
-# Wiederherstellen
+# Restore
 docker compose exec -T db psql -U financeuser finance < backup_20260524.sql
 ```
 
-> **Wofür:** Vollständige Server-Sicherung, Notfall-Recovery, regelmäßige Cronjob-Backups.
+> **Use for:** full server backup, disaster recovery, scheduled cron backups.
 
-**Cronjob-Beispiel** (täglich um 3 Uhr):
+**Cron example** (daily at 3 AM):
 
 ```bash
 0 3 * * * cd /opt/financer && docker compose exec -T db pg_dump -U financeuser finance > /backups/financer_$(date +\%Y\%m\%d).sql
@@ -475,52 +475,52 @@ docker compose exec -T db psql -U financeuser finance < backup_20260524.sql
 
 ---
 
-## 10. Nützliche Befehle (Server)
+## 10. Useful commands (server)
 
-**Container verwalten:**
+**Manage containers:**
 
 ```bash
-docker compose ps                          # Status anzeigen
-docker compose logs -f app                 # App-Logs live
-docker compose logs -f db                  # DB-Logs live
-docker compose down                        # Stoppen (Daten bleiben erhalten)
-docker compose down -v                     # Stoppen + Volumes löschen (ACHTUNG: löscht DB!)
-docker compose restart app                 # Nur App neu starten
-docker compose exec app sh                 # Shell im App-Container
+docker compose ps                          # show status
+docker compose logs -f app                 # app logs live
+docker compose logs -f db                  # DB logs live
+docker compose down                        # stop (data preserved)
+docker compose down -v                     # stop + delete volumes (WARNING: deletes DB!)
+docker compose restart app                 # restart app only
+docker compose exec app sh                 # shell in app container
 ```
 
-**Datenbank:**
+**Database:**
 
 ```bash
-# Direkter DB-Zugriff
+# Direct DB access
 docker compose exec db psql -U financeuser -d finance
 
-# Prisma Studio (GUI, via SSH-Tunnel)
+# Prisma Studio (GUI, via SSH tunnel)
 ssh -L 5555:localhost:5555 root@YOUR_SERVER \
   "cd /opt/financer && docker compose exec app ./node_modules/.bin/prisma studio"
-# Dann im Browser: http://localhost:5555
+# Then in browser: http://localhost:5555
 
-# Schema-Status
+# Schema status
 docker compose exec app ./node_modules/.bin/prisma db push --dry-run
 ```
 
-**Ressourcen:**
+**Resources:**
 
 ```bash
-docker system df                           # Speicherverbrauch
-docker compose exec db psql -U financeuser -d finance -c "\dt"  # Tabellen auflisten
+docker system df                           # disk usage
+docker compose exec db psql -U financeuser -d finance -c "\dt"  # list tables
 ```
 
 ---
 
-## 11. Lokale Entwicklung
+## 11. Local development
 
-**Voraussetzungen:** Node.js 20+, PostgreSQL lokal oder via Docker
+**Requirements:** Node.js 20+, PostgreSQL locally or via Docker
 
 ```powershell
 npm install
 cp .env.example .env.local
-# DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, AUTH_TRUST_HOST=true eintragen
+# Set DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, AUTH_TRUST_HOST=true
 
 npx prisma generate
 npx prisma migrate deploy
@@ -528,188 +528,188 @@ npx prisma db seed          # optional
 npm run dev
 ```
 
-App läuft unter `http://localhost:3000`.
+App runs at `http://localhost:3000`.
 
-### Wichtige Befehle
+### Important commands
 
 ```bash
-npm run dev           # Dev-Server
-npm run build         # Production-Build prüfen
+npm run dev           # dev server
+npm run build         # verify production build
 npm run lint          # ESLint
-npm run test          # Unit-Tests (Vitest)
-npm run test:watch    # Tests im Watch-Modus
+npm run test          # unit tests (Vitest)
+npm run test:watch    # tests in watch mode
 
-npx prisma generate            # Client nach Schema-Änderung
-npx prisma migrate deploy      # Migrationen anwenden
-npx prisma db seed             # Demo-Daten
-npx prisma studio              # DB-GUI (http://localhost:5555)
+npx prisma generate            # client after schema change
+npx prisma migrate deploy      # apply migrations
+npx prisma db seed             # demo data
+npx prisma studio              # DB GUI (http://localhost:5555)
 ```
 
-### LAN-Zugriff im Dev-Modus
+### LAN access in dev mode
 
-Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. `192.168.x.x:3000`):
+If the browser opens the app via a different IP than `NEXTAUTH_URL` (e.g. `192.168.x.x:3000`):
 
 1. `.env.local`: `AUTH_TRUST_HOST=true`, `NEXTAUTH_URL=http://192.168.x.x:3000`
-2. `next.config.ts`: IP in `allowedDevOrigins` eintragen
-3. `src/lib/auth.ts`: `trustHost: true` ist bereits gesetzt
+2. `next.config.ts`: add IP to `allowedDevOrigins`
+3. `src/lib/auth.ts`: `trustHost: true` is already set
 
-### Prisma 7 — Besonderheiten
+### Prisma 7 — specifics
 
-- Kein `url` im Schema — URL kommt aus `prisma.config.ts` (CLI) bzw. `@prisma/adapter-pg` (Runtime)
-- Import-Pfad: immer `from "@/generated/prisma"` — nie `from "@prisma/client"`
-- Nach Schema-Änderungen: `npx prisma generate` + Migration anlegen/anwenden
+- No `url` in the schema — URL from `prisma.config.ts` (CLI) and `@prisma/adapter-pg` (runtime)
+- Import path: always `from "@/generated/prisma"` — never `from "@prisma/client"`
+- After schema changes: `npx prisma generate` + create/apply migration
 
-### Layout-Regel
+### Layout rule
 
-`AuthGuard` gehört nur ins `layout.tsx` jeder Hauptroute — nicht zusätzlich in Page-Komponenten (sonst doppelte Sidebar).
+`AuthGuard` belongs only in each main route’s `layout.tsx` — not again in page components (avoids duplicate sidebar).
 
 ---
 
 ## 12. Tests
 
-**202 Unit-Tests** in 26 Dateien (Vitest + Testing Library):
+**202 unit tests** in 26 files (Vitest + Testing Library):
 
 ```bash
-npm run test          # einmalig
-npm run test:watch    # Watch-Modus
+npm run test          # once
+npm run test:watch    # watch mode
 ```
 
-| Bereich | Dateien (Auswahl) |
+| Area | Files (sample) |
 |---|---|
-| Kern | `calculations.test.ts`, `validations.test.ts`, `currency.test.ts`, `security-price.test.ts` |
-| Haushalt | `household-finance.test.ts` |
-| Dividenden | `dividends.test.ts`, `interest-asset.test.ts` |
+| Core | `calculations.test.ts`, `validations.test.ts`, `currency.test.ts`, `security-price.test.ts` |
+| Household | `household-finance.test.ts` |
+| Dividends | `dividends.test.ts`, `interest-asset.test.ts` |
 | Dashboard | `nasdaq-calendar.test.ts`, `release-notes.test.ts` |
-| TR-Import | `trade-republic-csv.test.ts`, `tr-import-*.test.ts` (Parser, Routes, Auswahl, Sort, Ticker, ISIN) |
-| Merge / Depot | `asset-merge.test.ts`, `merge-apply.test.ts`, `merge-suggestions-route.test.ts`, `delete-investment-account*.test.ts` |
+| TR import | `trade-republic-csv.test.ts`, `tr-import-*.test.ts` (parser, routes, selection, sort, ticker, ISIN) |
+| Merge / depot | `asset-merge.test.ts`, `merge-apply.test.ts`, `merge-suggestions-route.test.ts`, `delete-investment-account*.test.ts` |
 | Admin | `delete-provisioned-user.test.ts` |
-| Sonstiges | `i18n.test.ts`, `isin-resolver.test.ts` |
+| Other | `i18n.test.ts`, `isin-resolver.test.ts` |
 
-Vollständige Liste: `src/test/`. Nur Unit-Tests — keine E2E- oder API-Integration-Tests.
+Full list: `src/test/`. Unit tests only — no E2E or API integration tests.
 
 ---
 
 ## 13. Troubleshooting
 
-### App startet nicht / Container crasht
+### App won’t start / container crashes
 
 ```bash
 docker compose logs app --tail 50
 ```
 
-Häufige Ursachen: fehlende `.env`, falsches `DATABASE_URL`, DB noch nicht healthy.
+Common causes: missing `.env`, wrong `DATABASE_URL`, DB not healthy yet.
 
-### Build schlägt fehl (`npm run build` / `docker compose up --build`)
+### Build fails (`npm run build` / `docker compose up --build`)
 
-Lokal zuerst prüfen:
+Check locally first:
 
 ```bash
 npm run build
 npm run lint
 ```
 
-TypeScript-Fehler blockieren den Docker-Build (Multi-Stage: `npm run build` im Builder-Stage).
+TypeScript errors block the Docker build (multi-stage: `npm run build` in the builder stage).
 
-### Login funktioniert nicht / Redirect-Schleife
+### Login fails / redirect loop
 
-- `NEXTAUTH_URL` muss exakt der URL entsprechen, unter der die App erreichbar ist
-- Auf dem Server: `AUTH_TRUST_HOST=true` (in `docker-compose.yml` bereits gesetzt)
-- Lokal über LAN: siehe [LAN-Zugriff](#lan-zugriff-im-dev-modus)
+- `NEXTAUTH_URL` must exactly match the URL where the app is reachable
+- On the server: `AUTH_TRUST_HOST=true` (already set in `docker-compose.yml`)
+- Local over LAN: see [LAN access](#lan-access-in-dev-mode)
 
-### 404 nach Abmelden
+### 404 after logout
 
-Logout leitet auf `/auth/login` weiter. Direktaufruf von `/login` wird automatisch dorthin umgeleitet.
+Logout redirects to `/auth/login`. Direct visits to `/login` redirect there automatically.
 
-### Wertpapiersuche findet nichts
+### Security search returns nothing
 
-- Yahoo Finance unterstützt **keine deutschen WKN** (z. B. `A142N1`)
-- Suche mit Ticker (`EUNL.DE`, `VWCE.DE`), Name oder ISIN
-- Krypto: Name oder Symbol (`Bitcoin`, `BTC`, `Ripple`)
+- Yahoo Finance does **not** support German **WKN** (e.g. `A142N1`)
+- Search by ticker (`EUNL.DE`, `VWCE.DE`), name, or ISIN
+- Crypto: name or symbol (`Bitcoin`, `BTC`, `Ripple`)
 
-### Kurse zeigen falsche Währung
+### Prices show wrong currency
 
-EUR-Assets speichern den EUR-Kurs, USD-Assets den Nativkurs. Die UI rechnet alles in EUR um.
+EUR assets store the EUR price; USD assets store the native price. The UI converts everything to EUR.
 
-### Widget-Layout geht verloren
+### Widget layout lost
 
-Layout wird in der DB pro User gespeichert. Nach Drag/Resize wird automatisch gespeichert. Bei Problemen: Browser-Cache leeren, Seite neu laden (F5).
+Layout is stored in the DB per user. Auto-saves after drag/resize. If issues persist: clear browser cache, reload (F5).
 
-### App hängt / Marktkalender-Timeouts
+### App hangs / market calendar timeouts
 
-Logs mit vielen `api.nasdaq.com`-Fehlern oder `failed to pipe response`: Marktkalender-Widget blockiert den Server.
+Logs with many `api.nasdaq.com` errors or `failed to pipe response`: market calendar widget blocks the server.
 
 ```env
-# In Server-.env, dann Container neu starten
+# In server .env, then restart container
 MARKET_CALENDAR_EXTERNAL=false
 ```
 
-Alternativ: Marktkalender-Widget im Dashboard deaktivieren.
+Alternatively: disable the market calendar widget on the dashboard.
 
-### Keine Live-Kurse
+### No live prices
 
-Yahoo (`query1.finance.yahoo.com`) muss vom Container erreichbar sein. Sonst Kurse manuell per Inline-Edit oder Refresh-Button setzen.
+Yahoo (`query1.finance.yahoo.com`) must be reachable from the container. Otherwise set prices manually via inline edit or refresh button.
 
-### Prisma-Fehler nach Schema-Änderung
+### Prisma errors after schema change
 
 ```bash
-# Lokal
+# Local
 npx prisma generate
 npx prisma migrate deploy
 
-# Server (automatisch beim Start, manuell falls nötig)
+# Server (automatic on start, manual if needed)
 docker compose exec app ./node_modules/.bin/prisma db push
 docker compose restart app
 ```
 
 ---
 
-## 14. Bekannte Einschränkungen
+## 14. Known limitations
 
-| Thema | Details |
+| Topic | Details |
 |---|---|
-| **WKN-Suche** | Deutsche WKN werden von Yahoo nicht unterstützt — Ticker (`EUNL.DE`), Name oder ISIN nutzen |
-| **Keine Bank-APIs** | Alle Daten manuell; Dividenden nur über `/dividenden` |
-| **Outbound HTTPS** | Yahoo (Kurse) und Nasdaq (Marktkalender) brauchen Erreichbarkeit vom Container/LXC |
-| **Marktkalender** | Nasdaq: primär US-Symbole ohne Suffix (`.DE`, Krypto, Forex ignoriert). Ohne Zugang: `MARKET_CALENDAR_EXTERNAL=false` |
-| **EUR-Historie** | Historische Charts nutzen den aktuellen EUR-Kurs als Näherung |
-| **Widget-Layouts** | Nicht im JSON-Backup enthalten |
-| **Lint (Dev)** | `npm run lint` (`next lint`) unter Next.js 16 derzeit kaputt — siehe Backlog Ä-10 in `plan/aenderungen.md` |
+| **WKN search** | German WKN not supported by Yahoo — use ticker (`EUNL.DE`), name, or ISIN |
+| **No bank APIs** | All data manual; dividends only via `/dividenden` |
+| **Outbound HTTPS** | Yahoo (prices) and Nasdaq (market calendar) must be reachable from container/LXC |
+| **Market calendar** | Nasdaq: mainly US symbols without suffix (`.DE`, crypto, FX ignored). Without access: `MARKET_CALENDAR_EXTERNAL=false` |
+| **EUR history** | Historical charts use current EUR rate as approximation |
+| **Widget layouts** | Not included in JSON backup |
+| **Lint (dev)** | `npm run lint` (`next lint`) broken on Next.js 16 for now — see backlog Ä-10 in `plan/aenderungen.md` |
 
-**Offenes Backlog** (Details in `plan/features.md`): One-Click-Install (F-31), Marktkalender DE/ETF (F-34).
+**Open backlog** (details in `plan/features.md`): one-click install (F-31), DE/ETF market calendar (F-34).
 
 ---
 
-## 15. Projektstruktur
+## 15. Project structure
 
 ```
 financer/
 ├── docs/
-│   └── screenshots/           # README-Vorschau (Dashboard, Mobile, Charts, 2FA)
-├── plan/                      # Projektdokumentation, Architektur, Backlogs, deploy.md
+│   └── screenshots/           # README preview (dashboard, mobile, charts, 2FA)
+├── plan/                      # project docs, architecture, backlogs, deploy.md
 ├── scripts/
-│   ├── update.sh              # Server-Update (build oder ghcr)
-│   └── deploy.sh              # Hard-Reset auf origin/main + Rebuild
-├── README.md                  # Diese Datei
-├── CHANGELOG.md               # Release-Historie (Keep a Changelog)
-├── .env.example               # Env-Template
+│   ├── update.sh              # server update (build or ghcr)
+│   └── deploy.sh              # hard reset to origin/main + rebuild
+├── README.md                  # this file
+├── CHANGELOG.md               # release history (Keep a Changelog)
+├── .env.example               # env template
 ├── docker-compose.yml         # PostgreSQL + Next.js
-├── docker-compose.prod.yml    # GHCR-Overlay (Pull-Deploy)
-├── Dockerfile                 # Multi-Stage Build (standalone)
-├── push.example.ps1           # Deploy-Vorlage (lokal → push.ps1 kopieren)
-├── pack.example.ps1           # Pack-Vorlage (lokal → pack.ps1 kopieren)
+├── docker-compose.prod.yml    # GHCR overlay (pull deploy)
+├── Dockerfile                 # multi-stage build (standalone)
+├── push.example.ps1           # deploy template (copy locally → push.ps1)
+├── pack.example.ps1           # pack template (copy locally → pack.ps1)
 ├── prisma/
-│   ├── schema.prisma          # DB-Schema
-│   ├── prisma.config.ts       # Prisma 7 DB-URL
-│   ├── seed.ts                # Demo-Daten
-│   └── migrations/            # SQL-Migrationen (lokal)
+│   ├── schema.prisma          # DB schema
+│   ├── prisma.config.ts       # Prisma 7 DB URL
+│   ├── seed.ts                # demo data
+│   └── migrations/            # SQL migrations (local)
 └── src/
-    ├── app/                   # Next.js App Router (Seiten + API Routes)
-    ├── components/            # UI-Komponenten (shadcn, Dashboard, Investments, …)
-    ├── hooks/                 # TanStack Query Hooks
-    ├── i18n/                  # Deutsch/Englisch
-    ├── lib/                   # Auth, Prisma, Validations, Utils
-    ├── test/                  # Vitest Unit-Tests
-    └── generated/prisma/      # Prisma 7 Client (generiert)
+    ├── app/                   # Next.js App Router (pages + API routes)
+    ├── components/            # UI (shadcn, dashboard, investments, …)
+    ├── hooks/                 # TanStack Query hooks
+    ├── i18n/                  # German/English
+    ├── lib/                   # auth, Prisma, validations, utils
+    ├── test/                  # Vitest unit tests
+    └── generated/prisma/      # Prisma 7 client (generated)
 ```
 
-Weitere Details: [plan/README.md](plan/README.md)
+More details: [plan/README.md](plan/README.md)

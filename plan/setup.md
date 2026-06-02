@@ -48,7 +48,7 @@ npm run dev
 
 Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. `192.168.x.x:3000`):
 
-**`next.config.ts`:** `allowedDevOrigins: ["192.168.x.x"]`  
+**`next.config.ts`:** `allowedDevOrigins: ["192.168.x.x"]` (eigene LAN-IP eintragen)  
 **`.env.local`:** `AUTH_TRUST_HOST=true`  
 **`src/lib/auth.ts`:** `trustHost: true` direkt im `NextAuth({...})`-Objekt setzen.
 
