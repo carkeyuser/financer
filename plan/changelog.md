@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-02 | **Git:** `git filter-repo` — leakende Commit-E-Mail in den letzten 2 Commits durch GitHub-No-Reply ersetzt; Force-Push `main` + `cursor/security-anonymization-and-hardening`; Anleitung in `plan/setup.md` |
 | 2026-06-02 | **Security-Review:** JWT `householdId` nur nach DB-Mitgliedschaft bei `session.update`; Backup-Restore ohne Admin-Fallback bei unbekanntem Username, 10 MB-Limit; `ALLOW_REGISTRATION`; Security-Header in `next.config.ts`; Securities-Symbol/Query-Validierung; TR-Preview-Rate-Limit; API-Tests personal-income; Seed-Warnung `SEED_DEMO_PASSWORD` |
 | 2026-06-02 | **Security — Docs/Seed anonymisiert:** Deployment-Doku (README, `plan/deploy.md`, `plan/setup.md`, CLAUDE.md, Skripte) ohne Proxmox/LXC/Debian/`/opt/financer`; Seed + `default-fixed-costs.ts` mit generischen Fixkosten-Namen (Housing, Insurance, …) statt persönlicher deutscher Haushaltspositionen |
 | 2026-06-02 | **Git-Historie anonymisiert:** git filter-repo (Mailmap Financer <financer@users.noreply.github.com>, Blob-Ersetzungen: E-Mail, 10.1.1.130→YOUR_SERVER, 192.168.1.50→192.168.x.x, Seed-Beträge, TR-UUIDs); origin entfernt — Push nur mit git push --force nach Re-Add Remote |
