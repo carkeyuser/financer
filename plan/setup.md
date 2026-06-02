@@ -82,6 +82,39 @@ npx prisma db seed                     # Demo-Daten
 npx prisma generate                    # Client nach Schema-Änderung
 ```
 
+### Git: Commit-E-Mail privat halten
+
+GitHub zeigt in `.patch`-URLs die **Author-/Committer-E-Mail** aus dem Commit — nicht nur den Hash. Für öffentliche Repos:
+
+1. GitHub → **Settings → Emails** → „Keep my email addresses private“ aktivieren.
+2. Commits nur mit der No-Reply-Adresse (Format `ID+login@users.noreply.github.com`, bei diesem Repo z. B. `289468508+carkeyuser@users.noreply.github.com`).
+
+**Nur für dieses Repo** (ohne globale `git config`):
+
+```powershell
+git config user.email "289468508+carkeyuser@users.noreply.github.com"
+git config user.name "Financer"
+```
+
+Oder pro Commit:
+
+```powershell
+git -c user.email="289468508+carkeyuser@users.noreply.github.com" -c user.name="Financer" commit -m "..."
+```
+
+**Bereits gepushte Commits mit echter E-Mail umschreiben** (History ändert sich — Force-Push nötig):
+
+```powershell
+git filter-repo --force --email-callback "if email == b'<alte-email>':
+    return b'289468508+carkeyuser@users.noreply.github.com'
+return email"
+git remote add origin https://github.com/carkeyuser/financer.git   # filter-repo entfernt origin
+git push --force origin main
+git push --force origin <branch>
+```
+
+Prüfen: `https://github.com/carkeyuser/financer/commit/<hash>.patch` — dort nur noch No-Reply. Alte Hashes sind nach Force-Push in der Regel nicht mehr erreichbar; GitHub kann Diffs kurz cachen.
+
 ### Deploy auf dem Server (Docker)
 
 → Vollständige Anleitung: **[`deploy.md`](deploy.md)**
