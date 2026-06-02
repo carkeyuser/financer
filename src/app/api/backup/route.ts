@@ -10,10 +10,20 @@ export async function GET() {
   if ("error" in ctx) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status })
   }
-  const { householdId } = ctx
+  const { householdId, userId } = ctx
 
-  const [household, members, fixedCosts, monthlyIncomes, monthlyPayouts, fixedCostSnapshots, assets, simulations] =
-    await Promise.all([
+  const [
+    household,
+    members,
+    fixedCosts,
+    monthlyIncomes,
+    monthlyPayouts,
+    fixedCostSnapshots,
+    assets,
+    simulations,
+    personalIncomeMonths,
+    personalIncomeBonuses,
+  ] = await Promise.all([
       prisma.household.findUnique({ where: { id: householdId } }),
       prisma.householdMember.findMany({
         where: { householdId },
@@ -56,6 +66,14 @@ export async function GET() {
           },
         },
         orderBy: { updatedAt: "asc" },
+      }),
+      prisma.personalIncomeMonth.findMany({
+        where: { householdId, userId },
+        orderBy: [{ year: "asc" }, { month: "asc" }],
+      }),
+      prisma.personalIncomeBonus.findMany({
+        where: { householdId, userId },
+        orderBy: { date: "asc" },
       }),
     ])
 
@@ -149,6 +167,21 @@ export async function GET() {
         })),
       })),
     })),
+    personalIncomeMonths: personalIncomeMonths.map((m) => ({
+      year: m.year,
+      month: m.month,
+      grossSalary: m.grossSalary?.toString() ?? null,
+      netSalary: m.netSalary?.toString() ?? null,
+      monthBonus: m.monthBonus?.toString() ?? null,
+      note: m.note,
+      syncedToHouseholdAt: m.syncedToHouseholdAt?.toISOString() ?? null,
+    })),
+    personalIncomeBonuses: personalIncomeBonuses.map((b) => ({
+      date: b.date.toISOString().slice(0, 10),
+      amount: b.amount.toString(),
+      label: b.label,
+      note: b.note,
+    })),
   }
 
   return NextResponse.json(backup)
@@ -201,6 +234,8 @@ export async function POST(request: Request) {
     await tx.monthlyPayout.deleteMany({ where: { householdId } })
     await tx.monthlyFixedCostSnapshot.deleteMany({ where: { householdId } })
     await tx.asset.deleteMany({ where: { householdId } })
+    await tx.personalIncomeBonus.deleteMany({ where: { householdId, userId } })
+    await tx.personalIncomeMonth.deleteMany({ where: { householdId, userId } })
 
     if (backup.fixedCosts.length > 0) {
       await tx.fixedCost.createMany({
@@ -306,6 +341,36 @@ export async function POST(request: Request) {
           })),
         })
       }
+    }
+
+    if (backup.personalIncomeMonths.length > 0) {
+      await tx.personalIncomeMonth.createMany({
+        data: backup.personalIncomeMonths.map((m) => ({
+          householdId,
+          userId,
+          year: m.year,
+          month: m.month,
+          grossSalary: m.grossSalary ?? null,
+          netSalary: m.netSalary ?? null,
+          monthBonus: m.monthBonus ?? null,
+          note: m.note ?? null,
+          syncedToHouseholdAt: m.syncedToHouseholdAt ? new Date(m.syncedToHouseholdAt) : null,
+        })),
+        skipDuplicates: true,
+      })
+    }
+
+    if (backup.personalIncomeBonuses.length > 0) {
+      await tx.personalIncomeBonus.createMany({
+        data: backup.personalIncomeBonuses.map((b) => ({
+          householdId,
+          userId,
+          date: new Date(b.date),
+          amount: b.amount,
+          label: b.label,
+          note: b.note ?? null,
+        })),
+      })
     }
 
     for (const s of backup.simulations) {

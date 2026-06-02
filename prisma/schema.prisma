@@ -78,6 +78,8 @@ model User {
   notifications            Notification[]
   notificationReads        NotificationRead[]
   monthChecklistItems      HouseholdMonthChecklist[]
+  personalIncomeMonths     PersonalIncomeMonth[]
+  personalIncomeBonuses    PersonalIncomeBonus[]
 }
 
 enum Role {
@@ -104,6 +106,8 @@ model Household {
   portfolioDailySnapshots PortfolioDailySnapshot[]
   notifications           Notification[]
   monthChecklistItems     HouseholdMonthChecklist[]
+  personalIncomeMonths    PersonalIncomeMonth[]
+  personalIncomeBonuses   PersonalIncomeBonus[]
 }
 
 model HouseholdMember {
@@ -430,6 +434,45 @@ model HouseholdMonthChecklist {
 
   @@unique([householdId, year, month, userId, step])
   @@index([householdId, year, month])
+}
+
+// ─── Persönliches Einkommen (F-45, nur eigener User sichtbar) ─────────────────
+
+model PersonalIncomeMonth {
+  id                  String    @id @default(cuid())
+  householdId         String
+  userId              String
+  year                Int
+  month               Int
+  grossSalary         Decimal?  @db.Decimal(12, 2)
+  netSalary           Decimal?  @db.Decimal(12, 2)
+  monthBonus          Decimal?  @db.Decimal(12, 2)
+  note                String?
+  syncedToHouseholdAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, userId, year, month])
+  @@index([userId, year])
+}
+
+model PersonalIncomeBonus {
+  id          String   @id @default(cuid())
+  householdId String
+  userId      String
+  date        DateTime @db.Date
+  amount      Decimal  @db.Decimal(12, 2)
+  label       String
+  note        String?
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([householdId, userId, date])
 }
 
 // ─── Dashboard Widgets ────────────────────────────────────────────────────────

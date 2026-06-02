@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf einem Proxmox LXC.
 
-**Stand:** 2026-06-02 (Plan F-41 + F-43)
+**Stand:** 2026-06-02 (F-45 Persönliches Einkommen)
 
 ---
 
@@ -32,7 +32,8 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | **5** Multi-User | ✅ erledigt | Invites, accept-invite, Switcher, Rollen, User anlegen, 2FA (TOTP) |
 | **6** Haushaltskasse | ✅ erledigt | Ausgaben raus, Haushaltskasse + Simulationen (F-33) |
 | **7** EUR-Konvertierung | ✅ erledigt | Alle Investment-Werte in € via Yahoo Forex; FX-Fehler → 503 statt falscher EUR-Werte |
-| **8** Feature-Backlog | 🟡 teilweise offen | DevOps F-31, Kalender F-34; Daily-Habit F-40–F-44 ✅ |
+| **8** Feature-Backlog | 🟡 teilweise offen | DevOps F-31, Kalender F-34; Daily-Habit F-40–F-44 ✅; F-45 Einkommen ✅ |
+| **12** Persönliches Einkommen | ✅ erledigt | Tab `/einkommen`, privat pro User, HK-Sync, Jahresvergleich (F-45) |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
 | **Tests** | ✅ Unit-Tests | Vitest, **202 Tests** in 26 Dateien, alle grün |
@@ -61,6 +62,7 @@ Self-hosted via Docker auf einem Proxmox LXC.
 | [`features.md`](features.md) | Feature-Backlog (offen) |
 | [`feature-f41-portfolio-snapshot.md`](feature-f41-portfolio-snapshot.md) | F-41 Spezifikation: Täglicher Vermögens-Snapshot |
 | [`feature-f43-household-month-routine.md`](feature-f43-household-month-routine.md) | F-43 Spezifikation: Monatsroutine + Partner-Status |
+| [`feature-f45-personal-income.md`](feature-f45-personal-income.md) | F-45 Spezifikation: Persönlicher Einkommen-Tab |
 | [`aenderungen.md`](aenderungen.md) | Änderungs-Backlog (offen) |
 | [`bugs.md`](bugs.md) | Bug-Backlog (offen) |
 | [`archive.md`](archive.md) | Archiv erledigter Backlog-Einträge |

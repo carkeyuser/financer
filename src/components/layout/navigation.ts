@@ -8,6 +8,7 @@ import {
   Calculator,
   Users,
   Settings,
+  Wallet,
 } from "lucide-react"
 import type { MessageKey } from "@/i18n/messages"
 
@@ -31,6 +32,7 @@ export const navItems: NavItem[] = [
       { href: "/haushaltskasse/simulation", labelKey: "nav.householdSimulation", icon: Calculator },
     ],
   },
+  { href: "/einkommen", labelKey: "nav.personalIncome", icon: Wallet },
   { href: "/household", labelKey: "nav.users", icon: Users },
   { href: "/settings", labelKey: "nav.settings", icon: Settings },
 ]

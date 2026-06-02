@@ -3,7 +3,7 @@
 Feature-Backlog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
 Aktuell offen: **F-31**, **F-34**.
-Erledigt (Daily-Habit): **F-40**–**F-44** (2026-06-01).
+Erledigt (Daily-Habit): **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02).
 Erledigte Features stehen im [`archive.md`](archive.md).
 
 ---
@@ -19,6 +19,7 @@ Erledigte Features stehen im [`archive.md`](archive.md).
 | F-42 | App | Notification Bell (Glocke + Inbox) | ✅ erledigt 2026-06-01 |
 | F-43 | Haushaltskasse | Monatsroutine mit Partner-Status | ✅ erledigt 2026-06-01 |
 | F-44 | Dashboard | „Dein Kalender“ — nur Depot-relevante Termine | ✅ erledigt 2026-06-01 |
+| F-45 | App | Persönlicher Einkommen-Tab (`/einkommen`) — Brutto/Netto/Boni, HK-Sync, Jahresvergleich | ✅ erledigt 2026-06-02 |
 
 **Priorisierung (Daily-Habit):** F-40 → F-41 → F-42 → F-43 → F-44
 
