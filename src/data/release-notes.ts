@@ -8,6 +8,24 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.0",
+    date: "2026-06-02",
+    highlights: {
+      de: [
+        "Neuer Tab „Einkommen“ (/einkommen): persönliche Gehalts-Historie — nur für dich sichtbar",
+        "Pro Monat: Brutto, Netto, Monatsbonus; Sonderzahlungen (z. B. Weihnachtsgeld) mit Datum und Bezeichnung",
+        "Jahresvergleich: Brutto, Netto und Boni der letzten Jahre nebeneinander",
+        "Optional: Netto in die Haushaltskasse übernehmen (nur deine Einnahme-Zeile)",
+      ],
+      en: [
+        "New “Income” tab (/einkommen): personal salary history — visible only to you",
+        "Per month: gross, net, monthly bonus; extra payments (e.g. holiday bonus) with date and label",
+        "Year comparison: gross, net, and bonuses side by side for recent years",
+        "Optional: apply net salary to household finance (your income row only)",
+      ],
+    },
+  },
+  {
     version: "0.0.10",
     date: "2026-06-01",
     highlights: {

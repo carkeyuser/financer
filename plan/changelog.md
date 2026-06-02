@@ -4,6 +4,7 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-02 | **Release v0.1.0** — F-45 Persönlicher Einkommen-Tab (`/einkommen`); 206 Tests; GitHub Release |
 | 2026-06-02 | **F-45 Persönlicher Einkommen-Tab:** Route `/einkommen`, Brutto/Netto/Monatsbonus + Sonder-Boni, Mehrjahres-Matrix, Sync Netto → Haushaltskasse; nur eigener User; Backup nur eigene Privatdaten; Migration `20260602_f45_personal_income` |
 | 2026-06-01 | **F-40–F-44 Daily Habit (Implementierung):** `/heute`, Notification Bell, Portfolio-Snapshots, Monats-Checkliste, Kalender Depot-Filter; Prisma-Migration `20260601_daily_habit_features`; 202 Tests |
 | 2026-06-02 | **Plan F-41 + F-43:** Implementierungsspezifikationen in `plan/feature-f41-portfolio-snapshot.md` und `plan/feature-f43-household-month-routine.md`; Kurzpläne in `plan/features.md`; README-Stand |
