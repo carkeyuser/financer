@@ -103,6 +103,11 @@ const API_ERROR_MAP: Record<string, { de: string; en: string }> = {
     de: "Aktuelles Passwort ist falsch",
     en: "Current password is incorrect",
   },
+  NO_NET_SALARY: {
+    de: "Nettogehalt fehlt — zuerst Netto eintragen",
+    en: "Net salary missing — enter net amount first",
+  },
+  INVALID_DATE: { de: "Ungültiges Datum", en: "Invalid date" },
 }
 
 export function mapApiError(message: string, locale: Locale): string {
