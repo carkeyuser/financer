@@ -6,6 +6,10 @@ import { DEFAULT_LOCALE } from "@/i18n/locales"
 import { createRegisterSchema } from "@/lib/validations/auth"
 
 export async function POST(request: Request) {
+  if (process.env.ALLOW_REGISTRATION === "false") {
+    return NextResponse.json({ error: "Registrierung ist deaktiviert" }, { status: 403 })
+  }
+
   const body = await request.json()
   const parsed = createRegisterSchema(DEFAULT_LOCALE).safeParse(body)
 

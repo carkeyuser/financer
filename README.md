@@ -47,7 +47,7 @@ Configurable dashboard with a widget grid — clock, top/flop movers, allocation
 **Release:** [v0.1.0](CHANGELOG.md#010---2026-06-02) · No expenses/budget module (removed — did not fit the usage model).
 
 **Tech stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
-**Deployment:** Docker Compose on Proxmox LXC (Debian 12)  
+**Deployment:** Docker Compose (self-hosted on your server)  
 **Project docs:** [plan/README.md](plan/README.md) — architecture, schema, backlogs, changelog
 
 ---
@@ -57,8 +57,8 @@ Configurable dashboard with a widget grid — clock, top/flop movers, allocation
 1. [Preview](#preview)
 2. [Feature overview](#1-feature-overview)
 3. [Tech stack & architecture](#2-tech-stack--architecture)
-4. [Set up Proxmox LXC](#3-set-up-proxmox-lxc)
-5. [Install Docker on Debian 12](#4-install-docker-on-debian-12)
+4. [Prepare your server](#3-prepare-your-server)
+5. [Install Docker](#4-install-docker)
 6. [Deploy the project](#5-deploy-the-project)
 7. [Configuration (.env)](#6-configuration-env)
 8. [Start & updates](#7-start--updates)
@@ -181,45 +181,24 @@ Postgres port is not exposed externally. The app starts only after the DB is hea
 
 ---
 
-## 3. Set up Proxmox LXC
+## 3. Prepare your server
 
-### Create container (Proxmox web UI)
+You need a Linux host (VM, bare metal, or container) with SSH access and enough resources to run Docker:
 
-| Setting | Recommendation |
+| Resource | Recommendation |
 |---|---|
-| Template | `debian-12-standard` |
 | CPU | 2 cores |
 | RAM | 2048 MB |
-| Swap | 512 MB |
 | Disk | 20 GB |
-| Network | DHCP or static IP (e.g. `192.168.x.x`) |
-| **Unprivileged container** | **No** (Docker needs privileged mode) |
+| Network | Static IP or DHCP (note the address for `NEXTAUTH_URL`) |
 
-> **Important:** The container must be **privileged** so Docker volumes and `cgroups` work correctly.
-
-### LXC options after creation (Proxmox shell)
-
-Two features must be enabled for Docker inside the container. On the Proxmox host shell (not inside the container):
-
-```bash
-# Adjust container ID (e.g. 100)
-CTID=100
-
-pct set $CTID -features keyctl=1,nesting=1
-```
-
-Then start the container:
-
-```bash
-pct start $CTID
-pct enter $CTID
-```
+If you run Docker inside a nested container (e.g. LXC), enable nesting and `keyctl` on your **container host** — see your platform’s documentation.
 
 ---
 
-## 4. Install Docker on Debian 12
+## 4. Install Docker
 
-Run all commands **inside the LXC container** as `root`:
+Run on **your server** as root (Debian/Ubuntu example; other distros: [Docker docs](https://docs.docker.com/engine/install/)):
 
 ```bash
 # System update
@@ -272,7 +251,7 @@ Copy-Item push.example.ps1 push.ps1
 .\push -Deploy      # copy + docker compose up -d --build on the server
 ```
 
-The script copies relevant files via `robocopy` + `scp` to `/opt/financer` on the server. With `-Deploy`, a Docker rebuild follows over SSH. Multiple `ssh`/`scp` calls can share one session (password once if no SSH key is configured).
+The script copies relevant files via `robocopy` + `scp` to your deployment directory on the server (default in `push.ps1`: `/path/to/financer`). With `-Deploy`, a Docker rebuild follows over SSH. Multiple `ssh`/`scp` calls can share one session (password once if no SSH key is configured).
 
 **Excluded:** `node_modules`, `.next`, `src/generated`, `.env`/`.env.local`, `.codegraph`, `*.tsbuildinfo`, `.claude`
 
@@ -280,8 +259,8 @@ The script copies relevant files via `robocopy` + `scp` to `/opt/financer` on th
 
 ```bash
 ssh root@YOUR_SERVER
-git clone https://github.com/carkeyuser/financer.git /opt/financer
-cd /opt/financer
+git clone https://github.com/carkeyuser/financer.git /path/to/financer
+cd /path/to/financer
 cp .env.example .env && nano .env
 docker compose up -d --build
 ```
@@ -291,7 +270,7 @@ In `.env` set: `FINANCER_DEPLOY_MODE=build` (default) or `ghcr` — see [section
 ### Option C: Manual via `scp`
 
 ```powershell
-scp -r . root@YOUR_SERVER:/opt/financer/
+scp -r . root@YOUR_SERVER:/path/to/financer/
 # Exclude node_modules, .next, and secrets manually beforehand
 ```
 
@@ -303,7 +282,7 @@ scp -r . root@YOUR_SERVER:/opt/financer/
 
 ```bash
 ssh root@YOUR_SERVER
-cd /opt/financer
+cd /path/to/financer
 cp .env.example .env
 nano .env
 ```
@@ -328,7 +307,7 @@ NEXTAUTH_URL=http://YOUR_SERVER:3000
 # Deploy mode: build (git pull + local build) or ghcr (image pull)
 FINANCER_DEPLOY_MODE=build
 
-# Optional: no outbound HTTPS to api.nasdaq.com (locked-down LXC)
+# Optional: no outbound HTTPS to api.nasdaq.com (restricted network)
 # MARKET_CALENDAR_EXTERNAL=false
 ```
 
@@ -349,7 +328,7 @@ NEXTAUTH_URL=http://192.168.x.x:3000
 
 ```bash
 ssh root@YOUR_SERVER
-cd /opt/financer
+cd /path/to/financer
 docker compose up -d --build
 ```
 
@@ -373,14 +352,14 @@ Mode in `.env`: `FINANCER_DEPLOY_MODE=build` (default) or `ghcr`. Full reference
 **One command (both modes):**
 
 ```bash
-cd /opt/financer
+cd /path/to/financer
 ./scripts/update.sh
 ```
 
 **Mode `build`** — git clone, local build:
 
 ```bash
-cd /opt/financer
+cd /path/to/financer
 git pull
 docker compose up -d --build
 ```
@@ -392,7 +371,7 @@ Hard reset to `origin/main`: `./scripts/deploy.sh`
 **Mode `ghcr`** — pre-built image (CI pushes `:latest` on every push to `main`):
 
 ```bash
-cd /opt/financer
+cd /path/to/financer
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
@@ -429,7 +408,7 @@ That first account automatically becomes **owner** of the household. Additional 
 docker compose exec app ./node_modules/.bin/prisma db seed   # seed needs tsx — on failure seed locally with DATABASE_URL
 ```
 
-Creates demo users + default fixed costs (rent, insurance, car, etc.).
+Creates demo users + generic default fixed costs (housing, utilities, etc.).
 
 ---
 
@@ -470,7 +449,7 @@ docker compose exec -T db psql -U financeuser finance < backup_20260524.sql
 **Cron example** (daily at 3 AM):
 
 ```bash
-0 3 * * * cd /opt/financer && docker compose exec -T db pg_dump -U financeuser finance > /backups/financer_$(date +\%Y\%m\%d).sql
+0 3 * * * cd /path/to/financer && docker compose exec -T db pg_dump -U financeuser finance > /backups/financer_$(date +\%Y\%m\%d).sql
 ```
 
 ---
@@ -497,7 +476,7 @@ docker compose exec db psql -U financeuser -d finance
 
 # Prisma Studio (GUI, via SSH tunnel)
 ssh -L 5555:localhost:5555 root@YOUR_SERVER \
-  "cd /opt/financer && docker compose exec app ./node_modules/.bin/prisma studio"
+  "cd /path/to/financer && docker compose exec app ./node_modules/.bin/prisma studio"
 # Then in browser: http://localhost:5555
 
 # Schema status
@@ -669,7 +648,7 @@ docker compose restart app
 |---|---|
 | **WKN search** | German WKN not supported by Yahoo — use ticker (`EUNL.DE`), name, or ISIN |
 | **No bank APIs** | All data manual; dividends only via `/dividenden` |
-| **Outbound HTTPS** | Yahoo (prices) and Nasdaq (market calendar) must be reachable from container/LXC |
+| **Outbound HTTPS** | Yahoo (prices) and Nasdaq (market calendar) must be reachable from the app container |
 | **Market calendar** | Nasdaq: mainly US symbols without suffix (`.DE`, crypto, FX ignored). Without access: `MARKET_CALENDAR_EXTERNAL=false` |
 | **EUR history** | Historical charts use current EUR rate as approximation |
 | **Widget layouts** | Not included in JSON backup |
