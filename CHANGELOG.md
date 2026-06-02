@@ -3,6 +3,19 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0] - 2026-06-02
+
+### Added
+
+- **Personal income tab (F-45)** — Private salary tracking at `/einkommen` (sidebar “Income” / “Einkommen”): gross and net salary per month, optional monthly bonus, separate extra payments (e.g. holiday bonus), year totals, and multi-year comparison matrix
+- **Household sync** — Apply net salary to your own `MonthlyIncome` in Haushaltskasse with one click (fix-cost snapshot rules unchanged; partner data untouched)
+- **Privacy** — APIs and UI only expose data for the logged-in user; not visible to household partner or admins
+- **Backup** — Export/import includes only your personal income rows
+
+### Changed
+
+- **Tests** — 206 unit tests total
+
 ## [0.0.10] - 2026-06-01
 
 ### Changed
@@ -103,6 +116,9 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.1.0]: https://github.com/carkeyuser/financer/releases/tag/v0.1.0
+[0.0.10]: https://github.com/carkeyuser/financer/releases/tag/v0.0.10
+[0.0.9]: https://github.com/carkeyuser/financer/releases/tag/v0.0.9
 [0.0.8]: https://github.com/carkeyuser/financer/releases/tag/v0.0.8
 [0.0.7]: https://github.com/carkeyuser/financer/releases/tag/v0.0.7
 [0.0.6]: https://github.com/carkeyuser/financer/releases/tag/v0.0.6
