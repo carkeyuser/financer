@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireSession, requireHouseholdAdmin } from "@/lib/household-auth"
-import { backupSchema } from "@/lib/validations/backup"
+import { BACKUP_RESTORE_MAX_BYTES, backupSchema, type BackupInput } from "@/lib/validations/backup"
 
 // ── Export ────────────────────────────────────────────────────────────────────
 
@@ -196,6 +196,17 @@ export async function POST(request: Request) {
   }
   const { householdId, userId } = ctx
 
+  const contentLength = request.headers.get("content-length")
+  if (contentLength) {
+    const bytes = Number.parseInt(contentLength, 10)
+    if (!Number.isNaN(bytes) && bytes > BACKUP_RESTORE_MAX_BYTES) {
+      return NextResponse.json(
+        { error: `Backup zu groß (max. ${BACKUP_RESTORE_MAX_BYTES / (1024 * 1024)} MB)` },
+        { status: 413 }
+      )
+    }
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -220,9 +231,21 @@ export async function POST(request: Request) {
   })
   const usernameToId = new Map(currentMembers.map((m) => [m.user.username, m.user.id]))
 
+  const referencedUsernames = collectBackupUsernames(backup)
+  const unknownUsernames = [...new Set(referencedUsernames)].filter((u) => !usernameToId.has(u))
+  if (unknownUsernames.length > 0) {
+    return NextResponse.json(
+      {
+        error: "Unbekannte Benutzernamen im Backup (kein Haushaltsmitglied)",
+        usernames: unknownUsernames,
+      },
+      { status: 400 }
+    )
+  }
+
   function resolveUser(username?: string | null): string {
     if (!username) return userId
-    return usernameToId.get(username) ?? userId
+    return usernameToId.get(username)!
   }
 
   await prisma.$transaction(async (tx) => {
@@ -411,4 +434,21 @@ export async function POST(request: Request) {
   })
 
   return NextResponse.json({ success: true })
+}
+
+function collectBackupUsernames(backup: BackupInput): string[] {
+  const names: string[] = []
+  for (const mi of backup.monthlyIncomes) names.push(mi.username)
+  for (const mp of backup.monthlyPayouts) names.push(mp.username)
+  for (const a of backup.assets) {
+    names.push(a.username)
+    for (const d of a.dividends ?? []) names.push(d.username)
+  }
+  for (const s of backup.simulations) {
+    if (s.createdByUsername) names.push(s.createdByUsername)
+    for (const m of s.months) {
+      for (const e of m.entries) names.push(e.username)
+    }
+  }
+  return names
 }

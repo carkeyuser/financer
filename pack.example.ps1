@@ -36,17 +36,17 @@ try {
     Write-Host "OK  $Out  (${SizeMB} MB)"
     Write-Host ""
     Write-Host "Kopieren:"
-    Write-Host "  scp $Out root@YOUR_SERVER:/opt/financer/"
+    Write-Host "  scp $Out root@YOUR_SERVER:/path/to/financer/"
     Write-Host ""
     Write-Host "Erstmalig auf Server:"
     Write-Host "  ssh root@YOUR_SERVER"
-    Write-Host "  mkdir -p /opt/financer && cd /opt/financer"
+    Write-Host "  mkdir -p /path/to/financer && cd /path/to/financer"
     Write-Host "  tar xzf finance_deploy.tar.gz"
     Write-Host "  cp .env.example .env && nano .env"
     Write-Host "  chmod +x deploy.sh && ./deploy.sh"
     Write-Host ""
     Write-Host "Update (ein Befehl):"
-    Write-Host "  scp $Out root@YOUR_SERVER:/opt/financer/ ; ssh root@YOUR_SERVER 'cd /opt/financer && tar xzf finance_deploy.tar.gz && ./deploy.sh'"
+    Write-Host "  scp $Out root@YOUR_SERVER:/path/to/financer/ ; ssh root@YOUR_SERVER 'cd /path/to/financer && tar xzf finance_deploy.tar.gz && ./deploy.sh'"
 } finally {
     Remove-Item $Work -Recurse -Force -ErrorAction SilentlyContinue
 }

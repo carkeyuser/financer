@@ -233,16 +233,14 @@ PUT    /api/household-finance/simulations/[id]/months
 
 | Position | Betrag |
 |---|---|
-| Miete | 900,00 € |
-| Allianz Invest + Rent | 400,00 € |
-| Versicherung | 220,00 € |
-| Auto | 269,60 € |
-| Gym | 90,00 € |
-| Strom | 80,00 € |
-| Verpflegung | 450,00 € |
-| Tanken | 150,00 € |
+| Housing | 900,00 € |
+| Insurance | 220,00 € |
+| Transport | 270,00 € |
+| Subscriptions | 90,00 € |
+| Utilities | 80,00 € |
+| Groceries | 450,00 € |
 | Internet | 80,00 € |
-| Puffer | 100,00 € |
+| Reserve | 100,00 € |
 
 ---
 

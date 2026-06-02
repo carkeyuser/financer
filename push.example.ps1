@@ -9,7 +9,7 @@ $ErrorActionPreference = "Stop"
 
 $Source = $PSScriptRoot
 $Server = "root@YOUR_SERVER"
-$Dest   = "/opt/financer"
+$Dest   = "/path/to/financer"   # Deployment-Verzeichnis auf dem Server anpassen
 $Temp   = "$env:TEMP\financer_push"
 
 # Eine SSH-Session fuer alle Aufrufe (Passwort nur beim ersten Mal)

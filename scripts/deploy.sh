@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Server-Deploy: git pull + lokaler Docker-Build (Code aus /opt/financer).
+# Server-Deploy: git pull + lokaler Docker-Build (im Deployment-Verzeichnis).
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/opt/financer}"
+APP_DIR="${APP_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$APP_DIR"
 
 echo "→ Fetch origin/main …"
