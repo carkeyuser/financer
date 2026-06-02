@@ -85,7 +85,7 @@ async function main() {
     data: DEFAULT_FIXED_COSTS.map((c) => ({ ...c, householdId: household.id })),
   })
 
-  // Beispiel-Einnahmen + Auszahlungen für 2024 (aus der Excel-Vorlage)
+  // Demo income + payouts for 2024 (fictional round amounts)
   const sampleMonths = [
     { month: 1,  income1: 3000, income2: 3200, payout: 500 },
     { month: 2,  income1: 3000, income2: 3200, payout: 500 },
@@ -97,7 +97,7 @@ async function main() {
     { month: 8,  income1: 3000, income2: 3300, payout: 550 },
     { month: 9,  income1: 3500, income2: 3600, payout: 700 },
     { month: 10, income1: 3000, income2: 3300, payout: 500 },
-    { month: 12, income1: 3000, income2: 3400, payout: 550 }
+    { month: 12, income1: 3000, income2: 3400, payout: 550 },
   ]
 
   for (const m of sampleMonths) {

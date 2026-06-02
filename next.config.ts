@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["./src/generated/prisma/**/*"],
   },
-  // LAN-IP hier eintragen, z. B. "192.168.x.x"
+  // LAN-IP here, e.g. "192.168.x.x" (your dev machine)
   allowedDevOrigins: [],
   env: {
     NEXT_PUBLIC_APP_VERSION: pkg.version,
