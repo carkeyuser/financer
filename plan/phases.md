@@ -340,3 +340,19 @@ POST /api/assets/merge               → target + sources → Einträge/Dividend
 
 **Kein Schema-Change.** Merge nur gleicher `userId`; OWNER/ADMIN.
 
+---
+
+## Phase 12 — Persönliches Einkommen (F-45) ✅
+
+**Status:** Implementiert 2026-06-02. Spezifikation: [`feature-f45-personal-income.md`](feature-f45-personal-income.md).
+
+**Kern:**
+- Route `/einkommen`, Sidebar-Tab „Einkommen“
+- `PersonalIncomeMonth` (Brutto, Netto, Monatsbonus) + `PersonalIncomeBonus` (Sonderzahlungen)
+- API nur für `session.user.id`; Partner sieht keine Daten
+- Optional: Netto → `MonthlyIncome` (Haushaltskasse) inkl. Fixkosten-Snapshot-Regel
+- Mehrjahres-Matrix (Brutto / Netto / Boni)
+- Backup-Export/Restore: nur Privatdaten des exportierenden bzw. importierenden Users
+
+**Migration:** `20260602_f45_personal_income`
+

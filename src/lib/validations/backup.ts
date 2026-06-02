@@ -117,6 +117,31 @@ export const backupSchema = z.object({
     })
   ),
   simulations: z.array(simulationSchema).optional().default([]),
+  personalIncomeMonths: z
+    .array(
+      z.object({
+        year: z.number(),
+        month: z.number(),
+        grossSalary: z.string().nullable().optional(),
+        netSalary: z.string().nullable().optional(),
+        monthBonus: z.string().nullable().optional(),
+        note: z.string().nullable().optional(),
+        syncedToHouseholdAt: z.string().nullable().optional(),
+      })
+    )
+    .optional()
+    .default([]),
+  personalIncomeBonuses: z
+    .array(
+      z.object({
+        date: z.string(),
+        amount: z.string(),
+        label: z.string(),
+        note: z.string().nullable().optional(),
+      })
+    )
+    .optional()
+    .default([]),
 })
 
 export type BackupInput = z.infer<typeof backupSchema>
