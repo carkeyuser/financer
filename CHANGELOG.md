@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **CI** — Doc-only pushes/PRs (`**.md`, `plan/**`, `release-notes.ts`, `LICENSE`) skip workflow; `v*` tag pushes always run
+
 ## [0.1.0] - 2026-06-04
 
 ### Added
