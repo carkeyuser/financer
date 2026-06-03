@@ -13,15 +13,17 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
     highlights: {
       de: [
         "Neuer Tab „Einkommen“ (/einkommen): persönliche Gehalts-Historie — nur für dich sichtbar",
-        "Pro Monat: Brutto, Netto, Monatsbonus; Sonderzahlungen (z. B. Weihnachtsgeld) mit Datum und Bezeichnung",
-        "Jahresvergleich: Brutto, Netto und Boni der letzten Jahre nebeneinander",
-        "Optional: Netto in die Haushaltskasse übernehmen (nur deine Einnahme-Zeile)",
+        "Daily Habit: /heute-Briefing, Notification Bell, Portfolio-Snapshot, Monatsroutine, Depot-Kalender",
+        "One-Click-Install: curl | bash auf frischem Server/LXC (install.sh + optional install.ps1)",
+        "TR-Import: Dividenden-Vorschau mit Auswahl; Datumsfilter von/bis",
+        "Sicherheit: härtere Session-/Backup-Validierung, Security-Header, Rate-Limits",
       ],
       en: [
         "New “Income” tab (/einkommen): personal salary history — visible only to you",
-        "Per month: gross, net, monthly bonus; extra payments (e.g. holiday bonus) with date and label",
-        "Year comparison: gross, net, and bonuses side by side for recent years",
-        "Optional: apply net salary to household finance (your income row only)",
+        "Daily habit: /heute briefing, notification bell, portfolio snapshot, month routine, depot calendar",
+        "One-click install: curl | bash on a fresh server/LXC (install.sh + optional install.ps1)",
+        "TR import: dividend preview with selection; date-range filter",
+        "Security: tighter session/backup validation, security headers, rate limits",
       ],
     },
   },

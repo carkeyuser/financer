@@ -27,6 +27,7 @@ Tech Stack, Projektstruktur und aktuelles Datenmodell.
 
 ```text
 financer/
+├── CHANGELOG.md                      # release changelog (English, Keep a Changelog)
 ├── plan/
 │   ├── README.md
 │   ├── architecture.md
@@ -35,7 +36,7 @@ financer/
 │   ├── features.md
 │   ├── aenderungen.md
 │   ├── bugs.md
-│   └── changelog.md
+│   └── changelog.md                  # → see ../CHANGELOG.md
 ├── CLAUDE.md
 ├── .env.local                        # lokale Secrets (nie committen)
 ├── .env.example

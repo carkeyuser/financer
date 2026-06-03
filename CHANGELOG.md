@@ -11,10 +11,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Household sync** — Apply net salary to your own `MonthlyIncome` in Haushaltskasse with one click (fix-cost snapshot rules unchanged; partner data untouched)
 - **Privacy** — APIs and UI only expose data for the logged-in user; not visible to household partner or admins
 - **Backup** — Export/import includes only your personal income rows
+- **Daily habit (F-40–F-44)** — `/heute` briefing, notification bell with inbox, daily portfolio snapshots (“since yesterday”), household month routine checklist with partner status, depot-filtered calendar widget
+- **One-click Docker install (F-31)** — `install.sh` bootstrap for fresh servers/LXC (`curl | bash`: optional Docker on Debian, clone to `/opt/financer`, `.env`/secrets, `NEXTAUTH_URL` prompt, compose + health wait); `install.ps1` for Windows/Docker Desktop
+- **TR import (Ä-12/Ä-13)** — Separate dividend preview table (gross/tax/net, position); date-range filter with in-range default selection and “show outside range” toggle
 
 ### Changed
 
-- **Tests** — 206 unit tests total
+- **Security** — JWT `householdId` only after DB membership check on `session.update`; backup restore without admin fallback for unknown usernames (10 MB limit); optional `ALLOW_REGISTRATION`; security headers in `next.config.ts`; securities symbol/query validation; TR preview rate limit
+- **Docs** — Deployment docs anonymized (generic paths); README in English for public repo
+- **Tests** — 214 unit tests total
 
 ## [0.0.10] - 2026-06-01
 

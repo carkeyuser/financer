@@ -66,4 +66,4 @@ Self-hosted via Docker auf deinem Server.
 | [`aenderungen.md`](aenderungen.md) | Änderungs-Backlog (offen) |
 | [`bugs.md`](bugs.md) | Bug-Backlog (offen) |
 | [`archive.md`](archive.md) | Archiv erledigter Backlog-Einträge |
-| [`changelog.md`](changelog.md) | Änderungslog |
+| [`changelog.md`](changelog.md) | Pointer to root [`CHANGELOG.md`](../CHANGELOG.md) (English only) |
