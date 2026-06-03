@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+
+- **Personal income year comparison** — Matrix and chart use only explicit years from the available-years list (no gap-filling); past-year tracking validated in Zod; bonus year lookup optimized; max 30-year span on years API
+
+### Added
+
+- **Personal income year chart** — Grouped bar chart on `/einkommen` comparing gross, net, and bonuses across the last five years (same API as the year matrix)
+- **Personal income past years** — Add calendar years before the current year for capture and comparison; persisted per user, included in backup
+
 ## [0.1.0] - 2026-06-02
 
 ### Added

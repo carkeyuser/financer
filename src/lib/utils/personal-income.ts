@@ -91,6 +91,21 @@ export function buildPersonalIncomeYearSummary(input: {
   return { year: input.year, months: rows, totals }
 }
 
+const DEFAULT_YEAR_WINDOW = 6
+
+/** Jahre für Dropdown/Matrix: letzte 6 Kalenderjahre + Daten + manuell angelegte Jahre */
+export function mergePersonalIncomeYearList(
+  currentYear: number,
+  dataYears: number[],
+  trackedYears: number[]
+): number[] {
+  const defaults = Array.from({ length: DEFAULT_YEAR_WINDOW }, (_, i) => currentYear - i)
+  const set = new Set([...defaults, ...dataYears, ...trackedYears])
+  return Array.from(set)
+    .filter((y) => y >= 2000 && y <= currentYear)
+    .sort((a, b) => b - a)
+}
+
 export function buildPersonalIncomeYearsMatrix(
   columns: PersonalIncomeYearColumn[],
   fromYear: number,
@@ -98,9 +113,17 @@ export function buildPersonalIncomeYearsMatrix(
 ): { fromYear: number; toYear: number; years: number[]; columns: PersonalIncomeYearColumn[] } {
   const years: number[] = []
   for (let y = fromYear; y <= toYear; y++) years.push(y)
+  return buildPersonalIncomeYearsMatrixFromList(years, columns)
+}
 
+/** Matrix/chart columns for an explicit year list (no gap-filling between min and max). */
+export function buildPersonalIncomeYearsMatrixFromList(
+  years: number[],
+  columns: PersonalIncomeYearColumn[]
+): { fromYear: number; toYear: number; years: number[]; columns: PersonalIncomeYearColumn[] } {
+  const sortedYears = [...years].sort((a, b) => a - b)
   const byYear = new Map(columns.map((c) => [c.year, c]))
-  const filled = years.map(
+  const filled = sortedYears.map(
     (year) =>
       byYear.get(year) ?? {
         year,
@@ -110,5 +133,10 @@ export function buildPersonalIncomeYearsMatrix(
       }
   )
 
-  return { fromYear, toYear, years, columns: filled }
+  return {
+    fromYear: sortedYears[0] ?? 0,
+    toYear: sortedYears[sortedYears.length - 1] ?? 0,
+    years: sortedYears,
+    columns: filled,
+  }
 }

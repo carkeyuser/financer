@@ -23,6 +23,7 @@ export async function GET() {
     simulations,
     personalIncomeMonths,
     personalIncomeBonuses,
+    personalIncomeTrackedYears,
   ] = await Promise.all([
       prisma.household.findUnique({ where: { id: householdId } }),
       prisma.householdMember.findMany({
@@ -74,6 +75,10 @@ export async function GET() {
       prisma.personalIncomeBonus.findMany({
         where: { householdId, userId },
         orderBy: { date: "asc" },
+      }),
+      prisma.personalIncomeTrackedYear.findMany({
+        where: { householdId, userId },
+        orderBy: { year: "asc" },
       }),
     ])
 
@@ -182,6 +187,7 @@ export async function GET() {
       label: b.label,
       note: b.note,
     })),
+    personalIncomeTrackedYears: personalIncomeTrackedYears.map((y) => ({ year: y.year })),
   }
 
   return NextResponse.json(backup)
@@ -259,6 +265,7 @@ export async function POST(request: Request) {
     await tx.asset.deleteMany({ where: { householdId } })
     await tx.personalIncomeBonus.deleteMany({ where: { householdId, userId } })
     await tx.personalIncomeMonth.deleteMany({ where: { householdId, userId } })
+    await tx.personalIncomeTrackedYear.deleteMany({ where: { householdId, userId } })
 
     if (backup.fixedCosts.length > 0) {
       await tx.fixedCost.createMany({
@@ -393,6 +400,17 @@ export async function POST(request: Request) {
           label: b.label,
           note: b.note ?? null,
         })),
+      })
+    }
+
+    if (backup.personalIncomeTrackedYears.length > 0) {
+      await tx.personalIncomeTrackedYear.createMany({
+        data: backup.personalIncomeTrackedYears.map((y) => ({
+          householdId,
+          userId,
+          year: y.year,
+        })),
+        skipDuplicates: true,
       })
     }
 

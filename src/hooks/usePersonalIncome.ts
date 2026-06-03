@@ -22,15 +22,26 @@ export interface PersonalIncomeYearsMatrix {
   columns: { year: number; gross: number; net: number; totalBonus: number }[]
 }
 
+export interface PersonalIncomeAvailableYears {
+  years: number[]
+  currentYear: number
+}
+
 async function fetchSummary(year: number): Promise<PersonalIncomeYearSummary> {
   const res = await fetch(`/api/personal-income/summary?year=${year}`)
   if (!res.ok) throw new Error("PERSONAL_INCOME_LOAD_FAILED")
   return res.json()
 }
 
-async function fetchYears(from: number, to: number): Promise<PersonalIncomeYearsMatrix> {
-  const res = await fetch(`/api/personal-income/years?from=${from}&to=${to}`)
+async function fetchYears(years: number[]): Promise<PersonalIncomeYearsMatrix> {
+  const res = await fetch(`/api/personal-income/years?years=${years.join(",")}`)
   if (!res.ok) throw new Error("PERSONAL_INCOME_YEARS_FAILED")
+  return res.json()
+}
+
+async function fetchAvailableYears(): Promise<PersonalIncomeAvailableYears> {
+  const res = await fetch("/api/personal-income/available-years")
+  if (!res.ok) throw new Error("PERSONAL_INCOME_AVAILABLE_YEARS_FAILED")
   return res.json()
 }
 
@@ -47,10 +58,41 @@ export function usePersonalIncomeSummary(year: number) {
   })
 }
 
-export function usePersonalIncomeYears(fromYear: number, toYear: number) {
+export function usePersonalIncomeYears(years: number[]) {
+  const yearsKey = years.join(",")
   return useQuery({
-    queryKey: ["personal-income-years", fromYear, toYear],
-    queryFn: () => fetchYears(fromYear, toYear),
+    queryKey: ["personal-income-years", yearsKey],
+    queryFn: () => fetchYears(years),
+    enabled: years.length > 0,
+  })
+}
+
+export function usePersonalIncomeAvailableYears() {
+  return useQuery({
+    queryKey: ["personal-income-available-years"],
+    queryFn: fetchAvailableYears,
+  })
+}
+
+export function useTrackPersonalIncomeYear() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (year: number) => {
+      const res = await fetch("/api/personal-income/available-years", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw err
+      }
+      return res.json() as Promise<{ years: number[] }>
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["personal-income-available-years"] })
+      qc.invalidateQueries({ queryKey: ["personal-income-years"] })
+    },
   })
 }
 
@@ -80,6 +122,7 @@ export function useSavePersonalIncomeMonth() {
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ["personal-income", variables.year] })
       qc.invalidateQueries({ queryKey: ["personal-income-years"] })
+      qc.invalidateQueries({ queryKey: ["personal-income-available-years"] })
     },
   })
 }
@@ -128,6 +171,7 @@ export function useCreatePersonalIncomeBonus() {
       qc.invalidateQueries({ queryKey: ["personal-income-bonuses", year, month] })
       qc.invalidateQueries({ queryKey: ["personal-income", year] })
       qc.invalidateQueries({ queryKey: ["personal-income-years"] })
+      qc.invalidateQueries({ queryKey: ["personal-income-available-years"] })
     },
   })
 }
@@ -146,6 +190,7 @@ export function useDeletePersonalIncomeBonus() {
       qc.invalidateQueries({ queryKey: ["personal-income-bonuses", variables.year, variables.month] })
       qc.invalidateQueries({ queryKey: ["personal-income", variables.year] })
       qc.invalidateQueries({ queryKey: ["personal-income-years"] })
+      qc.invalidateQueries({ queryKey: ["personal-income-available-years"] })
     },
   })
 }

@@ -320,6 +320,15 @@ describe("backupSchema", () => {
 
     expect(backupSchema.safeParse(invalidBackup).success).toBe(false)
   })
+
+  it("accepts personalIncomeTrackedYears", () => {
+    const backupWithTrackedYears = {
+      ...validBackup,
+      personalIncomeTrackedYears: [{ year: 2010 }, { year: 2015 }],
+    }
+
+    expect(backupSchema.safeParse(backupWithTrackedYears).success).toBe(true)
+  })
 })
 
 describe("assetEditSchema", () => {
