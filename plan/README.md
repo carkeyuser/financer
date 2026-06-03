@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-03 (F-31 One-Click-Install)
+**Stand:** 2026-06-04 (Einkommen vergangene Jahre)
 
 ---
 
@@ -36,7 +36,7 @@ Self-hosted via Docker auf deinem Server.
 | **12** Persönliches Einkommen | ✅ erledigt | Tab `/einkommen`, privat pro User, HK-Sync, Jahresvergleich (F-45) |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
-| **Tests** | ✅ Unit-Tests | Vitest, **214 Tests** in 28 Dateien, alle grün |
+| **Tests** | ✅ Unit-Tests | Vitest, alle grün |
 
 ---
 

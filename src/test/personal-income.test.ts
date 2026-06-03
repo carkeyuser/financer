@@ -3,6 +3,8 @@ import {
   bonusForCalendarMonth,
   buildPersonalIncomeYearSummary,
   buildPersonalIncomeYearsMatrix,
+  buildPersonalIncomeYearsMatrixFromList,
+  mergePersonalIncomeYearList,
   sumDefined,
 } from "@/lib/utils/personal-income"
 
@@ -55,7 +57,16 @@ describe("personal-income utils", () => {
     expect(summary.totals.totalBonus).toBe(300)
   })
 
-  it("buildPersonalIncomeYearsMatrix fills missing years", () => {
+  it("mergePersonalIncomeYearList merges defaults, data, and tracked years", () => {
+    const years = mergePersonalIncomeYearList(2026, [2018, 2020], [2015])
+    expect(years).toContain(2026)
+    expect(years).toContain(2018)
+    expect(years).toContain(2015)
+    expect(years[0]).toBe(2026)
+    expect(years).not.toContain(2027)
+  })
+
+  it("buildPersonalIncomeYearsMatrix fills missing years in continuous range", () => {
     const matrix = buildPersonalIncomeYearsMatrix(
       [
         { year: 2024, gross: 60000, net: 40000, totalBonus: 1000 },
@@ -66,5 +77,15 @@ describe("personal-income utils", () => {
     )
     expect(matrix.years).toEqual([2024, 2025, 2026])
     expect(matrix.columns[1]).toEqual({ year: 2025, gross: 0, net: 0, totalBonus: 0 })
+  })
+
+  it("buildPersonalIncomeYearsMatrixFromList uses only explicit years", () => {
+    const matrix = buildPersonalIncomeYearsMatrixFromList(
+      [2010, 2024, 2026],
+      [{ year: 2010, gross: 50000, net: 35000, totalBonus: 500 }]
+    )
+    expect(matrix.years).toEqual([2010, 2024, 2026])
+    expect(matrix.columns).toHaveLength(3)
+    expect(matrix.columns[1]).toEqual({ year: 2024, gross: 0, net: 0, totalBonus: 0 })
   })
 })

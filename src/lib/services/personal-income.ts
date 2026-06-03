@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma"
 import {
   bonusForCalendarMonth,
   buildPersonalIncomeYearSummary,
-  buildPersonalIncomeYearsMatrix,
+  buildPersonalIncomeYearsMatrixFromList,
+  mergePersonalIncomeYearList,
   type PersonalIncomeYearColumn,
   type PersonalIncomeYearSummary,
 } from "@/lib/utils/personal-income"
@@ -13,6 +14,61 @@ type DbClient = PrismaClient | Prisma.TransactionClient
 function toNum(value: Prisma.Decimal | null | undefined): number | null {
   if (value == null) return null
   return Number(value)
+}
+
+export async function listPersonalIncomeAvailableYears(
+  householdId: string,
+  userId: string
+): Promise<{ years: number[]; currentYear: number }> {
+  const currentYear = new Date().getFullYear()
+
+  const [monthRows, bonusYearRows, trackedRows] = await Promise.all([
+    prisma.personalIncomeMonth.findMany({
+      where: { householdId, userId },
+      select: { year: true },
+      distinct: ["year"],
+    }),
+    prisma.$queryRaw<{ year: number }[]>`
+      SELECT DISTINCT EXTRACT(YEAR FROM date)::int AS year
+      FROM "PersonalIncomeBonus"
+      WHERE "householdId" = ${householdId} AND "userId" = ${userId}
+    `,
+    prisma.personalIncomeTrackedYear.findMany({
+      where: { householdId, userId, year: { lte: currentYear } },
+      select: { year: true },
+    }),
+  ])
+
+  const dataYears = [
+    ...monthRows.map((r) => r.year),
+    ...bonusYearRows.map((r) => r.year),
+  ]
+  const trackedYears = trackedRows.map((r) => r.year)
+  const years = mergePersonalIncomeYearList(currentYear, dataYears, trackedYears)
+
+  return { years, currentYear }
+}
+
+export async function trackPersonalIncomeYear(
+  householdId: string,
+  userId: string,
+  year: number
+): Promise<{ years: number[] }> {
+  const currentYear = new Date().getFullYear()
+  if (year >= currentYear) {
+    throw new Error("YEAR_NOT_PAST")
+  }
+
+  await prisma.personalIncomeTrackedYear.upsert({
+    where: {
+      householdId_userId_year: { householdId, userId, year },
+    },
+    update: {},
+    create: { householdId, userId, year },
+  })
+
+  const { years } = await listPersonalIncomeAvailableYears(householdId, userId)
+  return { years }
 }
 
 export async function loadPersonalIncomeYearSummary(
@@ -72,27 +128,33 @@ export async function loadPersonalIncomeYearSummary(
 export async function loadPersonalIncomeYearsMatrix(
   householdId: string,
   userId: string,
-  fromYear: number,
-  toYear: number
+  years: number[]
 ) {
+  const uniqueYears = [...new Set(years)].filter((y) => y >= 2000)
+  if (uniqueYears.length === 0) {
+    return buildPersonalIncomeYearsMatrixFromList([], [])
+  }
+
   const [months, bonuses] = await Promise.all([
     prisma.personalIncomeMonth.findMany({
-      where: { householdId, userId, year: { gte: fromYear, lte: toYear } },
+      where: { householdId, userId, year: { in: uniqueYears } },
     }),
     prisma.personalIncomeBonus.findMany({
       where: {
         householdId,
         userId,
-        date: {
-          gte: new Date(fromYear, 0, 1),
-          lt: new Date(toYear + 1, 0, 1),
-        },
+        OR: uniqueYears.map((year) => ({
+          date: {
+            gte: new Date(year, 0, 1),
+            lt: new Date(year + 1, 0, 1),
+          },
+        })),
       },
     }),
   ])
 
   const columns: PersonalIncomeYearColumn[] = []
-  for (let year = fromYear; year <= toYear; year++) {
+  for (const year of uniqueYears) {
     const yearMonths = months.filter((m) => m.year === year)
     const yearBonuses = bonuses.filter((b) => b.date.getFullYear() === year)
 
@@ -115,7 +177,7 @@ export async function loadPersonalIncomeYearsMatrix(
     })
   }
 
-  return buildPersonalIncomeYearsMatrix(columns, fromYear, toYear)
+  return buildPersonalIncomeYearsMatrixFromList(uniqueYears, columns)
 }
 
 export async function upsertPersonalIncomeMonth(

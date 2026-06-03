@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireSession } from "@/lib/household-auth"
 import { loadPersonalIncomeYearsMatrix } from "@/lib/services/personal-income"
-import { personalIncomeYearsQuerySchema } from "@/lib/validations/personal-income"
+import {
+  PERSONAL_INCOME_MAX_YEARS_SPAN,
+  personalIncomeYearsListQuerySchema,
+  personalIncomeYearsQuerySchema,
+} from "@/lib/validations/personal-income"
 
 export async function GET(req: NextRequest) {
   const ctx = await requireSession()
   if ("error" in ctx) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status })
+  }
+
+  const yearsParam = req.nextUrl.searchParams.get("years")
+  if (yearsParam) {
+    const parsed = personalIncomeYearsListQuerySchema.safeParse({ years: yearsParam })
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    }
+
+    const matrix = await loadPersonalIncomeYearsMatrix(
+      ctx.householdId,
+      ctx.userId,
+      parsed.data.years
+    )
+    return NextResponse.json(matrix)
   }
 
   const currentYear = new Date().getFullYear()
@@ -26,11 +45,11 @@ export async function GET(req: NextRequest) {
 
   const toYear = parsed.data.to ?? currentYear
   const fromYear = parsed.data.from ?? toYear - 4
+  const years = Array.from(
+    { length: Math.min(toYear - fromYear + 1, PERSONAL_INCOME_MAX_YEARS_SPAN) },
+    (_, i) => fromYear + i
+  )
 
-  if (fromYear > toYear) {
-    return NextResponse.json({ error: "from muss ≤ to sein" }, { status: 400 })
-  }
-
-  const matrix = await loadPersonalIncomeYearsMatrix(ctx.householdId, ctx.userId, fromYear, toYear)
+  const matrix = await loadPersonalIncomeYearsMatrix(ctx.householdId, ctx.userId, years)
   return NextResponse.json(matrix)
 }

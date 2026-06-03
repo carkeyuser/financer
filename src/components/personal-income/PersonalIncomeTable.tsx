@@ -7,6 +7,8 @@ import { usePersonalIncomeSummary, type PersonalIncomeMonthRow } from "@/hooks/u
 import { useI18n } from "@/i18n/context"
 import { monthName } from "@/i18n/messages"
 import { PersonalIncomeMonthDialog } from "./PersonalIncomeMonthDialog"
+import { PersonalIncomeAddYearButton } from "./PersonalIncomeAddYearDialog"
+import { usePersonalIncomeYearsContext } from "./PersonalIncomeYearsContext"
 import { MobileValueRow } from "@/components/household-finance/finance-display"
 import { CheckCircle2, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -30,12 +32,9 @@ function syncIcon(row: PersonalIncomeMonthRow) {
 
 export function PersonalIncomeTable() {
   const { locale, t, formatMoney } = useI18n()
-  const currentYear = new Date().getFullYear()
-  const [year, setYear] = useState(currentYear)
+  const { years, selectedYear: year, setSelectedYear: setYear } = usePersonalIncomeYearsContext()
   const [dialogMonth, setDialogMonth] = useState<number | null>(null)
   const { data, isLoading } = usePersonalIncomeSummary(year)
-
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - i)
   const dash = t("common.dash")
 
   const dialogRow =
@@ -59,18 +58,21 @@ export function PersonalIncomeTable() {
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="text-base">{t("personalIncome.monthTable")}</CardTitle>
-            <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-              <SelectTrigger className="w-28 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {years.map((y) => (
-                  <SelectItem key={y} value={String(y)}>
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+                <SelectTrigger className="w-28 h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((y) => (
+                    <SelectItem key={y} value={String(y)}>
+                      {y}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <PersonalIncomeAddYearButton />
+            </div>
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-1">
             <span>

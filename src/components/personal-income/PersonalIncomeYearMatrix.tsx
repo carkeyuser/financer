@@ -5,13 +5,12 @@ import { usePersonalIncomeYears, type PersonalIncomeYearsMatrix } from "@/hooks/
 import { useI18n } from "@/i18n/context"
 
 interface Props {
-  fromYear: number
-  toYear: number
+  years: number[]
 }
 
-export function PersonalIncomeYearMatrix({ fromYear, toYear }: Props) {
+export function PersonalIncomeYearMatrix({ years }: Props) {
   const { t, formatMoney } = useI18n()
-  const { data, isLoading } = usePersonalIncomeYears(fromYear, toYear)
+  const { data, isLoading } = usePersonalIncomeYears(years)
 
   if (isLoading) {
     return (

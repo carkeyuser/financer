@@ -145,6 +145,10 @@ export const backupSchema = z.object({
     )
     .optional()
     .default([]),
+  personalIncomeTrackedYears: z
+    .array(z.object({ year: z.number().int() }))
+    .optional()
+    .default([]),
 })
 
 export type BackupInput = z.infer<typeof backupSchema>
