@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-02 (Git-Commit-E-Mail anonymisiert)
+**Stand:** 2026-06-03 (F-31 One-Click-Install)
 
 ---
 
@@ -32,11 +32,11 @@ Self-hosted via Docker auf deinem Server.
 | **5** Multi-User | ✅ erledigt | Invites, accept-invite, Switcher, Rollen, User anlegen, 2FA (TOTP) |
 | **6** Haushaltskasse | ✅ erledigt | Ausgaben raus, Haushaltskasse + Simulationen (F-33) |
 | **7** EUR-Konvertierung | ✅ erledigt | Alle Investment-Werte in € via Yahoo Forex; FX-Fehler → 503 statt falscher EUR-Werte |
-| **8** Feature-Backlog | 🟡 teilweise offen | DevOps F-31, Kalender F-34; Daily-Habit F-40–F-44 ✅; F-45 Einkommen ✅ |
+| **8** Feature-Backlog | 🟡 teilweise offen | Kalender F-34; F-31 Install ✅; Daily-Habit F-40–F-44 ✅; F-45 Einkommen ✅ |
 | **12** Persönliches Einkommen | ✅ erledigt | Tab `/einkommen`, privat pro User, HK-Sync, Jahresvergleich (F-45) |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |
-| **Tests** | ✅ Unit-Tests | Vitest, alle grün (siehe `npm run test`) |
+| **Tests** | ✅ Unit-Tests | Vitest, **214 Tests** in 28 Dateien, alle grün |
 
 ---
 

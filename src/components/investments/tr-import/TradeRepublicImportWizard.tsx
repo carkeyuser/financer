@@ -41,15 +41,22 @@ import {
   rowNeedsAttention,
 } from "@/lib/services/tr-import-sort"
 import {
+  applyDateRangeToResolutions,
+  computeDateRangeFromRows,
+  isDateInRange,
+} from "@/lib/services/tr-import-date-filter"
+import {
   applySelectionPreset,
-  buildInitialResolutions,
   countSelectedRows,
+  dividendPositionLabel,
+  filterSelectionRows,
+  inRangeSelectableRows,
   isRowSelected,
   isSelectableRow,
   resolutionForSelected,
   resolveImportAction,
+  rowDividendAmounts,
   rowValueEur,
-  sortSelectionRows,
   type TrImportSelectionPreset,
 } from "@/lib/services/tr-import-selection"
 import { formatCurrency } from "@/lib/utils/currency"
@@ -82,6 +89,9 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<TrImportPreviewResponse | null>(null)
   const [filter, setFilter] = useState<string>("all")
+  const [dateFrom, setDateFrom] = useState("")
+  const [dateTo, setDateTo] = useState("")
+  const [showOutsideRange, setShowOutsideRange] = useState(false)
   const [resolutions, setResolutions] = useState<Record<string, TrImportResolution>>({})
   const [tickerOverrides, setTickerOverrides] = useState<Record<string, TrTickerOverride>>({})
   const [applyResult, setApplyResult] = useState<TrImportApplyResponse | null>(null)
@@ -122,11 +132,38 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
   const tickerMappings = preview?.tickerMappings ?? []
   const unresolvedTickers = countUnresolvedTickers(tickerMappings, tickerOverrides)
 
-  const filteredRows = useMemo(() => {
+  const filterOptions = useMemo(
+    () => ({
+      statusFilter: filter,
+      dateFrom,
+      dateTo,
+      showOutsideRange,
+    }),
+    [filter, dateFrom, dateTo, showOutsideRange]
+  )
+
+  const tradeRows = useMemo(() => {
     if (!preview) return []
-    const rows = filter === "all" ? preview.rows : preview.rows.filter((r) => r.status === filter)
-    return sortSelectionRows(rows)
-  }, [preview, filter])
+    return filterSelectionRows(preview.rows, {
+      ...filterOptions,
+      eventTypes: ["purchase", "sale", "interest"],
+    })
+  }, [preview, filterOptions])
+
+  const dividendRows = useMemo(() => {
+    if (!preview) return []
+    return filterSelectionRows(preview.rows, {
+      ...filterOptions,
+      eventTypes: ["dividend"],
+    })
+  }, [preview, filterOptions])
+
+  const outsideRangeCount = useMemo(() => {
+    if (!preview || !dateFrom || !dateTo) return 0
+    return preview.rows.filter(
+      (row) => isSelectableRow(row) && !isDateInRange(row.date, dateFrom, dateTo)
+    ).length
+  }, [preview, dateFrom, dateTo])
 
   const selectionCounts = useMemo(
     () => (preview ? countSelectedRows(preview.rows, resolutions) : { selected: 0, total: 0 }),
@@ -154,6 +191,9 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
     setFile(null)
     setPreview(null)
     setFilter("all")
+    setDateFrom("")
+    setDateTo("")
+    setShowOutsideRange(false)
     setResolutions({})
     setTickerOverrides({})
     setApplyResult(null)
@@ -213,7 +253,13 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
         targetUserId: targetUserId || undefined,
       })
       setPreview(result)
-      setResolutions(buildInitialResolutions(result.rows))
+      const range = computeDateRangeFromRows(result.rows)
+      const from = range?.from ?? ""
+      const to = range?.to ?? ""
+      setDateFrom(from)
+      setDateTo(to)
+      setShowOutsideRange(false)
+      setResolutions(from && to ? applyDateRangeToResolutions(result.rows, from, to) : {})
       setTickerOverrides(initialTickerOverrides(result.tickerMappings))
       setImportProgress(null)
       setStep("overview")
@@ -473,7 +519,25 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
             preview={preview}
             filter={filter}
             setFilter={setFilter}
-            filteredRows={filteredRows}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onDateFromChange={(from) => {
+              setDateFrom(from)
+              if (preview && from && dateTo) {
+                setResolutions(applyDateRangeToResolutions(preview.rows, from, dateTo))
+              }
+            }}
+            onDateToChange={(to) => {
+              setDateTo(to)
+              if (preview && dateFrom && to) {
+                setResolutions(applyDateRangeToResolutions(preview.rows, dateFrom, to))
+              }
+            }}
+            showOutsideRange={showOutsideRange}
+            setShowOutsideRange={setShowOutsideRange}
+            outsideRangeCount={outsideRangeCount}
+            tradeRows={tradeRows}
+            dividendRows={dividendRows}
             resolutions={resolutions}
             setResolutions={setResolutions}
             selectionCounts={selectionCounts}
@@ -613,7 +677,15 @@ function SelectionStep({
   preview,
   filter,
   setFilter,
-  filteredRows,
+  dateFrom,
+  dateTo,
+  onDateFromChange,
+  onDateToChange,
+  showOutsideRange,
+  setShowOutsideRange,
+  outsideRangeCount,
+  tradeRows,
+  dividendRows,
   resolutions,
   setResolutions,
   selectionCounts,
@@ -625,7 +697,15 @@ function SelectionStep({
   preview: TrImportPreviewResponse
   filter: string
   setFilter: (f: string) => void
-  filteredRows: TrImportPreviewRow[]
+  dateFrom: string
+  dateTo: string
+  onDateFromChange: (from: string) => void
+  onDateToChange: (to: string) => void
+  showOutsideRange: boolean
+  setShowOutsideRange: (v: boolean) => void
+  outsideRangeCount: number
+  tradeRows: TrImportPreviewRow[]
+  dividendRows: TrImportPreviewRow[]
   resolutions: Record<string, TrImportResolution>
   setResolutions: (r: Record<string, TrImportResolution>) => void
   selectionCounts: { selected: number; total: number }
@@ -651,25 +731,38 @@ function SelectionStep({
     { id: "with_value", label: ti("presetWithValue") },
   ]
 
-  const visibleSelectable = filteredRows.filter(isSelectableRow)
-  const allVisibleSelected =
-    visibleSelectable.length > 0 && visibleSelectable.every((row) => isRowSelected(row, resolutions))
+  const presetTargetRows = inRangeSelectableRows(preview.rows, dateFrom, dateTo)
 
   const applyPreset = (preset: TrImportSelectionPreset) => {
-    setResolutions(applySelectionPreset(preset, preview.rows, resolutions))
+    setResolutions(applySelectionPreset(preset, presetTargetRows, resolutions))
   }
 
   const toggleRow = (row: TrImportPreviewRow, selected: boolean) => {
     setResolutions({ ...resolutions, [row.rowId]: resolutionForSelected(row, selected) })
   }
 
-  const toggleAllVisible = (selected: boolean) => {
+  const toggleAllVisible = (rows: TrImportPreviewRow[], selected: boolean) => {
     const next = { ...resolutions }
-    for (const row of visibleSelectable) {
+    for (const row of rows.filter(isSelectableRow)) {
       next[row.rowId] = resolutionForSelected(row, selected)
     }
     setResolutions(next)
   }
+
+  const renderOutsideBadge = (row: TrImportPreviewRow) => {
+    if (!dateFrom || !dateTo || isDateInRange(row.date, dateFrom, dateTo)) return null
+    return (
+      <Badge variant="outline" className="ml-1 text-[10px]">
+        {ti("outsideRangeBadge")}
+      </Badge>
+    )
+  }
+
+  const tradeSelectable = tradeRows.filter(isSelectableRow)
+  const dividendSelectable = dividendRows.filter(isSelectableRow)
+  const allTradesSelected = tradeSelectable.length > 0 && tradeSelectable.every((row) => isRowSelected(row, resolutions))
+  const allDividendsSelected =
+    dividendSelectable.length > 0 && dividendSelectable.every((row) => isRowSelected(row, resolutions))
 
   return (
     <div className="space-y-4">
@@ -680,6 +773,40 @@ function SelectionStep({
       </div>
 
       <SummaryCards summary={preview.summary} ti={ti} />
+
+      <div className="space-y-2 rounded-md border p-3">
+        <p className="text-xs font-medium text-muted-foreground">{ti("dateRangeSection")}</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1">
+            <Label htmlFor="tr-date-from">{ti("dateFromLabel")}</Label>
+            <Input
+              id="tr-date-from"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => onDateFromChange(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="tr-date-to">{ti("dateToLabel")}</Label>
+            <Input
+              id="tr-date-to"
+              type="date"
+              value={dateTo}
+              onChange={(e) => onDateToChange(e.target.value)}
+            />
+          </div>
+        </div>
+        {outsideRangeCount > 0 && (
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showOutsideRange}
+              onChange={(e) => setShowOutsideRange(e.target.checked)}
+            />
+            {ti("showOutsideRange", { n: outsideRangeCount })}
+          </label>
+        )}
+      </div>
 
       <div className="space-y-2">
         <p className="text-xs font-medium text-muted-foreground">{ti("presetSection")}</p>
@@ -700,72 +827,192 @@ function SelectionStep({
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Button size="sm" variant="outline" disabled={allVisibleSelected} onClick={() => toggleAllVisible(true)}>
-          {ti("selectionSelectAll")}
-        </Button>
-        <Button size="sm" variant="outline" disabled={visibleSelectable.length === 0} onClick={() => toggleAllVisible(false)}>
-          {ti("selectionDeselectAll")}
-        </Button>
-      </div>
-
-      <div className="max-h-80 overflow-y-auto rounded-md border">
-        <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-muted">
-            <tr>
-              <th className="w-8 p-2" />
-              <th className="p-2 text-left">{ti("colDate")}</th>
-              <th className="p-2 text-left">{ti("csvSide")}</th>
-              <th className="p-2 text-right">{ti("colValue")}</th>
-              <th className="p-2 text-right">{ti("colStatus")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRows.map((row) => {
-              const selectable = isSelectableRow(row)
-              const selected = isRowSelected(row, resolutions)
-              const value = rowValueEur(row)
-              return (
-                <tr
-                  key={row.rowId}
-                  className={cn(
-                    "border-t",
-                    !selectable && "opacity-50",
-                    selectable && !selected && "bg-muted/30",
-                    rowNeedsAttention(row.status) && selected && "bg-destructive/5"
-                  )}
-                >
-                  <td className="p-2">
-                    {selectable ? (
-                      <input
-                        type="checkbox"
-                        checked={selected}
-                        className="h-4 w-4 cursor-pointer"
-                        onChange={(e) => toggleRow(row, e.target.checked)}
-                      />
-                    ) : null}
-                  </td>
-                  <td className="p-2 whitespace-nowrap">{row.date}</td>
-                  <td className="p-2">
-                    <p className="font-medium">{row.product}</p>
-                    <p className="text-muted-foreground">
-                      {row.quantity ?? "—"} @ {row.price ?? "—"}
-                      {row.matchedEntry ? ` · Match: ${row.matchedEntry.ticker}` : ""}
-                    </p>
-                  </td>
-                  <td className={cn("p-2 text-right whitespace-nowrap tabular-nums", value <= 0 && "text-muted-foreground")}>
-                    {formatCurrency(value, "EUR", locale)}
-                  </td>
-                  <td className="p-2 text-right">
-                    <Badge variant={statusVariant(row.status)} className="text-[10px]">
-                      {row.status}
-                    </Badge>
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-medium">{ti("tradesSection")}</p>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" disabled={allTradesSelected} onClick={() => toggleAllVisible(tradeRows, true)}>
+              {ti("selectionSelectAll")}
+            </Button>
+            <Button size="sm" variant="outline" disabled={tradeSelectable.length === 0} onClick={() => toggleAllVisible(tradeRows, false)}>
+              {ti("selectionDeselectAll")}
+            </Button>
+          </div>
+        </div>
+        <div className="max-h-64 overflow-y-auto rounded-md border">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-muted">
+              <tr>
+                <th className="w-8 p-2" />
+                <th className="p-2 text-left">{ti("colDate")}</th>
+                <th className="p-2 text-left">{ti("csvSide")}</th>
+                <th className="p-2 text-right">{ti("colValue")}</th>
+                <th className="p-2 text-right">{ti("colStatus")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tradeRows.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-4 text-center text-muted-foreground">
+                    {ti("noTradesInFilter")}
                   </td>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
+              ) : (
+                tradeRows.map((row) => {
+                  const selectable = isSelectableRow(row)
+                  const selected = isRowSelected(row, resolutions)
+                  const value = rowValueEur(row)
+                  return (
+                    <tr
+                      key={row.rowId}
+                      className={cn(
+                        "border-t",
+                        !selectable && "opacity-50",
+                        selectable && !selected && "bg-muted/30",
+                        !isDateInRange(row.date, dateFrom, dateTo) && "opacity-70",
+                        rowNeedsAttention(row.status) && selected && "bg-destructive/5"
+                      )}
+                    >
+                      <td className="p-2">
+                        {selectable ? (
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            className="h-4 w-4 cursor-pointer"
+                            onChange={(e) => toggleRow(row, e.target.checked)}
+                          />
+                        ) : null}
+                      </td>
+                      <td className="p-2 whitespace-nowrap">
+                        {row.date}
+                        {renderOutsideBadge(row)}
+                      </td>
+                      <td className="p-2">
+                        <p className="font-medium">{row.product}</p>
+                        <p className="text-muted-foreground">
+                          {row.quantity ?? "—"} @ {row.price ?? "—"}
+                          {row.matchedEntry ? ` · Match: ${row.matchedEntry.ticker}` : ""}
+                        </p>
+                      </td>
+                      <td className={cn("p-2 text-right whitespace-nowrap tabular-nums", value <= 0 && "text-muted-foreground")}>
+                        {formatCurrency(value, "EUR", locale)}
+                      </td>
+                      <td className="p-2 text-right">
+                        <Badge variant={statusVariant(row.status)} className="text-[10px]">
+                          {row.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-sm font-medium">{ti("dividendsSection")}</p>
+            <p className="text-xs text-muted-foreground">{ti("dividendsSectionHint")}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" disabled={allDividendsSelected} onClick={() => toggleAllVisible(dividendRows, true)}>
+              {ti("selectionSelectAll")}
+            </Button>
+            <Button size="sm" variant="outline" disabled={dividendSelectable.length === 0} onClick={() => toggleAllVisible(dividendRows, false)}>
+              {ti("selectionDeselectAll")}
+            </Button>
+          </div>
+        </div>
+        <div className="max-h-64 overflow-y-auto rounded-md border">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-muted">
+              <tr>
+                <th className="w-8 p-2" />
+                <th className="p-2 text-left">{ti("colDate")}</th>
+                <th className="p-2 text-left">{ti("colProductIsin")}</th>
+                <th className="p-2 text-right">{ti("colGross")}</th>
+                <th className="p-2 text-right">{ti("colTax")}</th>
+                <th className="p-2 text-right">{ti("colNet")}</th>
+                <th className="p-2 text-left">{ti("colPosition")}</th>
+                <th className="p-2 text-right">{ti("colStatus")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dividendRows.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-4 text-center text-muted-foreground">
+                    {ti("noDividendsInFilter")}
+                  </td>
+                </tr>
+              ) : (
+                dividendRows.map((row) => {
+                  const selectable = isSelectableRow(row)
+                  const selected = isRowSelected(row, resolutions)
+                  const { gross, tax, net } = rowDividendAmounts(row)
+                  const position = dividendPositionLabel(row)
+                  return (
+                    <tr
+                      key={row.rowId}
+                      className={cn(
+                        "border-t",
+                        !selectable && "opacity-50",
+                        selectable && !selected && "bg-muted/30",
+                        !isDateInRange(row.date, dateFrom, dateTo) && "opacity-70",
+                        rowNeedsAttention(row.status) && selected && "bg-destructive/5"
+                      )}
+                    >
+                      <td className="p-2">
+                        {selectable ? (
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            className="h-4 w-4 cursor-pointer"
+                            onChange={(e) => toggleRow(row, e.target.checked)}
+                          />
+                        ) : null}
+                      </td>
+                      <td className="p-2 whitespace-nowrap">
+                        {row.date}
+                        {renderOutsideBadge(row)}
+                      </td>
+                      <td className="p-2">
+                        <p className="font-medium">{row.product}</p>
+                        <p className="text-muted-foreground">{row.isin ?? "—"}</p>
+                      </td>
+                      <td className="p-2 text-right whitespace-nowrap tabular-nums">
+                        {formatCurrency(gross, "EUR", locale)}
+                      </td>
+                      <td className="p-2 text-right whitespace-nowrap tabular-nums text-muted-foreground">
+                        {tax > 0 ? formatCurrency(tax, "EUR", locale) : "—"}
+                      </td>
+                      <td className="p-2 text-right whitespace-nowrap tabular-nums">
+                        {formatCurrency(net, "EUR", locale)}
+                      </td>
+                      <td className="p-2">
+                        {position ? (
+                          <Badge variant="outline" className="text-[10px]">{position}</Badge>
+                        ) : (
+                          <span className="text-muted-foreground">{ti("positionPending")}</span>
+                        )}
+                        {row.matchedEntry ? (
+                          <p className="text-muted-foreground">Match: {row.matchedEntry.ticker}</p>
+                        ) : null}
+                      </td>
+                      <td className="p-2 text-right">
+                        <Badge variant={statusVariant(row.status)} className="text-[10px]">
+                          {row.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="flex gap-2">
