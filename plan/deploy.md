@@ -75,7 +75,7 @@ bash /path/to/financer/scripts/deploy.sh
 
 ## Modus `ghcr`
 
-GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut.
+GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut. **Ausnahme:** Commits, die nur Markdown/`plan/**`/`release-notes.ts` ändern, lösen keine CI aus (Tag `v*` immer).
 
 **Erstinstallation:**
 

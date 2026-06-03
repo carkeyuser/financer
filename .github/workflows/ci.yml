@@ -4,8 +4,19 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+    # Nur Doku/Changelog: kein Test/Build/Docker (Tag-Pushes ignorieren paths laut GitHub immer)
+    paths-ignore:
+      - "**.md"
+      - "plan/**"
+      - "src/data/release-notes.ts"
+      - "LICENSE"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "plan/**"
+      - "src/data/release-notes.ts"
+      - "LICENSE"
 
 # Gleicher Commit (main + Tag): nur ein Lauf — der neuere bricht den anderen ab.
 concurrency:
