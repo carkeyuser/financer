@@ -5,20 +5,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Changed
-
-- **Personal income year comparison** — Matrix and chart use only explicit years from the available-years list (no gap-filling); past-year tracking validated in Zod; bonus year lookup optimized; max 30-year span on years API
-
-### Added
-
-- **Personal income year chart** — Grouped bar chart on `/einkommen` comparing gross, net, and bonuses across the last five years (same API as the year matrix)
-- **Personal income past years** — Add calendar years before the current year for capture and comparison; persisted per user, included in backup
-
-## [0.1.0] - 2026-06-02
+## [0.1.0] - 2026-06-04
 
 ### Added
 
 - **Personal income tab (F-45)** — Private salary tracking at `/einkommen` (sidebar “Income” / “Einkommen”): gross and net salary per month, optional monthly bonus, separate extra payments (e.g. holiday bonus), year totals, and multi-year comparison matrix
+- **Personal income year chart** — Grouped bar chart on `/einkommen` comparing gross, net, and bonuses by year (below the year overview table)
+- **Personal income past years** — Add calendar years before the current year for capture and comparison (`PersonalIncomeTrackedYear`); persisted per user, included in backup
 - **Household sync** — Apply net salary to your own `MonthlyIncome` in Haushaltskasse with one click (fix-cost snapshot rules unchanged; partner data untouched)
 - **Privacy** — APIs and UI only expose data for the logged-in user; not visible to household partner or admins
 - **Backup** — Export/import includes only your personal income rows
@@ -28,9 +21,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Personal income year comparison** — Matrix and chart use only explicit years from the available-years list (no gap-filling); past-year tracking validated in Zod; bonus year lookup optimized; max 30-year span on years API
 - **Security** — JWT `householdId` only after DB membership check on `session.update`; backup restore without admin fallback for unknown usernames (10 MB limit); optional `ALLOW_REGISTRATION`; security headers in `next.config.ts`; securities symbol/query validation; TR preview rate limit
 - **Docs** — Deployment docs anonymized (generic paths); README in English for public repo
-- **Tests** — 214 unit tests total
+- **Tests** — 235 unit tests total
 
 ## [0.0.10] - 2026-06-01
 

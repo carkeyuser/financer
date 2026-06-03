@@ -44,7 +44,7 @@ Configurable dashboard with a widget grid — clock, top/flop movers, allocation
 | **Security** | Username + password, JSON backup/restore (incl. dividends & simulations) |
 | **Language** | German / English (per user in settings) |
 
-**Release:** [v0.1.0](CHANGELOG.md#010---2026-06-02) · No expenses/budget module (removed — did not fit the usage model).
+**Release:** [v0.1.0](CHANGELOG.md#010---2026-06-04) · No expenses/budget module (removed — did not fit the usage model).
 
 **Tech stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
 **Deployment:** Docker Compose (self-hosted on your server)  

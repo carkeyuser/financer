@@ -9,10 +9,11 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
     version: "0.1.0",
-    date: "2026-06-02",
+    date: "2026-06-04",
     highlights: {
       de: [
         "Neuer Tab „Einkommen“ (/einkommen): persönliche Gehalts-Historie — nur für dich sichtbar",
+        "Einkommen: Jahresvergleich als Balkendiagramm; vergangene Jahre anlegen und erfassen",
         "Daily Habit: /heute-Briefing, Notification Bell, Portfolio-Snapshot, Monatsroutine, Depot-Kalender",
         "One-Click-Install: curl | bash auf frischem Server/LXC (install.sh + optional install.ps1)",
         "TR-Import: Dividenden-Vorschau mit Auswahl; Datumsfilter von/bis",
@@ -20,6 +21,7 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
       ],
       en: [
         "New “Income” tab (/einkommen): personal salary history — visible only to you",
+        "Income: year comparison bar chart; add and track past calendar years",
         "Daily habit: /heute briefing, notification bell, portfolio snapshot, month routine, depot calendar",
         "One-click install: curl | bash on a fresh server/LXC (install.sh + optional install.ps1)",
         "TR import: dividend preview with selection; date-range filter",
