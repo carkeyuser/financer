@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Lies zu Beginn jeder Session **plan/README.md** vollständig durch. Wenn die Aufgabe Architektur, Setup, Phasen, Backlogs oder Historie betrifft, lies zusätzlich die dort verlinkten Dateien in **plan/**.
 
-Nach jeder Codeänderung **plan/README.md** und bei Bedarf die passende Datei in **plan/** aktualisieren: erledigte Aufgaben abhaken, neue Entscheidungen oder Architekturänderungen dokumentieren, Änderungslog in `plan/changelog.md` ergänzen.
+Nach jeder Codeänderung **plan/README.md** und bei Bedarf die passende Datei in **plan/** aktualisieren: erledigte Aufgaben abhaken, neue Entscheidungen oder Architekturänderungen dokumentieren, Änderungslog in [`CHANGELOG.md`](CHANGELOG.md) ergänzen (Englisch); Release-Highlights in `src/data/release-notes.ts`.
 
 ## Project Overview
 
