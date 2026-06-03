@@ -1,5 +1,6 @@
+import { isDateInRange } from "@/lib/services/tr-import-date-filter"
 import { ROW_STATUS_PRIORITY } from "@/lib/services/tr-import-sort"
-import type { TrImportPreviewRow, TrImportResolution } from "@/lib/services/tr-import-types"
+import type { TrImportEventType, TrImportPreviewRow, TrImportResolution } from "@/lib/services/tr-import-types"
 
 export type TrImportSelectionPreset = "all" | "none" | "new_only" | "matched_only" | "with_value"
 
@@ -106,4 +107,55 @@ export function resolveImportAction(
 ): TrImportResolution {
   if (row.status === "skip_hard" || row.status === "ignored") return "skip"
   return resolutions[row.rowId] ?? defaultResolutionForRow(row)
+}
+
+export function isTradeRow(row: TrImportPreviewRow): boolean {
+  return row.eventType === "purchase" || row.eventType === "sale" || row.eventType === "interest"
+}
+
+export function isDividendRow(row: TrImportPreviewRow): boolean {
+  return row.eventType === "dividend"
+}
+
+export function rowDividendAmounts(row: TrImportPreviewRow): { gross: number; tax: number; net: number } {
+  const gross = row.totalEur ?? 0
+  const tax = row.taxEur ?? 0
+  return { gross, tax, net: gross - tax }
+}
+
+export function dividendPositionLabel(row: TrImportPreviewRow): string | null {
+  if (row.matchedEntry?.ticker) return row.matchedEntry.ticker
+  if (row.suggestedTicker?.symbol) return row.suggestedTicker.symbol
+  return null
+}
+
+export function filterSelectionRows(
+  rows: TrImportPreviewRow[],
+  options: {
+    statusFilter: string
+    dateFrom: string
+    dateTo: string
+    showOutsideRange: boolean
+    eventTypes?: TrImportEventType[]
+  }
+): TrImportPreviewRow[] {
+  let filtered = rows
+  if (options.eventTypes?.length) {
+    filtered = filtered.filter((row) => options.eventTypes!.includes(row.eventType))
+  }
+  if (options.statusFilter !== "all") {
+    filtered = filtered.filter((row) => row.status === options.statusFilter)
+  }
+  if (!options.showOutsideRange) {
+    filtered = filtered.filter((row) => isDateInRange(row.date, options.dateFrom, options.dateTo))
+  }
+  return sortSelectionRows(filtered)
+}
+
+export function inRangeSelectableRows(
+  rows: TrImportPreviewRow[],
+  dateFrom: string,
+  dateTo: string
+): TrImportPreviewRow[] {
+  return rows.filter((row) => isSelectableRow(row) && isDateInRange(row.date, dateFrom, dateTo))
 }

@@ -238,7 +238,27 @@ docker compose version
 
 ## 5. Deploy the project
 
-### Option A: From Windows with `push.ps1` (recommended)
+### Option A: One-liner on a fresh LXC (recommended)
+
+Inside the container as **root** (Debian 12). Installs Docker if missing, clones to `/opt/financer`, creates `.env`, builds and starts the stack:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh | bash
+```
+
+Optional:
+
+```bash
+FINANCER_DIR=/opt/financer FINANCER_REF=main curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh | bash
+```
+
+The script prompts for **NEXTAUTH_URL** (browser URL for login — suggested LAN IP). Updates later: `cd /opt/financer && ./scripts/update.sh` — see [plan/deploy.md](plan/deploy.md).
+
+After cloning locally, you can also run `./install.sh` from the repo root.
+
+**Windows (Docker Desktop):** `.\install.ps1` in the cloned repo.
+
+### Option B: From Windows with `push.ps1` (developer deploy)
 
 > **Developer deploy (optional):** The repo includes `push.example.ps1` and `pack.example.ps1`. Copy them locally to `push.ps1` and `pack.ps1` and set your server IP — these files are **not** committed (see `.gitignore`).
 
@@ -255,7 +275,7 @@ The script copies relevant files via `robocopy` + `scp` to your deployment direc
 
 **Excluded:** `node_modules`, `.next`, `src/generated`, `.env`/`.env.local`, `.codegraph`, `*.tsbuildinfo`, `.claude`
 
-### Option B: Git clone on the server
+### Option C: Git clone on the server
 
 ```bash
 ssh root@YOUR_SERVER
@@ -267,7 +287,7 @@ docker compose up -d --build
 
 In `.env` set: `FINANCER_DEPLOY_MODE=build` (default) or `ghcr` — see [section 7](#7-start--updates) and [plan/deploy.md](plan/deploy.md).
 
-### Option C: Manual via `scp`
+### Option D: Manual via `scp`
 
 ```powershell
 scp -r . root@YOUR_SERVER:/path/to/financer/

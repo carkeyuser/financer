@@ -2,8 +2,8 @@
 
 Feature-Backlog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
-Aktuell offen: **F-31**, **F-34**.
-Erledigt (Daily-Habit): **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02).
+Aktuell offen: **F-34**.
+Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02).
 Erledigte Features stehen im [`archive.md`](archive.md).
 
 ---
@@ -12,7 +12,7 @@ Erledigte Features stehen im [`archive.md`](archive.md).
 
 | # | Bereich | Kurzbeschreibung | Status |
 |---|---|---|---|
-| F-31 | DevOps | One-Click-Installation unter Docker | 🟨 offen |
+| F-31 | DevOps | One-Click-Installation unter Docker | ✅ erledigt 2026-06-03 |
 | F-34 | Dashboard | Marktkalender-Abdeckung erweitern (DE/ETF, manuelle Termine) | 🟨 offen |
 | F-40 | Dashboard | „Heute“-Briefing — kuratierte Tagesübersicht | ✅ erledigt 2026-06-01 |
 | F-41 | Dashboard / Investments | Täglicher Vermögens-Snapshot | ✅ erledigt 2026-06-01 |
@@ -56,11 +56,17 @@ flowchart LR
 | | |
 |---|---|
 | **Bereich** | DevOps |
-| **Status** | 🟨 offen |
+| **Status** | ✅ erledigt 2026-06-03 |
 
-Ein Skript (z. B. `install.sh` für Linux/macOS, optional `install.ps1` für Windows), das die komplette Erstinstallation abwickelt: Voraussetzungen prüfen (Docker + Compose), `.env` aus `.env.example` anlegen bzw. fehlende Secrets interaktiv abfragen (`NEXTAUTH_SECRET`, `DATABASE_URL`/Postgres-Passwort), `docker compose up -d --build` starten, auf DB-Health und App-Port warten, kurze Erfolgsmeldung mit URL.
+Ein Skript [`install.sh`](../install.sh) für Linux/LXC (Bootstrap via `curl | bash`) und optional [`install.ps1`](../install.ps1) für Windows/Docker Desktop: Voraussetzungen prüfen (Docker + Compose; auf Debian ggf. automatische Docker-Installation), Repository nach `/opt/financer` klonen, `.env` aus `.env.example` anlegen bzw. fehlende Secrets generieren, `NEXTAUTH_URL` interaktiv mit Vorschlag, `docker compose up -d --build`, Health-Wait, Erfolgsmeldung mit URL.
 
-**Ziel:** Frischer Server ohne manuelle Schritte aus README. Bestehendes `docker-compose.yml` unverändert; `push.ps1` bleibt Update-Pfad für Entwickler.
+**One-Liner (frischer LXC):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh | bash
+```
+
+**Ziel:** Frischer Server ohne manuelle README-Schritte. `docker-compose.yml` unverändert; `push.ps1` bleibt Update-Pfad für Entwickler.
 
 ---
 
@@ -349,7 +355,7 @@ Marktkalender **nutzerzentriert**: nur Termine zu Tickern im Depot (+ optional W
 
 | # | Bereich | Beschreibung | Status |
 |---|---|---|---|
-| F-31 | DevOps | One-Click-Installation unter Docker (siehe oben) | 🟨 offen |
+| F-31 | DevOps | One-Click-Installation unter Docker (siehe oben) | ✅ erledigt 2026-06-03 |
 | F-34 | Dashboard | Marktkalender DE/ETF, manuelle Termine (siehe oben) | 🟨 offen |
 | F-40 | Dashboard | **Heute-Briefing:** Aggregation Portfolio, Top/Flop, Kalender, Haushalt, Dividenden; API `/api/today`; seit letztem Besuch | 🟨 offen |
 | F-41 | Dashboard | **Vermögens-Snapshot:** `PortfolioDailySnapshot` täglich; Widget „seit gestern“ + Sparkline — [Spec](feature-f41-portfolio-snapshot.md) | 🟨 offen |

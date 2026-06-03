@@ -30,7 +30,15 @@ Beide Modi: `./scripts/update.sh` (liest `FINANCER_DEPLOY_MODE` aus `.env`).
 
 ## Modus `build` (Standard)
 
-**Erstinstallation** (Git-Clone):
+**Erstinstallation** (One-Liner — empfohlen für frischen LXC):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh | bash
+```
+
+Installiert bei Bedarf Docker (Debian), klont nach `/opt/financer`, legt `.env` an, startet `docker compose up -d --build`. Alternativ nach manuellem Clone: `./install.sh`.
+
+**Erstinstallation** (manuell):
 
 ```bash
 git clone https://github.com/carkeyuser/financer.git /path/to/financer

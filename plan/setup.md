@@ -174,16 +174,18 @@ networks:
 
 ### Deployment (Kurzform)
 
-```powershell
-# Windows → Server kopieren + Docker-Rebuild
+```bash
+# Frischer LXC — ein Befehl:
+curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh | bash
+
+# Windows → Server kopieren + Docker-Rebuild (Entwickler)
 .\push -Deploy
 
 # Nur kopieren (Build manuell auf dem Server):
 .\push
 ssh root@YOUR_SERVER
 cd /path/to/financer
-cp .env.example .env && nano .env   # einmalig
-docker compose up -d --build
+./install.sh   # oder: cp .env.example .env && nano .env && docker compose up -d --build
 ```
 
 ### Release-Checkliste

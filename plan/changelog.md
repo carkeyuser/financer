@@ -4,6 +4,8 @@
 
 | Datum | Änderung |
 |---|---|
+| 2026-06-03 | **F-31 One-Click-Install:** [`install.sh`](../install.sh) Bootstrap (`curl \| bash`) — Docker auf Debian, Clone nach `/opt/financer`, `.env`/Secrets, NEXTAUTH_URL-Prompt, Compose + Health-Wait; [`install.ps1`](../install.ps1) für Windows/Docker Desktop |
+| 2026-06-03 | **Ä-12 + Ä-13 TR-Import:** Auswahl-Step mit getrennten Tabellen für Trades und Dividenden; Datumsfilter von/bis; Services `tr-import-date-filter.ts`, Tests |
 | 2026-06-02 | **Git:** `git filter-repo` — leakende Commit-E-Mail in den letzten 2 Commits durch GitHub-No-Reply ersetzt; Force-Push `main` + `cursor/security-anonymization-and-hardening`; Anleitung in `plan/setup.md` |
 | 2026-06-02 | **Security-Review:** JWT `householdId` nur nach DB-Mitgliedschaft bei `session.update`; Backup-Restore ohne Admin-Fallback bei unbekanntem Username, 10 MB-Limit; `ALLOW_REGISTRATION`; Security-Header in `next.config.ts`; Securities-Symbol/Query-Validierung; TR-Preview-Rate-Limit; API-Tests personal-income; Seed-Warnung `SEED_DEMO_PASSWORD` |
 | 2026-06-02 | **Security — Docs/Seed anonymisiert:** Deployment-Doku (README, `plan/deploy.md`, `plan/setup.md`, CLAUDE.md, Skripte) ohne Proxmox/LXC/Debian/`/opt/financer`; Seed + `default-fixed-costs.ts` mit generischen Fixkosten-Namen (Housing, Insurance, …) statt persönlicher deutscher Haushaltspositionen |
