@@ -131,6 +131,27 @@ export const enMessages = {
     appVersion: "App version {version}",
     releaseNotes: "Release notes",
   },
+  update: {
+    title: "App update",
+    versionLine: "Installed version: {version}",
+    deployMode: "Deploy mode: {mode}",
+    button: "Start update",
+    running: "Update in progress…",
+    restarting: "Server restarting ({seconds}s)…",
+    restartHint:
+      "The app may be briefly unavailable. Automatic reload in {seconds} seconds or when the server responds.",
+    warning:
+      "Pulls the latest version and restarts Docker. Short downtime is possible.",
+    disabledHint:
+      "In-app update is not enabled on this server. Use SSH — see plan/deploy.md.",
+    adminOnly: "Only household admin or owner can start updates.",
+    confirmTitle: "Update the app?",
+    confirmDescription:
+      "Runs git pull and Docker restart. The connection may drop during the update.",
+    failed: "Update failed",
+    notAvailable: "In-app update is not enabled",
+    inProgress: "An update is already running",
+  },
   backup: {
     title: "Backup",
     description: "Export all household data as JSON or restore a backup. Import overwrites all current data.",

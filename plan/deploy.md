@@ -131,6 +131,31 @@ Release-Tag ist für Modus **build** nicht nötig. Für **ghcr** liefert CI `:la
 
 ---
 
+## In-App-Update (F-46)
+
+Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktiviert**.
+
+**Voraussetzungen:**
+
+1. In `.env` auf dem Server:
+   ```env
+   FINANCER_UPDATE_ENABLED=true
+   FINANCER_HOST_APP_DIR=/opt/financer
+   FINANCER_DOCKER_GID=999
+   ```
+   `FINANCER_DOCKER_GID` = GID der Docker-Gruppe auf dem Host (`getent group docker`).
+2. Compose mit Update-Overlay starten:
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.update.yml up -d --build
+   ```
+   Bei GHCR zusätzlich `-f docker-compose.prod.yml`.
+
+**Ablauf:** Die App führt [`scripts/update.sh`](scripts/update.sh) im gemounteten Host-Verzeichnis `/deploy` aus (gleiche Logik wie manuelles Update). Während `docker compose up` kann die Verbindung abbrechen — die UI wartet danach per Health-Check auf `/auth/login`.
+
+**Sicherheit:** Docker-Socket-Zugriff entspricht praktisch Root-Rechten auf dem Host. Nur auf vertrauenswürdigen Self-hosted-Instanzen aktivieren.
+
+---
+
 ## Pfad & SSH
 
 - Deployment-Verzeichnis: frei wählbar (Platzhalter in Docs: `/path/to/financer`; in `push.ps1` `$Dest` anpassen)
