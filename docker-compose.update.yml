@@ -7,6 +7,8 @@ services:
       FINANCER_UPDATE_ENABLED: ${FINANCER_UPDATE_ENABLED:-false}
       FINANCER_HOST_APP_DIR: ${FINANCER_HOST_APP_DIR:-/deploy}
       FINANCER_DEPLOY_MODE: ${FINANCER_DEPLOY_MODE:-build}
+      # Standalone Node has a minimal PATH — required for spawn(bash)
+      PATH: /bin:/usr/bin:/sbin:/usr/local/bin:/usr/sbin
     group_add:
       - "${FINANCER_DOCKER_GID:-999}"
     volumes:

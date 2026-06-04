@@ -50,12 +50,15 @@ describe("app-update service", () => {
     releaseUpdateLock()
   })
 
-  it("tryAcquireUpdate rate limits repeated starts", async () => {
+  it("tryAcquireUpdate rate limits only after successful update", async () => {
     vi.useFakeTimers()
     process.env.FINANCER_UPDATE_ENABLED = "true"
-    const { tryAcquireUpdate, releaseUpdateLock } = await loadService()
+    const { tryAcquireUpdate, releaseUpdateLock, markUpdateRateLimited } = await loadService()
     expect(tryAcquireUpdate()).toBeNull()
     releaseUpdateLock()
+    expect(tryAcquireUpdate()).toBeNull()
+    releaseUpdateLock()
+    markUpdateRateLimited()
     expect(tryAcquireUpdate()?.code).toBe("rate_limited")
     vi.advanceTimersByTime(5 * 60 * 1000 + 1)
     expect(tryAcquireUpdate()).toBeNull()
@@ -87,6 +90,14 @@ describe("app-update service", () => {
     releaseUpdateLock()
     setSpawnUpdateForTests(null)
   })
+
+  it.skipIf(process.platform === "win32")(
+    "resolveBashPath prefers /bin/bash when present",
+    async () => {
+      const { resolveBashPath } = await loadService()
+      expect(resolveBashPath()).toBe("/bin/bash")
+    }
+  )
 
   it("runAppUpdate emits error on non-zero exit", async () => {
     process.env.FINANCER_UPDATE_ENABLED = "true"
