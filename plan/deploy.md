@@ -125,7 +125,7 @@ bash /path/to/financer/scripts/deploy.sh
 
 ## Modus `ghcr`
 
-GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut. **Ausnahme:** Commits, die nur Markdown/`plan/**`/`release-notes.ts` ändern, lösen keine CI aus (Tag `v*` immer).
+GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut. **Pipeline:** `quality` (lint/test) und `build` (`next build`) laufen **parallel**; der Docker-Job packt danach nur noch das Standalone-Artefakt (`Dockerfile.ci`) — kein zweiter `next build` im Container. **Ausnahme:** Commits, die nur Markdown/`plan/**`/`release-notes.ts` ändern, lösen keine CI aus (Tag `v*` immer).
 
 **Erstinstallation:**
 
