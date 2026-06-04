@@ -19,14 +19,6 @@ function Read-DotEnvValue {
   return $null
 }
 
-function Strip-EnvQuotes {
-  param([string]$Value)
-  $v = $Value.Trim()
-  if ($v.StartsWith('"') -and $v.EndsWith('"')) { return $v.Substring(1, $v.Length - 2) }
-  if ($v.StartsWith("'") -and $v.EndsWith("'")) { return $v.Substring(1, $v.Length - 2) }
-  return $v
-}
-
 function Ensure-EnvLocal {
   if (-not (Test-Path ".env.local")) {
     if (-not (Test-Path ".env.example")) {
@@ -68,9 +60,16 @@ function Ensure-EnvLocal {
       $out.Add("DATABASE_URL=$dbUrl")
       continue
     }
-    if ($line -match '^\s*NEXTAUTH_URL\s*=') {
+    if ($line -match '^\s*NEXTAUTH_URL\s*=\s*(.*)\s*$') {
       $seen.NEXTAUTH_URL = $true
-      $out.Add("NEXTAUTH_URL=$nextAuthUrl")
+      $v = $Matches[1].Trim()
+      if ($v.StartsWith('"') -and $v.EndsWith('"')) { $v = $v.Substring(1, $v.Length - 2) }
+      if ($v.StartsWith("'") -and $v.EndsWith("'")) { $v = $v.Substring(1, $v.Length - 2) }
+      if ($v) {
+        $out.Add($line)
+      } else {
+        $out.Add("NEXTAUTH_URL=$nextAuthUrl")
+      }
       continue
     }
     if ($line -match '^\s*NEXTAUTH_SECRET\s*=') {

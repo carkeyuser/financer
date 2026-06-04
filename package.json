@@ -6,6 +6,7 @@
     "db:up": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db",
     "db:down": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
     "setup:dev": "powershell -ExecutionPolicy Bypass -File scripts/setup-dev.ps1",
+    "verify:demo": "node scripts/verify-demo-login.mjs",
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",

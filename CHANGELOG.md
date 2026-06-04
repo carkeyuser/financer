@@ -7,11 +7,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Retrowave ambience** — Starfield animation loop pauses when the tab is hidden (no background `requestAnimationFrame`); star positions scale on resize instead of re-randomizing
 - **In-app update** — `scripts/update.sh` uses `git -c safe.directory=…` so `git pull` works when `/deploy` is mounted from the host (fixes “dubious ownership”, exit 128)
+- **Prisma seed (production)** — Re-running seed no longer resets `demo` / `demo2` passwords or clears 2FA when `NODE_ENV=production` unless `SEED_RESET_DEMO=true`; fixed-cost backfill still runs
+- **Local setup script** — `setup-dev.ps1` preserves an existing non-empty `NEXTAUTH_URL` in `.env.local` (LAN/custom URLs)
 
 ### Added
 
 - **Docs (F-48)** — Performance/caching decision record: defer Redis for current single-instance setup; document Phase 0 alternatives and optional Redis integration path in `plan/feature-f48-performance-caching-redis.md`
+- **Dev tooling** — `npm run verify:demo` checks DB demo users, password hash, and 2FA flags after seed/setup
 
 ### Changed
 
