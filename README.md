@@ -6,45 +6,148 @@ Self-hosted finance dashboard for small households (couples, roommates). Manual 
 
 ## Preview
 
-Configurable dashboard with a widget grid — clock, top/flop movers, allocation, and positions (light/dark):
+Screenshots use the **English** UI (dark mode unless noted). Each section lists what you see in the image.
 
-| Light | Dark |
+### Sidebar & navigation
+
+![Sidebar — English, dark mode](docs/screenshots/sidebar-dark-en.png)
+
+- Household name in the header with a **notification bell** (prices, events, household, dividends)
+- **Dashboard**, **Today**, **Investments**, **Dividends**, **Household Finance** (incl. **Simulation** sub-item), **Income**, **Users**, **Settings**
+- Active route highlighting; household switcher when you belong to multiple households
+
+### Dashboard (widget grid)
+
+![Dashboard — English, dark mode](docs/screenshots/dashboard-dark-en.png)
+
+| Light | Dark (English) |
 |---|---|
-| ![Dashboard — Light Mode](docs/screenshots/dashboard-light.png) | ![Dashboard — Dark Mode](docs/screenshots/dashboard-dark.png) |
+| ![Dashboard — light mode](docs/screenshots/dashboard-light.png) | ![Dashboard — dark mode](docs/screenshots/dashboard-dark.png) |
 
-**Mobile:** Responsive layout for phones and tablets — hamburger menu, touch-friendly widget cards (move/close), and a single-column dashboard grid. Same features as desktop, optimized for small viewports (dark mode):
+- Drag-and-drop **widget grid** with resize; layout saved per user in the database
+- **Sort** packs widgets without gaps; **Widgets** opens the widget manager
+- Example widgets: clock, top/flop movers, allocation pie (by type or position), scrollable positions list, household finance snapshot
 
-| Dashboard (mobile) | Navigation (mobile) |
+### Manage widgets
+
+![Manage widgets — English, dark mode](docs/screenshots/dashboard-widgets-dark-en.png)
+
+- Turn **12 widget types** on or off: portfolio KPIs, value history, allocation, positions, clock, market calendar, top/flop, household finance, currency exposure, net worth, dividends, daily net worth
+- Selection persists per user; disabled widgets are removed from the grid
+
+### Today (daily briefing)
+
+![Today — English, dark mode](docs/screenshots/today-dark-en.png)
+
+- **Portfolio** card: total value, total gain/loss, change since yesterday and since last visit
+- **Top / Flop**: best and worst performers in your portfolio
+- **Your calendar**: ex-dividend and other events for holdings you own
+- **Household finance** status and links into the household-cash module
+
+### Users & household
+
+![Users — English, dark mode](docs/screenshots/users-dark-en.png)
+
+- **Create user**: member of this household or **own household (tenant)** with isolated data
+- **Invitation link** (7 days) for self-registration
+- Edit **household name**; member table with roles, **2FA** status, join date
+- Owner/admin: change roles, edit credentials, remove members; provisioned tenant users manageable by owner/admin
+
+### Settings
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**Language**
+
+![Language — English, dark mode](docs/screenshots/settings-language-dark-en.png)
+
+- Per-user UI language: **English** or **Deutsch**
+- Applies across sidebar, forms, and dialogs
+
+</td>
+<td width="50%" valign="top">
+
+**Two-factor authentication**
+
+![2FA — English, dark mode](docs/screenshots/settings-2fa-dark-en.png)
+
+- TOTP (authenticator app) with QR setup in settings
+- Active/inactive badge; owners/admins can toggle 2FA for members under **Users**
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+**Backup**
+
+![Backup — English, dark mode](docs/screenshots/settings-backup-dark-en.png)
+
+- Export full household data as JSON (**Create backup**)
+- **Restore backup** replaces all current household data (owner/admin)
+- Includes dividends and household-cash simulations; excludes passwords and widget layouts
+
+</td>
+<td width="50%" valign="top">
+
+**App update**
+
+![App update — English, dark mode](docs/screenshots/settings-app-update-dark-en.png)
+
+- Shows installed version and deploy mode (`build` / `ghcr`)
+- **No update available** when you are on the latest release or `origin/main`
+- In-container update script with reliable `bash` / `PATH` handling
+
+</td>
+</tr>
+</table>
+
+**Release notes**
+
+![What's new — English, dark mode](docs/screenshots/release-notes-dark-en.png)
+
+- Popup after updates with highlights for the current version
+- Collapsible history; link to **All releases** on GitHub
+
+### Mobile
+
+Responsive layout for phones and tablets — hamburger menu, touch-friendly widget cards, single-column grid:
+
+| Dashboard (mobile) | Navigation (mobile, English) |
 |---|---|
-| ![Dashboard — mobile, dark mode](docs/screenshots/dashboard-mobile-dark.png) | ![Sidebar — mobile, dark mode](docs/screenshots/sidebar-mobile-dark.png) |
+| ![Dashboard — mobile, dark mode](docs/screenshots/dashboard-mobile-dark.png) | ![Sidebar — mobile, English, dark mode](docs/screenshots/sidebar-mobile-dark.png) |
 
-**Investments — value history** (dark): Historical portfolio value with time-range presets (1W through all-time) and Yahoo curves from first purchase date:
+- Same features as desktop; sidebar and chrome match the selected UI language
+
+### Investments & dividends
 
 ![Investments — value history, dark mode](docs/screenshots/investments-value-chart-dark.png)
 
-**Dividends — monthly chart** (dark): Manually recorded dividends and bank interest as a bar chart per month:
+- Historical portfolio value; presets from 1W through all-time; Yahoo curves from first purchase date
 
 ![Dividends — monthly chart, dark mode](docs/screenshots/dividends-monthly-chart-dark.png)
 
-**Settings — 2FA** (dark): TOTP two-factor authentication (QR setup in settings, admin toggle under Users):
+- Manually recorded dividends and bank interest; monthly bar chart and annual KPIs
 
-![Settings — 2FA enabled, dark mode](docs/screenshots/settings-2fa-dark.png)
+### Feature map (quick reference)
 
-| Area | Contents |
+| Area | Highlights |
 |---|---|
-| **Investments** | Portfolio tracking (stocks, ETFs, crypto), Yahoo Finance prices, VWAP, 4 chart types, historical curves, auto-refresh (2h) |
-| **TR import** | Trade Republic CSV (7-step wizard), selection step, conflict resolution, clear depot before re-import |
-| **Positions** | Merge duplicates (merge wizard), hide zero positions |
-| **Dividends** | Manual dividend entries on positions, annual KPIs, monthly chart |
-| **Household cash** | Fixed costs, monthly income, payout logic with quarterly bonus; **simulations** (what-if scenarios) |
-| **Dashboard** | Configurable widget grid (drag & drop, **12 widgets** including net-worth snapshot) |
-| **Today** | Daily briefing (`/heute`): portfolio, top/flop, calendar, household, dividends, month routine |
-| **Notifications** | Notification bell in the sidebar (prices, events, household, dividends) |
-| **Multi-user** | Households, roles, invites, tenant provisioning, 2FA (TOTP) |
-| **Security** | Username + password, JSON backup/restore (incl. dividends & simulations) |
-| **Language** | German / English (per user in settings) |
+| **Investments** | Portfolio (stocks, ETFs, crypto), Yahoo/CoinGecko prices, VWAP, 4 chart types, 2h auto-refresh |
+| **TR import** | Trade Republic CSV wizard, row selection, dedup/conflicts, optional depot clear before re-import |
+| **Positions** | Merge duplicates, hide zero positions, depot/account and owner |
+| **Dividends** | Manual entries on positions, annual KPIs, monthly chart |
+| **Household cash** | Fixed costs, monthly income, payouts, quarterly bonus; **simulations** (what-if) |
+| **Dashboard** | 12 widgets, drag & drop, widget manager, DB-backed layout |
+| **Today** | Daily briefing at `/heute` |
+| **Notifications** | Bell in the sidebar |
+| **Multi-user** | Households, roles, invites, tenants, 2FA |
+| **Security** | Username + password; JSON backup/restore |
+| **Language** | English / Deutsch per user |
 
-**Release:** [v0.1.0](CHANGELOG.md#010---2026-06-04) · No expenses/budget module (removed — did not fit the usage model).
+**Release:** [v0.1.3](CHANGELOG.md#013---2026-06-04) · No expenses/budget module (removed — did not fit the usage model).
 
 **Tech stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
 **Deployment:** Docker Compose (self-hosted on your server)  
@@ -78,7 +181,7 @@ Configurable dashboard with a widget grid — clock, top/flop movers, allocation
 ### Dashboard (`/dashboard`)
 
 - Configurable widget grid with drag & drop and resize
-- **11 widgets:** portfolio KPIs, value history, allocation, positions table, clock, market calendar (Nasdaq), top/flop, household overview, currency exposure, net worth, dividend KPIs
+- **12 widgets:** portfolio KPIs, value history, allocation, positions table, clock, market calendar (Nasdaq), top/flop, household overview, currency exposure, net worth, dividend KPIs, daily net worth
 - Layout saved per user in the DB (auto-save after drag/resize); widget manager to show/hide widgets
 - Auto-sort button packs widgets without gaps
 - Market calendar: primarily US tickers without suffix; without outbound HTTPS → `MARKET_CALENDAR_EXTERNAL=false` (see [Known limitations](#14-known-limitations))
@@ -681,7 +784,7 @@ docker compose restart app
 ```
 financer/
 ├── docs/
-│   └── screenshots/           # README preview (dashboard, mobile, charts, 2FA)
+│   └── screenshots/           # README preview (English UI: nav, dashboard, settings, users, …)
 ├── plan/                      # project docs, architecture, backlogs, deploy.md
 ├── scripts/
 │   ├── update.sh              # server update (build or ghcr)

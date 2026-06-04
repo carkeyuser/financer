@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-04 (Release v0.1.3)
+**Stand:** 2026-06-04 (Release v0.1.3; README-Preview auf Englisch mit Feature-Listen)
 
 ---
 
