@@ -10,14 +10,16 @@ export async function POST() {
     return NextResponse.json({ error: admin.error }, { status: admin.status })
   }
 
-  const blocked = tryAcquireUpdate()
+  const blocked = await tryAcquireUpdate()
   if (blocked) {
     const status =
       blocked.code === "not_available"
         ? 503
-        : blocked.code === "in_progress"
-          ? 409
-          : 429
+        : blocked.code === "no_update"
+          ? 400
+          : blocked.code === "in_progress"
+            ? 409
+            : 429
     return NextResponse.json({ error: blocked.message }, { status })
   }
 

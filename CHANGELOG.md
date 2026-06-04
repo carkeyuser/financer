@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **In-app update** — Compare installed version with latest GitHub release (and git behind `origin/main`); show “no update available” and disable update when already current
+
 ## [0.1.1] - 2026-06-04
 
 ### Added

@@ -22,7 +22,7 @@ describe("POST /api/admin/update", () => {
       householdId: "hh-1",
       membership: { role: "ADMIN" },
     })
-    tryAcquireUpdate.mockReturnValue(null)
+    tryAcquireUpdate.mockResolvedValue(null)
     runAppUpdate.mockImplementation(async (emit: (e: { type: string; message?: string; data?: unknown }) => void) => {
       emit({ type: "log", level: "info", message: "ok" })
       emit({ type: "complete", data: { ok: true } })
@@ -44,7 +44,7 @@ describe("POST /api/admin/update", () => {
   })
 
   it("returns 503 when update disabled", async () => {
-    tryAcquireUpdate.mockReturnValue({
+    tryAcquireUpdate.mockResolvedValue({
       code: "not_available",
       message: "In-App-Update ist nicht aktiviert",
     })
@@ -56,13 +56,23 @@ describe("POST /api/admin/update", () => {
   })
 
   it("returns 409 when update in progress", async () => {
-    tryAcquireUpdate.mockReturnValue({
+    tryAcquireUpdate.mockResolvedValue({
       code: "in_progress",
       message: "Ein Update läuft bereits",
     })
     const { POST } = await import("@/app/api/admin/update/route")
     const res = await POST()
     expect(res.status).toBe(409)
+  })
+
+  it("returns 400 when no update available", async () => {
+    tryAcquireUpdate.mockResolvedValue({
+      code: "no_update",
+      message: "Kein neues Update verfügbar",
+    })
+    const { POST } = await import("@/app/api/admin/update/route")
+    const res = await POST()
+    expect(res.status).toBe(400)
   })
 
   it("streams NDJSON on success", async () => {

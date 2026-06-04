@@ -8,5 +8,5 @@ export async function GET() {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status })
   }
 
-  return NextResponse.json(getVersionInfo())
+  return NextResponse.json(await getVersionInfo())
 }

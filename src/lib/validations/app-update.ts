@@ -28,6 +28,8 @@ export const versionInfoSchema = z.object({
   version: z.string(),
   updateEnabled: z.boolean(),
   deployMode: z.enum(["build", "ghcr"]).nullable(),
+  latestVersion: z.string().nullable(),
+  updateAvailable: z.boolean().nullable(),
 })
 
 export type VersionInfo = z.infer<typeof versionInfoSchema>

@@ -8,10 +8,12 @@ vi.mock("@/lib/household-auth", () => ({
 }))
 
 vi.mock("@/lib/services/app-update", () => ({
-  getVersionInfo: () => ({
+  getVersionInfo: async () => ({
     version: "0.1.0",
     updateEnabled: false,
     deployMode: null,
+    latestVersion: null,
+    updateAvailable: null,
   }),
 }))
 

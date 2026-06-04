@@ -155,6 +155,10 @@ export const enMessages = {
       "bash is missing in the app container — pull GHCR image v0.1.1+ and recreate the container.",
     scriptMissing:
       "Update script missing under /deploy (run git pull in the install directory).",
+    upToDate: "No update available — version {version} is current.",
+    updateAvailable: "New version {latest} available (installed: {version}).",
+    checkFailed: "Could not check for updates — you can still run update.",
+    noUpdateAvailable: "No update available",
   },
   backup: {
     title: "Backup",
