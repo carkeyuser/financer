@@ -16,7 +16,9 @@ COPY static ./.next/static
 COPY prisma ./prisma
 COPY prisma.config.ts ./prisma.config.ts
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x docker-entrypoint.sh \
+RUN test -f server.js && test -f .next/BUILD_ID \
+  && ! test -d src \
+  && chmod +x docker-entrypoint.sh \
   && npm install prisma@7.8.0 dotenv@17.4.2 --omit=dev --no-package-lock \
   && npm cache clean --force \
   && chown -R nextjs:nodejs /app
