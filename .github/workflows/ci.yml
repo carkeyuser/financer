@@ -58,16 +58,6 @@ jobs:
 
       - run: npm run build
 
-      - name: Pack Next build for artifact
-        run: tar -cf next-build.tar -C .next standalone static
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: next-build
-          path: next-build.tar
-          if-no-files-found: error
-          retention-days: 1
-
   docker:
     runs-on: ubuntu-latest
     needs: [quality, build]
@@ -77,23 +67,6 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: next-build
-
-      - name: Unpack Next build
-        run: mkdir -p .next && tar -xf next-build.tar -C .next
-
-      - name: Verify Next standalone output
-        run: |
-          test -f .next/standalone/server.js
-          test -f .next/standalone/.next/BUILD_ID
-          if [ -f .next/standalone/docker-compose.yml ] && [ ! -L .next/standalone/docker-compose.yml ]; then
-            echo "ERROR: standalone contains materialized repo files (symlink copy bug)"
-            ls -la .next/standalone | head -40
-            exit 1
-          fi
 
       - name: Read package version
         id: pkg
@@ -118,10 +91,11 @@ jobs:
             type=semver,pattern={{version}}
             type=sha,prefix=sha-
 
+      # Multi-stage Dockerfile (same as server build mode) — avoids packaging .next/standalone symlinks
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.ci
+          file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

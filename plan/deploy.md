@@ -125,7 +125,7 @@ bash /path/to/financer/scripts/deploy.sh
 
 ## Modus `ghcr`
 
-GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut. **Pipeline:** `quality` (lint/test) und `build` (`next build`) laufen **parallel**; der Docker-Job packt danach nur noch das Standalone-Artefakt (`Dockerfile.ci`) — kein zweiter `next build` im Container. **Ausnahme:** Commits, die nur Markdown/`plan/**`/`release-notes.ts` ändern, lösen keine CI aus (Tag `v*` immer).
+GHCR-Image wird bei jedem Push auf `main` (und bei Release-Tags) von CI gebaut. **Pipeline:** `quality` (lint/test) und `build` (`next build`) laufen **parallel**; der Docker-Job baut mit dem gleichen Multi-Stage-`Dockerfile` wie `FINANCER_DEPLOY_MODE=build` (kein fehleranfälliges Kopieren von `.next/standalone`). **Ausnahme:** Commits, die nur Markdown/`plan/**`/`release-notes.ts` ändern, lösen keine CI aus (Tag `v*` immer).
 
 **Erstinstallation:**
 
@@ -191,7 +191,7 @@ Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktivie
 
 **Sicherheit:** Docker-Socket-Zugriff entspricht praktisch Root-Rechten auf dem Host. Nur auf vertrauenswürdigen Self-hosted-Instanzen aktivieren.
 
-**Fehler `.next/BUILD_ID fehlt` (Restart-Loop, GHCR):** Das Image enthält kein gültiges Next-Standalone (oft zusätzlich `plan/`, `src/` unter `/app`). Ursache war `cp -r` beim CI-Artefakt (folgt Symlinks). Ab Fix auf `main`: CI nutzt `cp -a` + Build-Check. **Sofort:** `FINANCER_DEPLOY_MODE=build` und `bash scripts/update.sh`. **Nach neuem Image:** `docker compose pull` und `up -d --force-recreate`. Prüfen:
+**Fehler `.next/BUILD_ID fehlt` (Restart-Loop, GHCR):** Kaputtes GHCR-Image (oft `plan/`, `src/` unter `/app` oder nur `.next/static`). **Sofort:** `FINANCER_DEPLOY_MODE=build` und `bash scripts/update.sh`. **Nach neuem Image:** `bash scripts/update.sh` (GHCR) oder `compose pull` + `up -d --force-recreate`. Prüfen:
 
 ```bash
 docker run --rm --entrypoint sh ghcr.io/carkeyuser/financer:latest -c "test -f /app/.next/BUILD_ID && ! test -f /app/docker-compose.yml && echo OK"
