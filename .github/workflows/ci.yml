@@ -62,10 +62,17 @@ jobs:
         run: |
           mkdir -p docker-image-context/standalone docker-image-context/static
           cp -r public docker-image-context/public
-          cp -r .next/standalone/. docker-image-context/standalone/
-          cp -r .next/static/. docker-image-context/static/
+          # -a preserves symlinks; plain cp -r follows them and copies the whole repo into standalone/
+          cp -a .next/standalone/. docker-image-context/standalone/
+          cp -a .next/static/. docker-image-context/static/
           cp -r prisma docker-image-context/prisma
           cp prisma.config.ts docker-entrypoint.sh Dockerfile.ci package.json docker-image-context/
+          test -f docker-image-context/standalone/server.js
+          test -f docker-image-context/standalone/.next/BUILD_ID
+          if [ -d docker-image-context/standalone/src ]; then
+            echo "ERROR: standalone context contains src/ — symlink copy bug (expected cp -a)"
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:

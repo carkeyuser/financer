@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-05 (Code-Review-Fixes Retrowave + Dev-Seed; Release v0.1.5)
+**Stand:** 2026-06-05 (GHCR-Image: CI `cp -a` für Standalone; Release v0.1.5)
 
 ---
 
