@@ -4,12 +4,13 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recha
 import type { Asset } from "@/hooks/useAssets"
 import { getCurrentValue } from "@/lib/utils/calculations"
 import { useI18n } from "@/i18n/context"
+import { CHART_SERIES_COLORS } from "@/lib/utils/chart-colors"
 
 interface Props {
   assets: Asset[]
 }
 
-const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#f97316"]
+const COLORS = CHART_SERIES_COLORS
 
 export function CurrencyExposureWidget({ assets }: Props) {
   const { t, formatMoney, formatNumber } = useI18n()

@@ -21,6 +21,7 @@ import {
 } from "@/lib/utils/calculations"
 import { useI18n } from "@/i18n/context"
 import { assetTypeLabel, assetTypePluralLabel } from "@/i18n/messages"
+import { CHART_SERIES_COLORS } from "@/lib/utils/chart-colors"
 
 const LABEL_MIN_PERCENT = 0.1
 const OUTER_LABEL_MIN_PERCENT = 0.25
@@ -75,7 +76,7 @@ function renderCustomLabel(props: PieLabelRenderProps) {
       x={x}
       y={y}
       className="fill-background text-xs font-medium"
-      stroke="hsl(var(--foreground))"
+      stroke="var(--foreground)"
       strokeWidth={2}
       paintOrder="stroke"
       textAnchor="middle"
@@ -86,7 +87,7 @@ function renderCustomLabel(props: PieLabelRenderProps) {
   )
 }
 
-const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899"]
+const COLORS = CHART_SERIES_COLORS
 
 type PositionSlice = {
   name: string
@@ -146,9 +147,9 @@ function AllocationTooltip({
             <span
               className={
                 slice.gainLoss > 0
-                  ? "text-green-600 dark:text-green-400"
+                  ? "text-green-500"
                   : slice.gainLoss < 0
-                    ? "text-red-600 dark:text-red-400"
+                    ? "text-red-500"
                     : ""
               }
             >

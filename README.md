@@ -147,7 +147,7 @@ Responsive layout for phones and tablets — hamburger menu, touch-friendly widg
 | **Security** | Username + password; JSON backup/restore |
 | **Language** | English / Deutsch per user |
 
-**Release:** [v0.1.3](CHANGELOG.md#013---2026-06-04) · No expenses/budget module (removed — did not fit the usage model).
+**Release:** [v0.1.4](CHANGELOG.md#014---2026-06-04) · No expenses/budget module (removed — did not fit the usage model).
 
 **Tech stack:** Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts  
 **Deployment:** Docker Compose (self-hosted on your server)  

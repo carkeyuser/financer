@@ -3,13 +3,14 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant retrowave (&:is(.retrowave *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading-family);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,6 +50,9 @@
 }
 
 :root {
+  --font-heading-family: var(--font-sans);
+  --gain: oklch(0.627 0.194 149.214);
+  --loss: oklch(0.577 0.245 27.325);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -84,6 +88,8 @@
 }
 
 .dark {
+  --gain: oklch(0.696 0.17 162.48);
+  --loss: oklch(0.704 0.191 22.216);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -117,6 +123,44 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.retrowave {
+  --font-heading-family: var(--font-orbitron);
+  --gain: oklch(0.78 0.19 145);
+  --loss: oklch(0.68 0.24 25);
+  --background: oklch(0.12 0.04 300);
+  --foreground: oklch(0.94 0.02 300);
+  --card: oklch(0.16 0.05 300);
+  --card-foreground: oklch(0.94 0.02 300);
+  --popover: oklch(0.16 0.05 300);
+  --popover-foreground: oklch(0.94 0.02 300);
+  --primary: oklch(0.68 0.28 330);
+  --primary-foreground: oklch(0.98 0.01 300);
+  --secondary: oklch(0.22 0.06 300);
+  --secondary-foreground: oklch(0.92 0.02 300);
+  --muted: oklch(0.22 0.05 300);
+  --muted-foreground: oklch(0.72 0.04 300);
+  --accent: oklch(0.72 0.14 200);
+  --accent-foreground: oklch(0.14 0.04 300);
+  --destructive: oklch(0.68 0.24 25);
+  --border: oklch(0.68 0.28 330 / 28%);
+  --input: oklch(0.72 0.14 200 / 22%);
+  --ring: oklch(0.72 0.14 200);
+  --chart-1: oklch(0.68 0.28 330);
+  --chart-2: oklch(0.72 0.14 200);
+  --chart-3: oklch(0.84 0.16 95);
+  --chart-4: oklch(0.62 0.22 280);
+  --chart-5: oklch(0.78 0.19 145);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.14 0.045 300);
+  --sidebar-foreground: oklch(0.92 0.02 300);
+  --sidebar-primary: oklch(0.68 0.28 330);
+  --sidebar-primary-foreground: oklch(0.98 0.01 300);
+  --sidebar-accent: oklch(0.22 0.06 300);
+  --sidebar-accent-foreground: oklch(0.92 0.02 300);
+  --sidebar-border: oklch(0.72 0.14 200 / 25%);
+  --sidebar-ring: oklch(0.72 0.14 200);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -127,6 +171,42 @@
   html {
     @apply font-sans;
   }
+  .retrowave h1,
+  .retrowave h2,
+  .retrowave h3,
+  .retrowave [data-slot="card-title"] {
+    font-family: var(--font-heading-family), var(--font-sans), sans-serif;
+  }
+}
+
+.retrowave body {
+  position: relative;
+  isolation: isolate;
+}
+
+.retrowave body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 100%, oklch(0.68 0.28 330 / 12%), transparent 60%),
+    radial-gradient(ellipse 60% 35% at 50% 100%, oklch(0.72 0.14 200 / 10%), transparent 55%),
+    linear-gradient(to bottom, transparent 55%, oklch(0.72 0.14 200 / 6%) 100%),
+    repeating-linear-gradient(
+      to bottom,
+      oklch(0.72 0.14 200 / 0%) 0,
+      oklch(0.72 0.14 200 / 0%) 23px,
+      oklch(0.72 0.14 200 / 10%) 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      oklch(0.68 0.28 330 / 0%) 0,
+      oklch(0.68 0.28 330 / 0%) 47px,
+      oklch(0.68 0.28 330 / 8%) 48px
+    );
+  mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 85%);
 }
 
 /* Resize-Indikator für Dashboard-Widgets */

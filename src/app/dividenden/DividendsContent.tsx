@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { CHART_DIVIDEND } from "@/lib/utils/chart-colors"
 import { useI18n } from "@/i18n/context"
 import { isInterestAsset } from "@/lib/constants/interest-asset"
 import { monthName } from "@/i18n/messages"
@@ -82,7 +83,7 @@ function DividendMonthlyChart({ summary }: { summary: DividendSummary }) {
               <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} />
               <YAxis tickFormatter={(value) => formatMoney(Number(value)).replace(",00", "")} tickLine={false} axisLine={false} fontSize={12} width={70} />
               <ChartTooltip formatter={(value) => formatMoney(Number(value))} />
-              <Bar dataKey="amount" name={t("dividends.amount")} fill="#22c55e" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="amount" name={t("dividends.amount")} fill={CHART_DIVIDEND} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

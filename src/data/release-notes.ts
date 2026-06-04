@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.4",
+    date: "2026-06-04",
+    highlights: {
+      de: [
+        "Retrowave-Theme: drittes Erscheinungsbild (Neon/Synthwave) neben Hell und Dunkel",
+        "Einstellungen: Erscheinungsbild wählen; Sidebar-Toggle wechselt Hell → Dunkel → Retrowave",
+        "Charts nutzen Theme-Farben (--chart-*, --gain/--loss) statt fester Hex-Werte",
+      ],
+      en: [
+        "Retrowave theme: third appearance (neon/synthwave) alongside light and dark",
+        "Settings: pick appearance; sidebar toggle cycles light → dark → retrowave",
+        "Charts use theme colors (--chart-*, --gain/--loss) instead of hard-coded hex values",
+      ],
+    },
+  },
+  {
     version: "0.1.3",
     date: "2026-06-04",
     highlights: {

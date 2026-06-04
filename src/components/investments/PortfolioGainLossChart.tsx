@@ -20,6 +20,7 @@ import {
   getHistoryFillGranularity,
 } from "@/lib/constants/portfolio-chart-range"
 import { useI18n } from "@/i18n/context"
+import { CHART_PRIMARY, CHART_REFERENCE } from "@/lib/utils/chart-colors"
 
 interface Props {
   assets: Asset[]
@@ -70,12 +71,12 @@ export function PortfolioGainLossChart({ assets, range }: Props) {
           }}
           labelFormatter={(d) => format(new Date(d as string), "dd.MM.yyyy", { locale: dateFnsLocale })}
         />
-        <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="4 4" />
+        <ReferenceLine y={0} stroke={CHART_REFERENCE} strokeDasharray="4 4" />
         <Line
           type="monotone"
           dataKey="gainLoss"
           name={gainLossEurLabel}
-          stroke="#3b82f6"
+          stroke={CHART_PRIMARY}
           strokeWidth={2}
           dot={false}
         />
