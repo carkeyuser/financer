@@ -13,7 +13,10 @@ export const ndjsonProgressEventSchema = z.discriminatedUnion("type", [
 
 export type NdjsonProgressEvent = z.infer<typeof ndjsonProgressEventSchema>
 
-export function createNdjsonResponse<T extends NdjsonProgressEvent>(
+/** Any NDJSON line event; must include terminal `complete` or `error` for stream semantics. */
+export type NdjsonStreamEvent = { type: string } & Record<string, unknown>
+
+export function createNdjsonResponse<T extends NdjsonStreamEvent>(
   handler: (emit: (event: T) => void) => Promise<void>
 ): Promise<Response> {
   return new Promise((resolve) => {
@@ -33,7 +36,7 @@ export function createNdjsonResponse<T extends NdjsonProgressEvent>(
     const emit = (event: T) => {
       const line = encoder.encode(`${JSON.stringify(event)}\n`)
       if (!streamStarted) {
-        if (event.type === "error") {
+        if (event.type === "error" && typeof event.error === "string") {
           settle(Response.json({ error: event.error }, { status: 500 }))
           return
         }
@@ -68,7 +71,7 @@ export function createNdjsonResponse<T extends NdjsonProgressEvent>(
         if (!streamStarted) {
           settle(Response.json({ error: message }, { status: 500 }))
         } else {
-          emit({ type: "error", error: message } as T)
+          emit({ type: "error", error: message } as unknown as T)
         }
       } finally {
         streamRef.controller?.close()
