@@ -129,6 +129,27 @@ export const deMessages = {
     appVersion: "App-Version {version}",
     releaseNotes: "Release-Notes",
   },
+  update: {
+    title: "App-Update",
+    versionLine: "Installierte Version: {version}",
+    deployMode: "Deploy-Modus: {mode}",
+    button: "Update starten",
+    running: "Update läuft…",
+    restarting: "Server startet neu ({seconds}s)…",
+    restartHint:
+      "Die App ist kurz nicht erreichbar. Automatischer Reload in {seconds} Sekunden oder sobald der Server antwortet.",
+    warning:
+      "Lädt die neueste Version vom Server und startet Docker neu. Kurze Ausfallzeit möglich.",
+    disabledHint:
+      "In-App-Update ist auf diesem Server nicht aktiv. Aktualisierung per SSH: siehe plan/deploy.md.",
+    adminOnly: "Nur Haushalts-Admin oder Eigentümer können Updates starten.",
+    confirmTitle: "App aktualisieren?",
+    confirmDescription:
+      "Git pull und Docker-Neustart werden ausgeführt. Die Verbindung kann während des Updates abbrechen.",
+    failed: "Update fehlgeschlagen",
+    notAvailable: "In-App-Update ist nicht aktiviert",
+    inProgress: "Ein Update läuft bereits",
+  },
   backup: {
     title: "Datensicherung",
     description: "Exportiere alle Haushaltsdaten als JSON oder stelle ein Backup wieder her. Beim Import werden alle aktuellen Daten überschrieben.",

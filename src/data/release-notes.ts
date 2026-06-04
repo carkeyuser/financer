@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.1",
+    date: "2026-06-04",
+    highlights: {
+      de: [
+        "Einstellungen: In-App-Update für Admin/Eigentümer (opt-in per Docker-Overlay)",
+        "Update-Log im Browser, Neustart-Countdown und Health-Check",
+        "API- und Validierungsfehler in der gewählten Sprache (de/en)",
+      ],
+      en: [
+        "Settings: in-app update for admin/owner (opt-in via Docker overlay)",
+        "Update log in the browser, restart countdown, and health check",
+        "API and validation errors shown in the selected locale (de/en)",
+      ],
+    },
+  },
+  {
     version: "0.1.0",
     date: "2026-06-04",
     highlights: {

@@ -1,0 +1,14 @@
+# Optional overlay for in-app updates (F-46).
+# Usage: docker compose -f docker-compose.yml -f docker-compose.update.yml up -d
+# Requires: FINANCER_UPDATE_ENABLED=true, FINANCER_HOST_APP_DIR, FINANCER_DOCKER_GID in .env
+services:
+  app:
+    environment:
+      FINANCER_UPDATE_ENABLED: ${FINANCER_UPDATE_ENABLED:-false}
+      FINANCER_HOST_APP_DIR: ${FINANCER_HOST_APP_DIR:-/deploy}
+      FINANCER_DEPLOY_MODE: ${FINANCER_DEPLOY_MODE:-build}
+    group_add:
+      - "${FINANCER_DOCKER_GID:-999}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${FINANCER_HOST_APP_DIR}:/deploy:rw

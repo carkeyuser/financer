@@ -2,8 +2,8 @@
 
 Feature-Backlog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
-Aktuell offen: **F-34**, **F-46**.
-Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02).
+Aktuell offen: **F-34**.
+Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02). **F-46** In-App-Update (2026-06-04).
 Erledigte Features stehen im [`archive.md`](archive.md).
 
 ---
@@ -20,7 +20,7 @@ Erledigte Features stehen im [`archive.md`](archive.md).
 | F-43 | Haushaltskasse | Monatsroutine mit Partner-Status | ✅ erledigt 2026-06-01 |
 | F-44 | Dashboard | „Dein Kalender“ — nur Depot-relevante Termine | ✅ erledigt 2026-06-01 |
 | F-45 | App | Persönlicher Einkommen-Tab (`/einkommen`) — Brutto/Netto/Boni, HK-Sync, Jahresvergleich | ✅ erledigt 2026-06-02 |
-| F-46 | DevOps / Einstellungen | Admin: Version anzeigen, Update mit Status-Log + Neustart-Countdown | 🟨 offen |
+| F-46 | DevOps / Einstellungen | Admin: Version anzeigen, Update mit Status-Log + Neustart-Countdown | ✅ erledigt 2026-06-04 |
 
 **Priorisierung (Daily-Habit):** F-40 → F-41 → F-42 → F-43 → F-44
 
@@ -76,8 +76,8 @@ curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh
 | | |
 |---|---|
 | **Bereich** | DevOps / Einstellungen |
-| **Status** | 🟨 offen |
-| **Route** | `/settings` (nur Haushalts-**Admin**) |
+| **Status** | ✅ erledigt 2026-06-04 |
+| **Route** | `/settings` (OWNER + ADMIN) |
 | **Aufwand** | mittel–hoch |
 
 ### Ziel
@@ -104,11 +104,13 @@ Während des Updates: Buttons sperren, klare Meldung dass die App kurz nicht err
 
 ### Akzeptanzkriterien
 
-- [ ] Nicht-Admins sehen Version, aber keinen Update-Button
-- [ ] Admin sieht Version + Update; Status-Log füllt sich während des Laufs
-- [ ] Erfolg: ~10 s Countdown, danach App wieder erreichbar (Health-Check oder manueller Reload)
-- [ ] Fehler: Log-Eintrag + keine falsche Erfolgs-Countdown-Phase
-- [ ] i18n de/en; Vitest für Auth-Gate und Status-Aggregation (Mock Update-Prozess)
+- [x] Nicht-Admins sehen Version, aber keinen Update-Button
+- [x] OWNER/ADMIN sieht Version + Update; Status-Log füllt sich während des Laufs
+- [x] Erfolg: ~10 s Countdown, danach App wieder erreichbar (Health-Check oder manueller Reload)
+- [x] Fehler: Log-Eintrag + keine falsche Erfolgs-Countdown-Phase
+- [x] i18n de/en; Vitest für Auth-Gate und Status-Aggregation (Mock Update-Prozess)
+
+**Umsetzung:** `UpdateCard`, `GET /api/version`, `POST /api/admin/update`, [`docker-compose.update.yml`](../docker-compose.update.yml), [`plan/deploy.md`](deploy.md).
 
 ---
 
@@ -404,4 +406,4 @@ Marktkalender **nutzerzentriert**: nur Termine zu Tickern im Depot (+ optional W
 | F-42 | App | **Notification Bell:** Glocke, Badge, Inbox, `Notification`-Modell, Generator, API read/mark-all; kein Push MVP | 🟨 offen |
 | F-43 | Haushaltskasse | **Monatsroutine:** Checkliste + Partner-Status + Bell-Reminder — [Spec](feature-f43-household-month-routine.md) | 🟨 offen |
 | F-44 | Dashboard | **Dein Kalender:** nur Depot-Ticker; Countdown; Anbindung F-34 | 🟨 offen |
-| F-46 | DevOps / Einstellungen | **Admin-Update:** Version in Settings, Update-Button, Status-Log, ~10 s Neustart-Countdown — siehe oben | 🟨 offen |
+| F-46 | DevOps / Einstellungen | **Admin-Update:** Version in Settings, Update-Button, Status-Log, ~10 s Neustart-Countdown — siehe oben | ✅ erledigt 2026-06-04 |

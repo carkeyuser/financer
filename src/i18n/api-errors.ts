@@ -68,6 +68,8 @@ const API_MESSAGE_KEYS: Record<string, MessageKey> = {
   "Benachrichtigungen konnten nicht geladen werden": "errors.notificationsLoadFailed",
   "Snapshots konnten nicht geladen werden": "errors.snapshotsLoadFailed",
   "Briefing konnte nicht geladen werden": "errors.briefingLoadFailed",
+  "In-App-Update ist nicht aktiviert": "update.notAvailable",
+  "Ein Update läuft bereits": "update.inProgress",
   "Ungültiger Schritt": "errors.invalidChecklistStep",
   "year und month erforderlich": "errors.yearMonthRequired",
   NO_NET_SALARY: "errors.noNetSalary",

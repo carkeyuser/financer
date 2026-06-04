@@ -5,10 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-04
+
+### Added
+
+- **In-app update (F-46)** — Settings card for OWNER/ADMIN: version via `GET /api/version`, update stream via `POST /api/admin/update` (NDJSON logs from `scripts/update.sh`); opt-in `docker-compose.update.yml` with Docker socket + host repo mount; 10s restart countdown and health poll
+
 ### Changed
 
 - **i18n** — API/Zod errors map to `errors.*` / `validation.*` message keys; `translateApiError` unwraps nested flatten payloads; personal-income validation is locale-aware
 - **CI** — Doc-only pushes/PRs (`**.md`, `plan/**`, `release-notes.ts`, `LICENSE`) skip workflow; `v*` tag pushes always run
+
+### Fixed
+
+- **Personal income** — Zod 4–compatible validation messages for locale-aware forms
 
 ## [0.1.0] - 2026-06-04
 
@@ -131,6 +141,7 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.1.1]: https://github.com/carkeyuser/financer/releases/tag/v0.1.1
 [0.1.0]: https://github.com/carkeyuser/financer/releases/tag/v0.1.0
 [0.0.10]: https://github.com/carkeyuser/financer/releases/tag/v0.0.10
 [0.0.9]: https://github.com/carkeyuser/financer/releases/tag/v0.0.9

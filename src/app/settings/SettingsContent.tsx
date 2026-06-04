@@ -18,8 +18,8 @@ import {
 import { useHousehold } from "@/hooks/useHousehold"
 import { BackupCard } from "./BackupCard"
 import { LanguageCard } from "./LanguageCard"
+import { UpdateCard } from "./UpdateCard"
 import { UpdateNotesDialog } from "@/components/layout/UpdateNotesDialog"
-import { APP_VERSION } from "@/lib/constants/app-version"
 import { useI18n } from "@/i18n/context"
 import { translateApiError } from "@/i18n/api-errors"
 import { getMessages } from "@/i18n/messages"
@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 
 type TotpInput = { token: string }
@@ -441,10 +440,9 @@ export function SettingsContent() {
 
       <BackupCard />
 
-      <Separator />
+      <UpdateCard />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">{t("settings.appVersion", { version: APP_VERSION })}</p>
         <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => setReleaseNotesOpen(true)}>
           {t("settings.releaseNotes")}
         </Button>
