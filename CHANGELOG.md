@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **CI** — Parallel `quality` (lint/test) and `build` jobs; Docker assembles from pre-built Next.js standalone (`Dockerfile.ci`) instead of running `next build` again (~3–4 min faster on release runs)
+
 ## [0.1.4] - 2026-06-04
 
 ### Added
