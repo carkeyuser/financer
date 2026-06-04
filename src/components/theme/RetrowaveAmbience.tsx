@@ -48,6 +48,24 @@ function createStars(width: number, height: number): Star[] {
   }))
 }
 
+function scaleStars(stars: Star[], oldW: number, oldH: number, newW: number, newH: number) {
+  const sx = newW / oldW
+  const sy = newH / oldH
+  for (const star of stars) {
+    star.x *= sx
+    star.y *= sy
+  }
+}
+
+function scaleMeteors(meteors: Meteor[], oldW: number, oldH: number, newW: number, newH: number) {
+  const sx = newW / oldW
+  const sy = newH / oldH
+  for (const meteor of meteors) {
+    meteor.x *= sx
+    meteor.y *= sy
+  }
+}
+
 function spawnMeteor(width: number, height: number): Meteor {
   const hue = Math.random() > 0.45 ? "cyan" : "magenta"
   const x = randomBetween(width * 0.1, width * 0.95)
@@ -139,9 +157,12 @@ export function RetrowaveAmbience() {
 
     let width = 0
     let height = 0
+    let loopRunning = false
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const prevW = width
+      const prevH = height
       width = window.innerWidth
       height = window.innerHeight
       canvas.width = Math.floor(width * dpr)
@@ -149,8 +170,14 @@ export function RetrowaveAmbience() {
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      starsRef.current = createStars(width, height)
-      nextMeteorAtRef.current = performance.now() + randomBetween(2000, 5000)
+
+      if (starsRef.current.length === 0) {
+        starsRef.current = createStars(width, height)
+        nextMeteorAtRef.current = performance.now() + randomBetween(2000, 5000)
+      } else if (prevW > 0 && prevH > 0) {
+        scaleStars(starsRef.current, prevW, prevH, width, height)
+        scaleMeteors(meteorsRef.current, prevW, prevH, width, height)
+      }
     }
 
     resize()
@@ -158,10 +185,13 @@ export function RetrowaveAmbience() {
 
     const tick = (time: number) => {
       if (document.visibilityState === "hidden") {
-        rafRef.current = requestAnimationFrame(tick)
+        loopRunning = false
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = 0
         return
       }
 
+      loopRunning = true
       ctx.clearRect(0, 0, width, height)
       drawStars(ctx, starsRef.current, time, reducedMotion)
 
@@ -186,12 +216,23 @@ export function RetrowaveAmbience() {
       rafRef.current = requestAnimationFrame(tick)
     }
 
+    const resumeLoop = () => {
+      if (document.visibilityState === "visible" && !loopRunning) {
+        rafRef.current = requestAnimationFrame(tick)
+      }
+    }
+
+    document.addEventListener("visibilitychange", resumeLoop)
     rafRef.current = requestAnimationFrame(tick)
+    loopRunning = true
 
     return () => {
       window.removeEventListener("resize", resize)
+      document.removeEventListener("visibilitychange", resumeLoop)
       cancelAnimationFrame(rafRef.current)
+      loopRunning = false
       meteorsRef.current = []
+      starsRef.current = []
     }
   }, [active, reducedMotion])
 

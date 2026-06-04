@@ -41,6 +41,10 @@ npm run dev
 
 Manuell statt `setup:dev`: `cp .env.example .env.local` — `DATABASE_URL` muss `@localhost:5432` nutzen (nicht `@db`), dann `npm run db:up`, `npx prisma migrate deploy`, `npx prisma db seed`.
 
+Nach Seed/Setup: `npm run verify:demo` — prüft `demo`/`demo2` in der DB (Passwort `demo1234`, 2FA aus). `setup:dev` überschreibt eine gesetzte `NEXTAUTH_URL` in `.env.local` nicht (nur wenn leer/fehlend → `http://localhost:3001`).
+
+**Seed in Produktion:** erneutes `prisma db seed` setzt Demo-Passwörter und 2FA nur zurück, wenn `NODE_ENV !== production` oder `SEED_RESET_DEMO=true`. Fixkosten-Backfill läuft weiterhin.
+
 ### Port 3001 (Windows + WSL)
 
 `npm run dev` nutzt **Port 3001** (`http://localhost:3001`). Unter Windows blockiert oft **WSL** `localhost:3000` — dort läuft nicht Financer (Login: „Ungültige Anmeldedaten“ / Bad Request).
@@ -81,6 +85,7 @@ npm run test:watch                     # vitest watch
 npx prisma studio                      # DB-Daten im Browser
 npx prisma migrate deploy              # Migrationen anwenden
 npx prisma db seed                     # Demo-Daten
+npm run verify:demo                    # Demo-Login in DB prüfen
 npx prisma generate                    # Client nach Schema-Änderung
 ```
 

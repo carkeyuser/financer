@@ -16,6 +16,12 @@ const prisma = new PrismaClient({ adapter })
 
 const DEMO_USERNAMES = ["demo", "demo2"] as const
 
+function shouldResetDemoCredentials(): boolean {
+  return (
+    process.env.NODE_ENV !== "production" || process.env.SEED_RESET_DEMO === "true"
+  )
+}
+
 async function resetDemoCredentials(passwordHash: string) {
   for (const username of DEMO_USERNAMES) {
     const user = await prisma.user.findUnique({ where: { username } })
@@ -46,18 +52,24 @@ async function main() {
   const username1 = DEMO_USERNAMES[0]
   const username2 = DEMO_USERNAMES[1]
 
-  const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "demo1234"
-  if (!process.env.SEED_DEMO_PASSWORD) {
-    console.warn(
-      '⚠ SEED_DEMO_PASSWORD nicht gesetzt — Demo-Passwort ist "demo1234" (nur für lokale Entwicklung).'
-    )
-  }
-  const passwordHash = await bcrypt.hash(demoPassword, 12)
-
   const existingDemo = await prisma.user.findUnique({ where: { username: username1 } })
 
   if (existingDemo) {
-    await resetDemoCredentials(passwordHash)
+    if (shouldResetDemoCredentials()) {
+      const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "demo1234"
+      if (!process.env.SEED_DEMO_PASSWORD) {
+        console.warn(
+          '⚠ SEED_DEMO_PASSWORD nicht gesetzt — Demo-Passwort ist "demo1234" (nur für lokale Entwicklung).'
+        )
+      }
+      const passwordHash = await bcrypt.hash(demoPassword, 12)
+      await resetDemoCredentials(passwordHash)
+      console.log("Demo users already exist — passwords reset for local dev login.")
+    } else {
+      console.log(
+        "Demo users already exist — skipping password and 2FA reset (production). Set SEED_RESET_DEMO=true to force."
+      )
+    }
     const membership = await prisma.householdMember.findFirst({
       where: { userId: existingDemo.id },
       orderBy: { joinedAt: "asc" },
@@ -65,9 +77,16 @@ async function main() {
     if (membership) {
       await backfillFixedCosts(membership.householdId)
     }
-    console.log("Demo users already exist — passwords reset for local dev login.")
     return
   }
+
+  const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "demo1234"
+  if (!process.env.SEED_DEMO_PASSWORD) {
+    console.warn(
+      '⚠ SEED_DEMO_PASSWORD nicht gesetzt — Demo-Passwort ist "demo1234" (nur für lokale Entwicklung).'
+    )
+  }
+  const passwordHash = await bcrypt.hash(demoPassword, 12)
 
   const household = await prisma.household.create({ data: { name: "Demo Household" } })
 
