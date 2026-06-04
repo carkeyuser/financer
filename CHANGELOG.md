@@ -5,9 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-06-04
+
+### Added
+
+- **ESLint** — Next.js 16 flat config (`eslint.config.mjs`, `eslint` + `eslint-config-next`); `npm run lint` / `lint:fix`; CI runs lint before tests
+
+### Fixed
+
+- **In-app update** — `docker-compose.update.yml` sets `FINANCER_HOST_APP_DIR=/deploy` in the app container; host path in `.env` is only used for the volume mount (fixes “Update-Skript fehlt” when `.env` had `/opt/financer`)
+- **React / ESLint** — Dialogs and forms reset state via remount or derived state instead of `setState` in `useEffect` (dividends, Haushaltskasse, simulations, personal income, dashboard widget layout, release-notes popup, locale picker, TR import, security search debounce)
+
 ### Changed
 
-- **Deploy** — `scripts/update.sh` includes GHCR + update Compose overlays automatically; `plan/deploy.md` documents short pull workflow (`COMPOSE_FILE` or one `update.sh` command)
+- **Deploy** — `scripts/update.sh` includes GHCR + update Compose overlays automatically; `plan/deploy.md` documents short pull workflow and clarifies `FINANCER_HOST_APP_DIR` (host volume vs `/deploy` in container)
 
 ## [0.1.2] - 2026-06-04
 
@@ -156,6 +167,7 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.1.3]: https://github.com/carkeyuser/financer/releases/tag/v0.1.3
 [0.1.2]: https://github.com/carkeyuser/financer/releases/tag/v0.1.2
 [0.1.1]: https://github.com/carkeyuser/financer/releases/tag/v0.1.1
 [0.1.0]: https://github.com/carkeyuser/financer/releases/tag/v0.1.0

@@ -91,14 +91,12 @@ function DividendMonthlyChart({ summary }: { summary: DividendSummary }) {
   )
 }
 
-function PaymentDialog({
-  open,
+function PaymentDialogBody({
   onClose,
   year,
   assets,
   event,
 }: {
-  open: boolean
   onClose: () => void
   year: number
   assets: DividendAssetOption[]
@@ -107,29 +105,17 @@ function PaymentDialog({
   const { t, translateApiError } = useI18n()
   const createPayment = useCreateDividendPayment(year)
   const updatePayment = useUpdateDividendPayment(year)
-  const [assetId, setAssetId] = useState("")
-  const [date, setDate] = useState("")
-  const [amount, setAmount] = useState("")
-  const [grossAmount, setGrossAmount] = useState("")
-  const [taxAmount, setTaxAmount] = useState("")
-  const [amountPerShare, setAmountPerShare] = useState("")
-  const [quantity, setQuantity] = useState("")
-  const [note, setNote] = useState("")
+  const defaultAsset = assets.find((item) => !isInterestAsset(item)) ?? assets[0]
+  const initialAsset = event ? assets.find((item) => item.id === event.assetId) : defaultAsset
+  const [assetId, setAssetId] = useState(initialAsset?.id ?? "")
+  const [date, setDate] = useState(event?.date ?? "")
+  const [amount, setAmount] = useState(toInputNumber(event?.amount ?? 0))
+  const [grossAmount, setGrossAmount] = useState(toInputNumber(event?.grossAmount ?? 0))
+  const [taxAmount, setTaxAmount] = useState(toInputNumber(event?.taxAmount ?? 0))
+  const [amountPerShare, setAmountPerShare] = useState(toInputNumber(event?.amountPerShare ?? 0))
+  const [quantity, setQuantity] = useState(toInputNumber(event?.quantity ?? 0))
+  const [note, setNote] = useState(event?.note ?? "")
   const asset = assets.find((item) => item.id === assetId) ?? assets[0]
-
-  useEffect(() => {
-    if (!open) return
-    const defaultAsset = assets.find((item) => !isInterestAsset(item)) ?? assets[0]
-    const initialAsset = event ? assets.find((item) => item.id === event.assetId) : defaultAsset
-    setAssetId(initialAsset?.id ?? "")
-    setDate(event?.date ?? "")
-    setAmount(toInputNumber(event?.amount ?? 0))
-    setGrossAmount(toInputNumber(event?.grossAmount ?? 0))
-    setTaxAmount(toInputNumber(event?.taxAmount ?? 0))
-    setAmountPerShare(toInputNumber(event?.amountPerShare ?? 0))
-    setQuantity(toInputNumber(event?.quantity ?? 0))
-    setNote(event?.note ?? "")
-  }, [assets, event, open])
 
   if (!asset) return null
 
@@ -167,13 +153,12 @@ function PaymentDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{event ? t("dividends.editPayment") : t("dividends.addPayment")}</DialogTitle>
-          <DialogDescription>{t("dividends.paymentDialogDescription")}</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3">
+    <>
+      <DialogHeader>
+        <DialogTitle>{event ? t("dividends.editPayment") : t("dividends.addPayment")}</DialogTitle>
+        <DialogDescription>{t("dividends.paymentDialogDescription")}</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>{t("common.position")}</Label>
             <Select value={assetId} onValueChange={(value) => value && setAssetId(value)}>
@@ -229,12 +214,41 @@ function PaymentDialog({
             <Textarea value={note} onChange={(changeEvent) => setNote(changeEvent.target.value)} placeholder={t("dividends.notePlaceholder")} />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
-          <Button onClick={handleSubmit} disabled={isSaving || !assetId || parsedAmount <= 0}>
-            {isSaving ? t("common.saving") : t("common.save")}
-          </Button>
-        </DialogFooter>
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+        <Button onClick={handleSubmit} disabled={isSaving || !assetId || parsedAmount <= 0}>
+          {isSaving ? t("common.saving") : t("common.save")}
+        </Button>
+      </DialogFooter>
+    </>
+  )
+}
+
+function PaymentDialog({
+  open,
+  onClose,
+  year,
+  assets,
+  event,
+}: {
+  open: boolean
+  onClose: () => void
+  year: number
+  assets: DividendAssetOption[]
+  event: DividendEvent | null
+}) {
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        {open ? (
+          <PaymentDialogBody
+            key={event?.paymentId ?? "new"}
+            onClose={onClose}
+            year={year}
+            assets={assets}
+            event={event}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   )

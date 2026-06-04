@@ -72,7 +72,8 @@ Jede Hauptroute hat `layout.tsx` mit `<AuthGuard>`. Page-Komponenten dürfen `Au
 ```bash
 npm run dev                            # Dev-Server (localhost:3000)
 npm run build                          # Production-Build prüfen
-npm run lint                           # ESLint
+npm run lint                           # ESLint (flat config, Next.js 16)
+npm run lint:fix                       # ESLint mit --fix
 npm run test                           # Unit-Tests (vitest run)
 npm run test:watch                     # vitest watch
 

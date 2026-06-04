@@ -6,15 +6,12 @@ import { intlLocale } from "@/i18n/locales"
 
 export function ClockWidget() {
   const { locale } = useI18n()
-  const [time, setTime] = useState<Date | null>(null)
+  const [time, setTime] = useState(() => new Date())
 
   useEffect(() => {
-    setTime(new Date())
     const id = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(id)
   }, [])
-
-  if (!time) return null
 
   const intl = intlLocale(locale)
   const timeStr = time.toLocaleTimeString(intl, { hour: "2-digit", minute: "2-digit", second: "2-digit" })

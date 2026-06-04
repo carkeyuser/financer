@@ -22,11 +22,10 @@ export function useSecuritySearch(input: string) {
   const [debouncedQuery, setDebouncedQuery] = useState("")
 
   useEffect(() => {
-    if (input.length < 2) {
-      setDebouncedQuery("")
-      return
-    }
-    const timer = setTimeout(() => setDebouncedQuery(input), 300)
+    const delay = input.length >= 2 ? 300 : 0
+    const timer = setTimeout(() => {
+      setDebouncedQuery(input.length >= 2 ? input : "")
+    }, delay)
     return () => clearTimeout(timer)
   }, [input])
 

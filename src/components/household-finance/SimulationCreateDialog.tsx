@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,36 +22,35 @@ function parseMonthInput(value: string) {
   return { year, month }
 }
 
-export function SimulationCreateDialog({
-  open,
+function defaultFields(simulation?: HouseholdFinanceSimulationListItem) {
+  const current = new Date()
+  return {
+    name: simulation?.name ?? "",
+    start: simulation
+      ? toMonthInput(simulation.startYear, simulation.startMonth)
+      : toMonthInput(current.getFullYear(), current.getMonth() + 1),
+    end: simulation
+      ? toMonthInput(simulation.endYear, simulation.endMonth)
+      : toMonthInput(current.getFullYear(), 12),
+  }
+}
+
+function SimulationCreateDialogBody({
   onClose,
   simulation,
   onCreated,
 }: {
-  open: boolean
   onClose: () => void
   simulation?: HouseholdFinanceSimulationListItem
   onCreated?: (id: string) => void
 }) {
   const { t, translateApiError } = useI18n()
-  const current = new Date()
+  const initial = defaultFields(simulation)
   const createSimulation = useCreateHouseholdFinanceSimulation()
   const updateSimulation = useUpdateHouseholdFinanceSimulation()
-
-  const [name, setName] = useState("")
-  const [start, setStart] = useState(toMonthInput(current.getFullYear(), current.getMonth() + 1))
-  const [end, setEnd] = useState(toMonthInput(current.getFullYear(), 12))
-
-  useEffect(() => {
-    if (!open) return
-    setName(simulation?.name ?? "")
-    setStart(
-      simulation
-        ? toMonthInput(simulation.startYear, simulation.startMonth)
-        : toMonthInput(current.getFullYear(), current.getMonth() + 1)
-    )
-    setEnd(simulation ? toMonthInput(simulation.endYear, simulation.endMonth) : toMonthInput(current.getFullYear(), 12))
-  }, [open, simulation])
+  const [name, setName] = useState(initial.name)
+  const [start, setStart] = useState(initial.start)
+  const [end, setEnd] = useState(initial.end)
 
   async function handleSave() {
     const startMonth = parseMonthInput(start)
@@ -83,39 +82,64 @@ export function SimulationCreateDialog({
   const isPending = createSimulation.isPending || updateSimulation.isPending
 
   return (
-    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {simulation ? t("householdFinance.editSimulation") : t("householdFinance.newSimulation")}
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <DialogHeader>
+        <DialogTitle>
+          {simulation ? t("householdFinance.editSimulation") : t("householdFinance.newSimulation")}
+        </DialogTitle>
+      </DialogHeader>
 
-        <div className="space-y-4">
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <Label>{t("common.name")}</Label>
+          <Input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("householdFinance.simulationNamePlaceholder")} />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label>{t("common.name")}</Label>
-            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("householdFinance.simulationNamePlaceholder")} />
+            <Label>{t("householdFinance.startMonth")}</Label>
+            <Input type="month" value={start} onChange={(event) => setStart(event.target.value)} />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>{t("householdFinance.startMonth")}</Label>
-              <Input type="month" value={start} onChange={(event) => setStart(event.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("householdFinance.endMonth")}</Label>
-              <Input type="month" value={end} onChange={(event) => setEnd(event.target.value)} />
-            </div>
-          </div>
-          <p className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
-            {t("householdFinance.simulationSafeHint")}
-          </p>
-          <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
-            <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
-            <Button onClick={handleSave} disabled={isPending}>
-              {isPending ? t("common.saving") : t("common.save")}
-            </Button>
+          <div className="space-y-1.5">
+            <Label>{t("householdFinance.endMonth")}</Label>
+            <Input type="month" value={end} onChange={(event) => setEnd(event.target.value)} />
           </div>
         </div>
+        <p className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+          {t("householdFinance.simulationSafeHint")}
+        </p>
+        <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={handleSave} disabled={isPending}>
+            {isPending ? t("common.saving") : t("common.save")}
+          </Button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export function SimulationCreateDialog({
+  open,
+  onClose,
+  simulation,
+  onCreated,
+}: {
+  open: boolean
+  onClose: () => void
+  simulation?: HouseholdFinanceSimulationListItem
+  onCreated?: (id: string) => void
+}) {
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        {open ? (
+          <SimulationCreateDialogBody
+            key={simulation?.id ?? "new"}
+            onClose={onClose}
+            simulation={simulation}
+            onCreated={onCreated}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   )

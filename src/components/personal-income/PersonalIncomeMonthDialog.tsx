@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,33 +33,27 @@ function parseAmount(value: string): number | null {
   return Number.isNaN(n) ? null : n
 }
 
-export function PersonalIncomeMonthDialog({ open, onClose, year, month, row }: Props) {
+function PersonalIncomeMonthDialogBody({
+  onClose,
+  year,
+  month,
+  row,
+}: Omit<Props, "open">) {
   const { locale, t, formatMoney, translateApiError } = useI18n()
   const { mutateAsync: saveMonth, isPending: saving } = useSavePersonalIncomeMonth()
   const { mutateAsync: syncHousehold, isPending: syncing } = useSyncPersonalIncomeHousehold()
-  const { data: bonusesData, refetch: refetchBonuses } = usePersonalIncomeBonuses(year, month, open)
+  const { data: bonusesData, refetch: refetchBonuses } = usePersonalIncomeBonuses(year, month, true)
   const { mutateAsync: createBonus, isPending: creatingBonus } = useCreatePersonalIncomeBonus()
   const { mutateAsync: deleteBonus } = useDeletePersonalIncomeBonus()
 
-  const [gross, setGross] = useState("")
-  const [net, setNet] = useState("")
-  const [monthBonus, setMonthBonus] = useState("")
-  const [note, setNote] = useState("")
-  const [bonusDate, setBonusDate] = useState("")
+  const defaultBonusDate = `${year}-${String(month).padStart(2, "0")}-15`
+  const [gross, setGross] = useState(row?.grossSalary != null ? String(row.grossSalary) : "")
+  const [net, setNet] = useState(row?.netSalary != null ? String(row.netSalary) : "")
+  const [monthBonus, setMonthBonus] = useState(row?.monthBonus != null ? String(row.monthBonus) : "")
+  const [note, setNote] = useState(row?.note ?? "")
+  const [bonusDate, setBonusDate] = useState(defaultBonusDate)
   const [bonusLabel, setBonusLabel] = useState("")
   const [bonusAmount, setBonusAmount] = useState("")
-
-  useEffect(() => {
-    if (!open) return
-    setGross(row?.grossSalary != null ? String(row.grossSalary) : "")
-    setNet(row?.netSalary != null ? String(row.netSalary) : "")
-    setMonthBonus(row?.monthBonus != null ? String(row.monthBonus) : "")
-    setNote(row?.note ?? "")
-    const defaultDate = `${year}-${String(month).padStart(2, "0")}-15`
-    setBonusDate(defaultDate)
-    setBonusLabel("")
-    setBonusAmount("")
-  }, [open, row, year, month])
 
   async function handleSave() {
     try {
@@ -122,9 +116,8 @@ export function PersonalIncomeMonthDialog({ open, onClose, year, month, row }: P
     netParsed != null && hkAmount != null && Math.abs(netParsed - hkAmount) > 0.009
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+    <>
+      <DialogHeader>
           <DialogTitle>
             {monthName(locale, month)} {year}
           </DialogTitle>
@@ -253,6 +246,23 @@ export function PersonalIncomeMonthDialog({ open, onClose, year, month, row }: P
             </Button>
           </div>
         </div>
+    </>
+  )
+}
+
+export function PersonalIncomeMonthDialog({ open, onClose, year, month, row }: Props) {
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        {open ? (
+          <PersonalIncomeMonthDialogBody
+            key={`${year}-${month}`}
+            onClose={onClose}
+            year={year}
+            month={month}
+            row={row}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   )

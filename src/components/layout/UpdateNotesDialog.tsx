@@ -41,10 +41,6 @@ function ReleaseNotesBody({ notes }: { notes: ReleaseNotes[] }) {
     notes[0] ? new Set([notes[0].version]) : new Set(),
   )
 
-  useEffect(() => {
-    setExpanded(notes[0] ? new Set([notes[0].version]) : new Set())
-  }, [notes])
-
   function toggleVersion(version: string, open: boolean) {
     setExpanded((prev) => {
       const next = new Set(prev)
@@ -94,6 +90,27 @@ function ReleaseNotesBody({ notes }: { notes: ReleaseNotes[] }) {
   )
 }
 
+function evaluateAutoShow(): { notes: ReleaseNotes[]; open: boolean } {
+  const lastSeen = getLastSeenVersion()
+
+  if (!lastSeen) {
+    markVersionSeen(APP_VERSION)
+    return { notes: [], open: false }
+  }
+
+  if (compareVersions(lastSeen, APP_VERSION) >= 0) {
+    return { notes: [], open: false }
+  }
+
+  const unseen = getUnseenReleaseNotes(lastSeen, APP_VERSION)
+  if (unseen.length === 0) {
+    markVersionSeen(APP_VERSION)
+    return { notes: [], open: false }
+  }
+
+  return { notes: unseen, open: true }
+}
+
 export function UpdateNotesDialog({
   onDismiss,
   manualOpen = false,
@@ -104,42 +121,35 @@ export function UpdateNotesDialog({
   const [notes, setNotes] = useState<ReleaseNotes[]>([])
   const onDismissRef = useRef(onDismiss)
 
-  onDismissRef.current = onDismiss
+  useEffect(() => {
+    onDismissRef.current = onDismiss
+  })
 
   const isManual = onManualOpenChange !== undefined
+  const manualNotes = isManual && manualOpen ? getReleaseNotesUpTo(APP_VERSION) : []
+  const displayNotes = isManual ? manualNotes : notes
+  const dialogOpen = isManual ? manualOpen && manualNotes.length > 0 : open
 
   useEffect(() => {
     if (isManual) return
 
-    const lastSeen = getLastSeenVersion()
+    let cancelled = false
+    const id = requestAnimationFrame(() => {
+      if (cancelled) return
+      const result = evaluateAutoShow()
+      if (result.notes.length === 0) {
+        onDismissRef.current?.()
+        return
+      }
+      setNotes(result.notes)
+      setOpen(result.open)
+    })
 
-    if (!lastSeen) {
-      markVersionSeen(APP_VERSION)
-      onDismissRef.current?.()
-      return
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(id)
     }
-
-    if (compareVersions(lastSeen, APP_VERSION) >= 0) {
-      onDismissRef.current?.()
-      return
-    }
-
-    const unseen = getUnseenReleaseNotes(lastSeen, APP_VERSION)
-    if (unseen.length === 0) {
-      markVersionSeen(APP_VERSION)
-      onDismissRef.current?.()
-      return
-    }
-
-    setNotes(unseen)
-    setOpen(true)
   }, [isManual])
-
-  useEffect(() => {
-    if (!isManual || !manualOpen) return
-    setNotes(getReleaseNotesUpTo(APP_VERSION))
-    setOpen(true)
-  }, [isManual, manualOpen])
 
   function handleOpenChange(nextOpen: boolean) {
     if (isManual) {
@@ -155,13 +165,13 @@ export function UpdateNotesDialog({
     }
   }
 
-  if (!isManual && notes.length === 0 && !open) return null
+  if (!isManual && displayNotes.length === 0 && !open) return null
 
   const titleVersion =
-    notes.length === 1 ? notes[0]!.version : APP_VERSION
+    displayNotes.length === 1 ? displayNotes[0]!.version : APP_VERSION
 
   return (
-    <Dialog open={isManual ? manualOpen && open : open} onOpenChange={handleOpenChange}>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -171,7 +181,9 @@ export function UpdateNotesDialog({
           <DialogDescription>{t("updateNotes.description")}</DialogDescription>
         </DialogHeader>
 
-        {notes.length > 0 ? <ReleaseNotesBody notes={notes} /> : null}
+        {displayNotes.length > 0 ? (
+          <ReleaseNotesBody key={displayNotes[0]?.version ?? "notes"} notes={displayNotes} />
+        ) : null}
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Link

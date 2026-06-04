@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,45 +24,44 @@ function parseMoney(value: string) {
   return parseFloat(value.replace(",", ".")) || 0
 }
 
-export function SimulationMonthDialog({
-  open,
+function fieldsFromMonth(
+  simulation: HouseholdFinanceSimulationDetail,
+  source: SimulationMonth,
+) {
+  const incomes: Record<string, string> = {}
+  const payouts: Record<string, string> = {}
+  for (const member of simulation.members) {
+    incomes[member.id] = moneyString(source.incomes.find((entry) => entry.userId === member.id)?.amount ?? 0)
+    payouts[member.id] = moneyString(source.payouts.find((entry) => entry.userId === member.id)?.amount ?? 0)
+  }
+  return { fixedCosts: String(source.fixedCosts), incomes, payouts }
+}
+
+function SimulationMonthDialogBody({
   onClose,
   simulation,
   month,
 }: {
-  open: boolean
   onClose: () => void
   simulation: HouseholdFinanceSimulationDetail
   month: SimulationMonth
 }) {
   const { locale, t, formatMoney, translateApiError } = useI18n()
   const updateMonth = useUpdateHouseholdFinanceSimulationMonth(simulation.id)
-  const [fixedCosts, setFixedCosts] = useState("")
-  const [incomes, setIncomes] = useState<Record<string, string>>({})
-  const [payouts, setPayouts] = useState<Record<string, string>>({})
+  const initial = fieldsFromMonth(simulation, month)
+  const [fixedCosts, setFixedCosts] = useState(initial.fixedCosts)
+  const [incomes, setIncomes] = useState(initial.incomes)
+  const [payouts, setPayouts] = useState(initial.payouts)
   const [applyFixedCosts, setApplyFixedCosts] = useState(false)
   const [applyIncomes, setApplyIncomes] = useState(false)
   const [applyPayouts, setApplyPayouts] = useState(false)
 
   function fillFromMonth(source: SimulationMonth) {
-    const nextIncomes: Record<string, string> = {}
-    const nextPayouts: Record<string, string> = {}
-    for (const member of simulation.members) {
-      nextIncomes[member.id] = moneyString(source.incomes.find((entry) => entry.userId === member.id)?.amount ?? 0)
-      nextPayouts[member.id] = moneyString(source.payouts.find((entry) => entry.userId === member.id)?.amount ?? 0)
-    }
-    setFixedCosts(String(source.fixedCosts))
-    setIncomes(nextIncomes)
-    setPayouts(nextPayouts)
+    const next = fieldsFromMonth(simulation, source)
+    setFixedCosts(next.fixedCosts)
+    setIncomes(next.incomes)
+    setPayouts(next.payouts)
   }
-
-  useEffect(() => {
-    if (!open) return
-    fillFromMonth(month)
-    setApplyFixedCosts(false)
-    setApplyIncomes(false)
-    setApplyPayouts(false)
-  }, [open, month.year, month.month, simulation.id])
 
   const monthIndex = simulation.months.findIndex((item) => item.year === month.year && item.month === month.month)
   const previousMonth = monthIndex > 0 ? simulation.months[monthIndex - 1] : null
@@ -103,13 +102,12 @@ export function SimulationMonthDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{monthName(locale, month.month)} {month.year}</DialogTitle>
-        </DialogHeader>
+    <>
+      <DialogHeader>
+        <DialogTitle>{monthName(locale, month.month)} {month.year}</DialogTitle>
+      </DialogHeader>
 
-        <div className="space-y-5">
+      <div className="space-y-5">
           <div className="flex justify-end">
             <Button variant="outline" size="sm" onClick={() => previousMonth && fillFromMonth(previousMonth)} disabled={!previousMonth}>
               {t("householdFinance.copyPreviousMonth")}
@@ -199,6 +197,32 @@ export function SimulationMonthDialog({
             </Button>
           </div>
         </div>
+    </>
+  )
+}
+
+export function SimulationMonthDialog({
+  open,
+  onClose,
+  simulation,
+  month,
+}: {
+  open: boolean
+  onClose: () => void
+  simulation: HouseholdFinanceSimulationDetail
+  month: SimulationMonth
+}) {
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        {open ? (
+          <SimulationMonthDialogBody
+            key={`${simulation.id}-${month.year}-${month.month}`}
+            onClose={onClose}
+            simulation={simulation}
+            month={month}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   )

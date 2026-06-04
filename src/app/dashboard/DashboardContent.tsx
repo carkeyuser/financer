@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState, useEffect, useCallback } from "react"
+import { Suspense, useState, useCallback } from "react"
 import { Settings2, TrendingUp, TrendingDown, Minus, BarChart3, Wallet, GripVertical, AlignJustify, X, ArrowUp, ArrowDown } from "lucide-react"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -220,8 +220,9 @@ export function DashboardContent() {
   const { data: savedLayout, isLoading: widgetsLoading } = useWidgets()
   const saveWidgets = useSaveWidgets()
 
-  const [layout, setLayout] = useState<LayoutItem[]>(() => savedLayout ?? DEFAULT_LAYOUT)
-  const [layoutReady, setLayoutReady] = useState(() => !!savedLayout)
+  const [localLayout, setLocalLayout] = useState<LayoutItem[] | null>(null)
+  const layout = localLayout ?? savedLayout ?? DEFAULT_LAYOUT
+  const layoutReady = !widgetsLoading
   const [managerOpen, setManagerOpen] = useState(false)
   const {
     width: containerWidth,
@@ -229,17 +230,9 @@ export function DashboardContent() {
     mounted: widthReady,
   } = useContainerWidth({ measureBeforeMount: true, initialWidth: 1200 })
 
-  // Beide State-Updates im gleichen Batch: kein Flash von DEFAULT_LAYOUT
-  useEffect(() => {
-    if (savedLayout) {
-      setLayout(savedLayout)
-      setLayoutReady(true)
-    }
-  }, [savedLayout])
-
   // Nur State-Update — kein Speichern hier (feuert auch bei Prop-Änderungen)
   const handleLayoutChange = useCallback((newLayout: Layout) => {
-    setLayout([...newLayout] as LayoutItem[])
+    setLocalLayout([...newLayout] as LayoutItem[])
   }, [])
 
   // Speichern nur nach abgeschlossenem Drag oder Resize
@@ -253,7 +246,7 @@ export function DashboardContent() {
 
   const handleAutoSort = useCallback(() => {
     const sorted = autoSortLayout(layout)
-    setLayout(sorted)
+    setLocalLayout(sorted)
     saveWidgets.mutate(sorted)
   }, [layout, saveWidgets])
 
@@ -261,7 +254,7 @@ export function DashboardContent() {
     const exists = layout.some((l) => l.i === widgetId)
     if (exists) {
       const sorted = autoSortLayout(layout.filter((l) => l.i !== widgetId))
-      setLayout(sorted)
+      setLocalLayout(sorted)
       fetch("/api/dashboard/widgets", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -272,7 +265,7 @@ export function DashboardContent() {
       const reg = WIDGET_REGISTRY[widgetId]
       const maxY = layout.reduce((m, l) => Math.max(m, l.y + l.h), 0)
       const next = [...layout, { i: widgetId, x: 0, y: maxY, w: reg?.defaultW ?? 6, h: reg?.defaultH ?? 4 }]
-      setLayout(next)
+      setLocalLayout(next)
       saveWidgets.mutate(next)
     }
   }, [layout, saveWidgets])
@@ -295,7 +288,7 @@ export function DashboardContent() {
       return item
     })
 
-    setLayout(next)
+    setLocalLayout(next)
     saveWidgets.mutate(next)
   }, [layout, saveWidgets])
 
