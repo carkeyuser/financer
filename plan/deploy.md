@@ -194,7 +194,7 @@ Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktivie
 **Fehler `.next/BUILD_ID fehlt` (Restart-Loop, GHCR):** Das Image enthält kein gültiges Next-Standalone (oft zusätzlich `plan/`, `src/` unter `/app`). Ursache war `cp -r` beim CI-Artefakt (folgt Symlinks). Ab Fix auf `main`: CI nutzt `cp -a` + Build-Check. **Sofort:** `FINANCER_DEPLOY_MODE=build` und `bash scripts/update.sh`. **Nach neuem Image:** `docker compose pull` und `up -d --force-recreate`. Prüfen:
 
 ```bash
-docker run --rm --entrypoint sh ghcr.io/carkeyuser/financer:latest -c "test -f /app/.next/BUILD_ID && ! test -f /app/CHANGELOG.md && echo OK"
+docker run --rm --entrypoint sh ghcr.io/carkeyuser/financer:latest -c "test -f /app/.next/BUILD_ID && ! test -f /app/docker-compose.yml && echo OK"
 ```
 
 **Fehler `Could not find a production build in the ./.next directory` (Restart-Loop):** Der Container nutzt oft **nicht** das GHCR-Standalone-Image, sondern ein altes lokales `finance-app:latest` ohne Build. Prüfen: `docker inspect finance_app --format '{{.Config.Image}}'` → sollte `ghcr.io/carkeyuser/financer:…` sein. Fix:
