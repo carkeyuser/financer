@@ -672,9 +672,7 @@ docker compose restart app
 | **Market calendar** | Nasdaq: mainly US symbols without suffix (`.DE`, crypto, FX ignored). Without access: `MARKET_CALENDAR_EXTERNAL=false` |
 | **EUR history** | Historical charts use current EUR rate as approximation |
 | **Widget layouts** | Not included in JSON backup |
-| **Lint (dev)** | `npm run lint` (`next lint`) broken on Next.js 16 for now — see backlog Ä-10 in `plan/aenderungen.md` |
-
-**Open backlog** (details in `plan/features.md`): one-click install (F-31), DE/ETF market calendar (F-34).
+**Open backlog** (details in `plan/features.md`): DE/ETF market calendar (F-34).
 
 ---
 

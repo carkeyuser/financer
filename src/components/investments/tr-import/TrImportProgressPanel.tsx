@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useEffect, useState } from "react"
 import { Progress, ProgressLabel } from "@/components/ui/progress"
 import {
   computeWeightedProgress,
@@ -16,21 +16,33 @@ export interface ImportProgressState {
 }
 
 export function useImportEta(progress: ImportProgressState | null, locale: "de" | "en") {
-  const startRef = useRef<number | null>(null)
+  const [startAt, setStartAt] = useState<number | null>(null)
+  const [now, setNow] = useState(() => Date.now())
 
-  if (progress) {
-    if (startRef.current === null) startRef.current = Date.now()
-  } else {
-    startRef.current = null
-  }
+  useEffect(() => {
+    if (!progress) {
+      const clearId = window.setTimeout(() => setStartAt(null), 0)
+      return () => window.clearTimeout(clearId)
+    }
+    const startId = window.setTimeout(() => {
+      setStartAt((prev) => prev ?? Date.now())
+    }, 0)
+    return () => window.clearTimeout(startId)
+  }, [progress])
 
-  if (!progress || startRef.current === null) {
+  useEffect(() => {
+    if (!progress) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [progress])
+
+  if (!progress || startAt === null) {
     return { percent: null as number | null, eta: null as string | null }
   }
 
   const weighted = computeWeightedProgress(progress.phase, progress.current, progress.total)
   const percent = Math.round(weighted * 100)
-  const elapsed = Date.now() - startRef.current
+  const elapsed = now - startAt
   const remaining = estimateRemainingSeconds(weighted, elapsed)
   const eta = formatImportEta(remaining, locale)
 

@@ -66,6 +66,9 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 | Ä-08 | Haushaltskasse | **Monatliche Fixkosten einklappbar machen:** Die monatlichen Fixkosten in der Haushaltskassen-Ansicht sind ein- und ausklappbar, damit die Jahrestabelle kompakter bleibt. | ✅ erledigt 2026-05-25 |
 | Ä-11 | Dokumentation | **Teststand konsolidiert:** Plan-Doku vereinheitlicht auf **97 Unit-Tests** (8 Dateien); `plan/setup.md` enthält vollständige Test-Matrix. | ✅ erledigt 2026-05-27 |
 | Ä-11 | UI / Sidebar | **Changelog-Button in der Sidebar:** Button über Abmelden in Sidebar und Mobile-Menü; öffnet `UpdateNotesDialog` mit kuratierten Release-Notes aus `release-notes.ts`. | ✅ erledigt 2026-05-31 |
+| Ä-10 | DevOps | **Lint für Next.js 16:** Migration `next lint` → ESLint 9 flat config (`eslint.config.mjs`, `eslint-config-next@16.2.6`); Ignore `src/generated/**`; Dialog-/Hook-Anpassungen für React-Hooks-Regeln; CI `npm run lint` vor Tests | ✅ erledigt 2026-06-04 |
+| Ä-12 | Investments | **TR-Import — Dividenden in der Vorschau** | ✅ erledigt 2026-06-03 |
+| Ä-13 | Investments | **TR-Import — Zeitraum per Häkchen** | ✅ erledigt 2026-06-03 |
 
 | Ä-09 | Dividenden | **Dividendenbereich komplett manuell neu gebaut:** `/dividenden` ist jetzt eine einfache manuelle Buchungsliste mit Position + Gesamtsumme in EUR als Pflichtfelder. Datum, Brutto, Steuer, Dividende/Aktie, Menge und Notiz sind optional; fehlendes Datum wird als heute gespeichert. Yahoo-Dividendenservice, Ex-Date-Schätzung, Forward-12M, Forecast und Rechner wurden entfernt. Nacharbeit: `push.ps1` bereinigt `/opt/financer` vor dem Kopieren, damit entfernte Dateien nicht auf dem Server liegen bleiben. Verifiziert mit `npm run test` (80 grün) und `npm run build` (grün). | ✅ erledigt 2026-05-26 |
 

@@ -5,7 +5,8 @@ services:
   app:
     environment:
       FINANCER_UPDATE_ENABLED: ${FINANCER_UPDATE_ENABLED:-false}
-      FINANCER_HOST_APP_DIR: ${FINANCER_HOST_APP_DIR:-/deploy}
+      # Host clone is mounted at /deploy — app must use container path, not FINANCER_HOST_APP_DIR from .env
+      FINANCER_HOST_APP_DIR: /deploy
       FINANCER_DEPLOY_MODE: ${FINANCER_DEPLOY_MODE:-build}
       # Standalone Node has a minimal PATH — required for spawn(bash)
       PATH: /bin:/usr/bin:/sbin:/usr/local/bin:/usr/sbin

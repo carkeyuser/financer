@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useSession } from "next-auth/react"
@@ -44,7 +44,7 @@ function TwoFactorCard() {
   const [step, setStep] = useState<"idle" | "setup" | "confirm" | "disable-confirm">("idle")
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null)
   const [secret, setSecret] = useState<string | null>(null)
-  const [setupStarted, setSetupStarted] = useState(false)
+  const setupTriggeredRef = useRef(false)
 
   const { data: tfaStatus, isLoading } = useQuery({
     queryKey: ["2fa-status"],
@@ -68,12 +68,14 @@ function TwoFactorCard() {
   }, [t])
 
   useEffect(() => {
-    if (!forceSetup || isLoading || setupStarted || step !== "idle") return
+    if (!forceSetup || isLoading || setupTriggeredRef.current || step !== "idle") return
     if (tfaStatus?.enabled && !tfaStatus.configured) {
-      setSetupStarted(true)
-      void handleSetup()
+      setupTriggeredRef.current = true
+      queueMicrotask(() => {
+        void handleSetup()
+      })
     }
-  }, [forceSetup, handleSetup, isLoading, setupStarted, step, tfaStatus?.configured, tfaStatus?.enabled])
+  }, [forceSetup, handleSetup, isLoading, step, tfaStatus?.configured, tfaStatus?.enabled])
 
   async function handleConfirm(data: TotpInput) {
     const res = await fetch("/api/user/2fa", {

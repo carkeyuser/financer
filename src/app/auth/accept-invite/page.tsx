@@ -15,7 +15,7 @@ function AcceptInviteInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
-  const { data: session, status, update } = useSession()
+  const { status, update } = useSession()
   const { locale, t } = useI18n()
   const [inviteInfo, setInviteInfo] = useState<{
     householdName: string
@@ -25,10 +25,7 @@ function AcceptInviteInner() {
   const [accepting, setAccepting] = useState(false)
 
   useEffect(() => {
-    if (!token) {
-      setError(t("auth.acceptInviteNoToken"))
-      return
-    }
+    if (!token) return
     fetch(`/api/household/accept-invite?token=${encodeURIComponent(token)}`)
       .then(async (res) => {
         if (!res.ok) {

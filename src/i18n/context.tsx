@@ -28,21 +28,16 @@ const I18nContext = createContext<I18nContextValue | null>(null)
 export function I18nProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession()
   const sessionLocale = session?.user?.locale
-  const [locale, setLocaleState] = useState<Locale>(
-    sessionLocale && isLocale(sessionLocale) ? sessionLocale : DEFAULT_LOCALE
-  )
-
-  useEffect(() => {
-    if (sessionLocale && isLocale(sessionLocale)) {
-      setLocaleState(sessionLocale)
-    }
-  }, [sessionLocale])
+  const [manualLocale, setManualLocale] = useState<Locale | null>(null)
+  const locale: Locale =
+    manualLocale ??
+    (sessionLocale && isLocale(sessionLocale) ? sessionLocale : DEFAULT_LOCALE)
 
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
 
-  const setLocale = (next: Locale) => setLocaleState(next)
+  const setLocale = (next: Locale) => setManualLocale(next)
 
   const value = useMemo<I18nContextValue>(() => {
     const t = createTranslator(locale)

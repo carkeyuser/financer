@@ -8,6 +8,24 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.3",
+    date: "2026-06-04",
+    highlights: {
+      de: [
+        "Fix: In-App-Update findet scripts/update.sh wieder (Container-Pfad /deploy)",
+        "ESLint im Projekt: npm run lint, CI prüft Lint vor Tests",
+        "Stabilere Dialoge/Formulare (Dividenden, Haushaltskasse, Simulationen, Dashboard-Layout)",
+        "Deploy-Doku: FINANCER_HOST_APP_DIR = Host-Pfad, App nutzt /deploy im Container",
+      ],
+      en: [
+        "Fix: in-app update finds scripts/update.sh again (container path /deploy)",
+        "ESLint in the project: npm run lint; CI runs lint before tests",
+        "More stable dialogs/forms (dividends, household finance, simulations, dashboard layout)",
+        "Deploy docs: FINANCER_HOST_APP_DIR is the host path; app uses /deploy in the container",
+      ],
+    },
+  },
+  {
     version: "0.1.2",
     date: "2026-06-04",
     highlights: {

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import { readNdjsonStream, type TrImportProgressEvent } from "@/lib/services/tr-import-progress"
 import { trImportApplyResultSchema, trImportPreviewCompleteSchema, type TrImportPreviewComplete } from "@/lib/validations/tr-import"
 import type { TrImportResolution, TrTickerOverride } from "@/lib/services/tr-import-types"
@@ -17,7 +17,9 @@ type ProgressHandler = (event: Extract<TrImportProgressEvent, { type: "progress"
 
 export function useTradeRepublicPreview(onProgress?: ProgressHandler) {
   const onProgressRef = useRef(onProgress)
-  onProgressRef.current = onProgress
+  useEffect(() => {
+    onProgressRef.current = onProgress
+  })
 
   return useMutation({
     mutationFn: async (input: { file: File; account: string; targetUserId?: string }) => {
@@ -41,7 +43,9 @@ export function useTradeRepublicPreview(onProgress?: ProgressHandler) {
 
 export function useTradeRepublicApply(onProgress?: ProgressHandler) {
   const onProgressRef = useRef(onProgress)
-  onProgressRef.current = onProgress
+  useEffect(() => {
+    onProgressRef.current = onProgress
+  })
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: {

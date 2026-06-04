@@ -207,12 +207,6 @@ export function TradeRepublicImportWizard({ open, onOpenChange, onOpenMerge }: T
   }, [previewMutation, applyMutation, deleteAccount, portfolioAssets?.length])
 
   useEffect(() => {
-    if (open && (portfolioAssets?.length ?? 0) >= 2) {
-      setCheckDuplicatesAfter(true)
-    }
-  }, [open, portfolioAssets?.length])
-
-  useEffect(() => {
     if (!open) return
     dialogContentRef.current?.scrollTo({ top: 0 })
     stepListRef.current?.scrollTo({ top: 0 })

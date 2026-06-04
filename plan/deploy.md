@@ -179,6 +179,7 @@ Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktivie
    FINANCER_HOST_APP_DIR=/opt/financer
    FINANCER_DOCKER_GID=999
    ```
+   `FINANCER_HOST_APP_DIR` = **Host-Pfad** für das Volume (`…:/deploy` im Container). Die App nutzt intern immer `/deploy`.
    `FINANCER_DOCKER_GID` = GID der Docker-Gruppe auf dem Host (`getent group docker`).
 2. Stack starten — am einfachsten nach Änderung an `.env`:
    ```bash

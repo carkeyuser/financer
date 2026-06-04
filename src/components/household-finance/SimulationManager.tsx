@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo, useState } from "react"
 import { Calculator, Pencil, Plus, Trash2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,22 +18,19 @@ import { SimulationTable } from "./SimulationTable"
 export function SimulationManager() {
   const { t, formatMonthYear, translateApiError } = useI18n()
   const { data: simulations, isLoading } = useHouseholdFinanceSimulations()
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [pickedId, setPickedId] = useState<string | null>(null)
+  const selectedId = useMemo(() => {
+    if (!simulations?.length) return null
+    if (pickedId && simulations.some((simulation) => simulation.id === pickedId)) {
+      return pickedId
+    }
+    return simulations[0].id
+  }, [simulations, pickedId])
   const [createOpen, setCreateOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const deleteSimulation = useDeleteHouseholdFinanceSimulation()
   const selectedSimulation = simulations?.find((simulation) => simulation.id === selectedId)
   const { data: detail, isLoading: detailLoading } = useHouseholdFinanceSimulation(selectedId)
-
-  useEffect(() => {
-    if (!simulations || simulations.length === 0) {
-      setSelectedId(null)
-      return
-    }
-    if (!selectedId || !simulations.some((simulation) => simulation.id === selectedId)) {
-      setSelectedId(simulations[0].id)
-    }
-  }, [simulations, selectedId])
 
   async function handleDelete() {
     if (!selectedId || !selectedSimulation) return
@@ -42,7 +39,7 @@ export function SimulationManager() {
     try {
       await deleteSimulation.mutateAsync(selectedId)
       toast.success(t("householdFinance.simulationDeleted"))
-      setSelectedId(null)
+      setPickedId(null)
     } catch (error) {
       toast.error(translateApiError(error))
     }
@@ -87,7 +84,7 @@ export function SimulationManager() {
         ) : (
           <>
             <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-              <Select value={selectedId ?? ""} onValueChange={setSelectedId}>
+              <Select value={selectedId ?? ""} onValueChange={setPickedId}>
                 <SelectTrigger className="w-full lg:max-w-md">
                   <SelectValue />
                 </SelectTrigger>
@@ -127,14 +124,14 @@ export function SimulationManager() {
       <SimulationCreateDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        onCreated={setSelectedId}
+        onCreated={setPickedId}
       />
       {selectedSimulation && (
         <SimulationCreateDialog
           open={editOpen}
           onClose={() => setEditOpen(false)}
           simulation={selectedSimulation}
-          onCreated={setSelectedId}
+          onCreated={setPickedId}
         />
       )}
     </Card>

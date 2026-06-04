@@ -17,7 +17,8 @@ Personal finance dashboard for a small family/team. Self-hosted via Docker on yo
 ```bash
 npm run dev           # development server (localhost:3000)
 npm run build         # production build
-npm run lint          # ESLint
+npm run lint          # ESLint (flat config)
+npm run lint:fix      # ESLint --fix
 
 npx prisma generate                    # regenerate client after schema changes
 npx prisma migrate dev --name <name>   # create and apply a migration
