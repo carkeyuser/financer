@@ -6,8 +6,8 @@ APP_DIR="${APP_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$APP_DIR"
 
 echo "→ Fetch origin/main …"
-git fetch origin main
-git reset --hard origin/main
+git -c safe.directory="$APP_DIR" fetch origin main
+git -c safe.directory="$APP_DIR" reset --hard origin/main
 
 echo "→ Build & start …"
 FINANCER_DEPLOY_MODE=build bash "$APP_DIR/scripts/update.sh"

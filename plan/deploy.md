@@ -191,6 +191,14 @@ Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktivie
 
 **Sicherheit:** Docker-Socket-Zugriff entspricht praktisch Root-Rechten auf dem Host. Nur auf vertrauenswürdigen Self-hosted-Instanzen aktivieren.
 
+**Fehler `dubious ownership` / Exit-Code 128:** Git im App-Container lehnt `/deploy` ab, wenn der Clone auf dem Host einem anderen User gehört (z. B. `root`). Ab `scripts/update.sh` mit `safe.directory` (siehe `main`) — bis `git pull` auf dem Host nachgezogen ist, einmal per SSH im Installationsverzeichnis:
+
+```bash
+cd /opt/financer   # dein FINANCER_HOST_APP_DIR
+git pull --ff-only
+bash scripts/update.sh
+```
+
 ---
 
 ## Pfad & SSH
