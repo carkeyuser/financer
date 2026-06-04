@@ -7,19 +7,19 @@ export const PERSONAL_INCOME_MAX_YEARS_SPAN = 30
 function yearField(locale: Locale) {
   const t = createTranslator(locale)
   return z
-    .number({ invalid_type_error: t("validation.yearInvalid") })
-    .int({ message: t("validation.yearInvalid") })
-    .min(2000, { message: t("validation.yearMin") })
-    .max(2100, { message: t("validation.yearMax") })
+    .number({ error: t("validation.yearInvalid") })
+    .int(t("validation.yearInvalid"))
+    .min(2000, t("validation.yearMin"))
+    .max(2100, t("validation.yearMax"))
 }
 
 function monthField(locale: Locale) {
   const t = createTranslator(locale)
   return z
-    .number({ invalid_type_error: t("validation.monthInvalid") })
-    .int({ message: t("validation.monthInvalid") })
-    .min(1, { message: t("validation.monthInvalid") })
-    .max(12, { message: t("validation.monthInvalid") })
+    .number({ error: t("validation.monthInvalid") })
+    .int(t("validation.monthInvalid"))
+    .min(1, t("validation.monthInvalid"))
+    .max(12, t("validation.monthInvalid"))
 }
 
 const optionalAmount = z
@@ -43,9 +43,9 @@ export function createPersonalIncomeMonthUpsertSchema(locale: Locale) {
 export function createPersonalIncomeBonusCreateSchema(locale: Locale) {
   const t = createTranslator(locale)
   return z.object({
-    date: z.string().min(1, { message: t("validation.dateRequired") }),
-    amount: z.number().positive({ message: t("validation.amountPositive") }),
-    label: z.string().min(1, { message: t("validation.labelRequired") }).max(200),
+    date: z.string().min(1, t("validation.dateRequired")),
+    amount: z.number().positive(t("validation.amountPositive")),
+    label: z.string().min(1, t("validation.labelRequired")).max(200),
     note: z.string().max(2000).nullable().optional(),
   })
 }
@@ -100,12 +100,13 @@ export function createPersonalIncomeYearsListQuerySchema(locale: Locale) {
       .pipe(
         z
           .array(yearField(locale))
-          .min(1, { message: t("validation.personalIncomeYearsRequired") })
-          .max(PERSONAL_INCOME_MAX_YEARS_SPAN, {
-            message: t("validation.personalIncomeYearsSpanTooLarge", {
+          .min(1, t("validation.personalIncomeYearsRequired"))
+          .max(
+            PERSONAL_INCOME_MAX_YEARS_SPAN,
+            t("validation.personalIncomeYearsSpanTooLarge", {
               max: PERSONAL_INCOME_MAX_YEARS_SPAN,
-            }),
-          })
+            })
+          )
       ),
   })
 }
