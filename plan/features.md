@@ -2,7 +2,7 @@
 
 Feature-Backlog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
-Aktuell offen: **F-34**.
+Aktuell offen: **F-34**, **F-46**.
 Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02).
 Erledigte Features stehen im [`archive.md`](archive.md).
 
@@ -20,6 +20,7 @@ Erledigte Features stehen im [`archive.md`](archive.md).
 | F-43 | Haushaltskasse | Monatsroutine mit Partner-Status | ✅ erledigt 2026-06-01 |
 | F-44 | Dashboard | „Dein Kalender“ — nur Depot-relevante Termine | ✅ erledigt 2026-06-01 |
 | F-45 | App | Persönlicher Einkommen-Tab (`/einkommen`) — Brutto/Netto/Boni, HK-Sync, Jahresvergleich | ✅ erledigt 2026-06-02 |
+| F-46 | DevOps / Einstellungen | Admin: Version anzeigen, Update mit Status-Log + Neustart-Countdown | 🟨 offen |
 
 **Priorisierung (Daily-Habit):** F-40 → F-41 → F-42 → F-43 → F-44
 
@@ -67,6 +68,47 @@ curl -fsSL https://raw.githubusercontent.com/carkeyuser/financer/main/install.sh
 ```
 
 **Ziel:** Frischer Server ohne manuelle README-Schritte. `docker-compose.yml` unverändert; `push.ps1` bleibt Update-Pfad für Entwickler.
+
+---
+
+## F-46 — Admin-Update unter Einstellungen
+
+| | |
+|---|---|
+| **Bereich** | DevOps / Einstellungen |
+| **Status** | 🟨 offen |
+| **Route** | `/settings` (nur Haushalts-**Admin**) |
+| **Aufwand** | mittel–hoch |
+
+### Ziel
+
+Self-hosted-Update ohne SSH/README: Admins sehen die **laufende App-Version** und starten ein **In-App-Update** mit nachvollziehbarem Fortschritt und kurzer Wartezeit bis der Stack wieder erreichbar ist.
+
+### UI (`/settings`)
+
+| Element | Verhalten |
+|---------|-----------|
+| Versionszeile | Aktuelle Version (z. B. aus `package.json` / Build-Metadaten / `GET /api/version`) |
+| Button **„Update“** | Nur für Admin sichtbar; startet Update-Job |
+| Status-Log | Scrollbares Panel (chronologisch): Schritte wie „Image pull …“, „Container neu erstellen …“, Fehler rot, Erfolg grün |
+| Neustart-Phase | Nach erfolgreichem Deploy: Hinweis + **Countdown ~10 s** („Server startet neu …“), danach automatischer Reload oder Link „Jetzt öffnen“ |
+
+Während des Updates: Buttons sperren, klare Meldung dass die App kurz nicht erreichbar sein kann.
+
+### Backend / Deploy
+
+- API z. B. `POST /api/admin/update` (Session + **Admin-Rolle**), optional `GET /api/admin/update/status` (SSE oder Polling)
+- Serverseitig an bestehenden Pfad anbinden: [`scripts/update.sh`](../scripts/update.sh) bzw. Modus `build` / `ghcr` aus [`deploy.md`](deploy.md) (`FINANCER_DEPLOY_MODE`)
+- Log-Zeilen aus Skript-Stdout/stderr an Client streamen; bei Fehler abbrechen, kein Countdown
+- Sicherheit: nur Admin; Rate-Limit; kein beliebiges Shell — fest verdrahtete Update-Schritte
+
+### Akzeptanzkriterien
+
+- [ ] Nicht-Admins sehen Version, aber keinen Update-Button
+- [ ] Admin sieht Version + Update; Status-Log füllt sich während des Laufs
+- [ ] Erfolg: ~10 s Countdown, danach App wieder erreichbar (Health-Check oder manueller Reload)
+- [ ] Fehler: Log-Eintrag + keine falsche Erfolgs-Countdown-Phase
+- [ ] i18n de/en; Vitest für Auth-Gate und Status-Aggregation (Mock Update-Prozess)
 
 ---
 
@@ -362,3 +404,4 @@ Marktkalender **nutzerzentriert**: nur Termine zu Tickern im Depot (+ optional W
 | F-42 | App | **Notification Bell:** Glocke, Badge, Inbox, `Notification`-Modell, Generator, API read/mark-all; kein Push MVP | 🟨 offen |
 | F-43 | Haushaltskasse | **Monatsroutine:** Checkliste + Partner-Status + Bell-Reminder — [Spec](feature-f43-household-month-routine.md) | 🟨 offen |
 | F-44 | Dashboard | **Dein Kalender:** nur Depot-Ticker; Countdown; Anbindung F-34 | 🟨 offen |
+| F-46 | DevOps / Einstellungen | **Admin-Update:** Version in Settings, Update-Button, Status-Log, ~10 s Neustart-Countdown — siehe oben | 🟨 offen |

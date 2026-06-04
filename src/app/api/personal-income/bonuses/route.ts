@@ -4,7 +4,8 @@ import {
   createPersonalIncomeBonus,
   listPersonalIncomeBonusesForMonth,
 } from "@/lib/services/personal-income"
-import { personalIncomeBonusCreateSchema } from "@/lib/validations/personal-income"
+import { createPersonalIncomeBonusCreateSchema } from "@/lib/validations/personal-income"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function GET(req: NextRequest) {
   const ctx = await requireSession()
@@ -35,7 +36,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ungültiges JSON" }, { status: 400 })
   }
 
-  const parsed = personalIncomeBonusCreateSchema.safeParse(body)
+  const parsed = createPersonalIncomeBonusCreateSchema(sessionLocale(ctx.session)).safeParse(
+    body
+  )
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
