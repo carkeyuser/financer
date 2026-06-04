@@ -70,6 +70,7 @@ const API_MESSAGE_KEYS: Record<string, MessageKey> = {
   "Briefing konnte nicht geladen werden": "errors.briefingLoadFailed",
   "In-App-Update ist nicht aktiviert": "update.notAvailable",
   "Ein Update läuft bereits": "update.inProgress",
+  "Kein neues Update verfügbar": "update.noUpdateAvailable",
   "bash nicht im App-Container — Image v0.1.1+ pullen und Container neu erstellen":
     "update.bashMissing",
   "Update-Skript fehlt im Deploy-Verzeichnis (/deploy/scripts/update.sh)": "update.scriptMissing",

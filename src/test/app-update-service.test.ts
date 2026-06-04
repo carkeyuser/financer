@@ -1,6 +1,15 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest"
 
+vi.mock("@/lib/services/update-availability", () => ({
+  getRemoteUpdateStatus: vi.fn().mockResolvedValue({
+    latestVersion: "9.9.9",
+    updateAvailable: true,
+  }),
+  assertUpdateAvailable: vi.fn().mockResolvedValue(null),
+  resetUpdateAvailabilityCacheForTests: vi.fn(),
+}))
+
 describe("app-update service", () => {
   const originalEnv = process.env
 
@@ -22,7 +31,7 @@ describe("app-update service", () => {
   it("getVersionInfo reflects update disabled by default", async () => {
     delete process.env.FINANCER_UPDATE_ENABLED
     const { getVersionInfo } = await loadService()
-    const info = getVersionInfo()
+    const info = await getVersionInfo()
     expect(info.updateEnabled).toBe(false)
     expect(info.deployMode).toBeNull()
     expect(info.version).toBeTruthy()
@@ -32,21 +41,21 @@ describe("app-update service", () => {
     process.env.FINANCER_UPDATE_ENABLED = "true"
     process.env.FINANCER_DEPLOY_MODE = "ghcr"
     const { getVersionInfo } = await loadService()
-    const info = getVersionInfo()
+    const info = await getVersionInfo()
     expect(info.updateEnabled).toBe(true)
     expect(info.deployMode).toBe("ghcr")
   })
 
   it("tryAcquireUpdate returns not_available when disabled", async () => {
     const { tryAcquireUpdate } = await loadService()
-    expect(tryAcquireUpdate()?.code).toBe("not_available")
+    expect((await tryAcquireUpdate())?.code).toBe("not_available")
   })
 
   it("tryAcquireUpdate blocks parallel updates", async () => {
     process.env.FINANCER_UPDATE_ENABLED = "true"
     const { tryAcquireUpdate, releaseUpdateLock } = await loadService()
-    expect(tryAcquireUpdate()).toBeNull()
-    expect(tryAcquireUpdate()?.code).toBe("in_progress")
+    expect(await tryAcquireUpdate()).toBeNull()
+    expect((await tryAcquireUpdate())?.code).toBe("in_progress")
     releaseUpdateLock()
   })
 
@@ -54,14 +63,14 @@ describe("app-update service", () => {
     vi.useFakeTimers()
     process.env.FINANCER_UPDATE_ENABLED = "true"
     const { tryAcquireUpdate, releaseUpdateLock, markUpdateRateLimited } = await loadService()
-    expect(tryAcquireUpdate()).toBeNull()
+    expect(await tryAcquireUpdate()).toBeNull()
     releaseUpdateLock()
-    expect(tryAcquireUpdate()).toBeNull()
+    expect(await tryAcquireUpdate()).toBeNull()
     releaseUpdateLock()
     markUpdateRateLimited()
-    expect(tryAcquireUpdate()?.code).toBe("rate_limited")
+    expect((await tryAcquireUpdate())?.code).toBe("rate_limited")
     vi.advanceTimersByTime(5 * 60 * 1000 + 1)
-    expect(tryAcquireUpdate()).toBeNull()
+    expect(await tryAcquireUpdate()).toBeNull()
     vi.useRealTimers()
   })
 
@@ -69,7 +78,7 @@ describe("app-update service", () => {
     process.env.FINANCER_UPDATE_ENABLED = "true"
     const { tryAcquireUpdate, runAppUpdate, setSpawnUpdateForTests, releaseUpdateLock } =
       await loadService()
-    tryAcquireUpdate()
+    await tryAcquireUpdate()
 
     const events: string[] = []
     await runAppUpdate(
@@ -102,7 +111,7 @@ describe("app-update service", () => {
   it("runAppUpdate emits error on non-zero exit", async () => {
     process.env.FINANCER_UPDATE_ENABLED = "true"
     const { tryAcquireUpdate, runAppUpdate, setSpawnUpdateForTests } = await loadService()
-    tryAcquireUpdate()
+    await tryAcquireUpdate()
 
     const types: string[] = []
     await runAppUpdate(

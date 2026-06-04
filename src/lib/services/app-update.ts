@@ -9,29 +9,39 @@ import {
 } from "@/lib/config/app-update"
 import type { AppUpdateEvent } from "@/lib/validations/app-update"
 import type { VersionInfo } from "@/lib/validations/app-update"
+import { assertUpdateAvailable, getRemoteUpdateStatus } from "@/lib/services/update-availability"
 
 const RATE_LIMIT_MS = 5 * 60 * 1000
 
 let updateInProgress = false
 let lastSuccessfulStartAt = 0
 
-export function getVersionInfo(): VersionInfo {
+export async function getVersionInfo(): Promise<VersionInfo> {
   const updateEnabled = isAppUpdateEnabled()
+  const version = readPackageVersion()
+  const remote = await getRemoteUpdateStatus(version)
   return {
-    version: readPackageVersion(),
+    version,
     updateEnabled,
     deployMode: updateEnabled ? getDeployMode() : null,
+    latestVersion: remote.latestVersion,
+    updateAvailable: remote.updateAvailable,
   }
 }
 
 export type UpdateStartError =
   | { code: "not_available"; message: string }
+  | { code: "no_update"; message: string }
   | { code: "in_progress"; message: string }
   | { code: "rate_limited"; message: string }
 
-export function tryAcquireUpdate(): UpdateStartError | null {
+export async function tryAcquireUpdate(): Promise<UpdateStartError | null> {
   if (!isAppUpdateEnabled()) {
     return { code: "not_available", message: "In-App-Update ist nicht aktiviert" }
+  }
+  const noUpdate = await assertUpdateAvailable(readPackageVersion())
+  if (noUpdate) {
+    return { code: "no_update", message: noUpdate }
   }
   if (updateInProgress) {
     return { code: "in_progress", message: "Ein Update läuft bereits" }

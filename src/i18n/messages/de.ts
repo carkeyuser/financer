@@ -153,6 +153,10 @@ export const deMessages = {
       "bash fehlt im App-Container — GHCR-Image v0.1.1+ pullen und Container neu erstellen.",
     scriptMissing:
       "Update-Skript fehlt unter /deploy (git pull im Installationsverzeichnis).",
+    upToDate: "Kein neues Update — Version {version} ist aktuell.",
+    updateAvailable: "Neue Version {latest} verfügbar (installiert: {version}).",
+    checkFailed: "Versionsprüfung nicht möglich — Update trotzdem startbar.",
+    noUpdateAvailable: "Kein neues Update verfügbar",
   },
   backup: {
     title: "Datensicherung",

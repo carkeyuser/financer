@@ -49,6 +49,8 @@ export function UpdateCard() {
         version: string
         updateEnabled: boolean
         deployMode: "build" | "ghcr" | null
+        latestVersion: string | null
+        updateAvailable: boolean | null
       }>
     },
     staleTime: 60_000,
@@ -56,6 +58,8 @@ export function UpdateCard() {
 
   const version = versionInfo?.version ?? APP_VERSION
   const updateEnabled = versionInfo?.updateEnabled ?? false
+  const upToDate = updateEnabled && versionInfo?.updateAvailable === false
+  const updateReady = updateEnabled && versionInfo?.updateAvailable !== false
 
   useEffect(() => {
     if (phase === "running" || phase === "restarting") {
@@ -157,7 +161,26 @@ export function UpdateCard() {
           </p>
         )}
 
-        {canManage && updateEnabled && (
+        {canManage && updateEnabled && upToDate && (
+          <p className="text-sm text-muted-foreground rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2">
+            {t("update.upToDate", { version })}
+          </p>
+        )}
+
+        {canManage && updateEnabled && versionInfo?.updateAvailable === true && versionInfo.latestVersion && (
+          <p className="text-sm text-muted-foreground rounded-md border px-3 py-2">
+            {t("update.updateAvailable", {
+              version,
+              latest: versionInfo.latestVersion,
+            })}
+          </p>
+        )}
+
+        {canManage && updateEnabled && versionInfo?.updateAvailable === null && (
+          <p className="text-sm text-muted-foreground text-xs">{t("update.checkFailed")}</p>
+        )}
+
+        {canManage && updateReady && (
           <>
             <p className="text-sm text-muted-foreground flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
