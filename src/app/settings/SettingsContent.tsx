@@ -18,6 +18,7 @@ import {
 import { useHousehold } from "@/hooks/useHousehold"
 import { BackupCard } from "./BackupCard"
 import { LanguageCard } from "./LanguageCard"
+import { AppearanceCard } from "./AppearanceCard"
 import { UpdateCard } from "./UpdateCard"
 import { UpdateNotesDialog } from "@/components/layout/UpdateNotesDialog"
 import { useI18n } from "@/i18n/context"
@@ -151,7 +152,7 @@ function TwoFactorCard() {
             </CardDescription>
           </div>
           {isEnabled && (
-            <Badge variant="secondary" className="text-green-600 border-green-200 bg-green-50">
+            <Badge variant="secondary" className="text-green-500 border-green-500/30 bg-green-500/10">
               {t("settings.twoFactorBadgeActive")}
             </Badge>
           )}
@@ -364,6 +365,8 @@ export function SettingsContent() {
   return (
     <div className="space-y-6">
       <LanguageCard />
+
+      <AppearanceCard />
 
       <Card>
         <CardHeader>

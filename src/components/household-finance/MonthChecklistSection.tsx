@@ -51,8 +51,8 @@ export function MonthChecklistSection({ year, month, currentUserId }: Props) {
                   className={cn(
                     "text-xs px-2 py-0.5 rounded-full",
                     allRequired
-                      ? "bg-green-500/10 text-green-600"
-                      : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                      ? "bg-green-500/10 text-green-500"
+                      : "bg-amber-500/10 text-amber-600 retrowave:text-amber-400 dark:text-amber-400"
                   )}
                 >
                   {allRequired

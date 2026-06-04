@@ -5,9 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Changed
+## [0.1.4] - 2026-06-04
 
-- **README** — Preview section with English UI screenshots and per-image feature lists; sidebar/navigation image replaced with English version
+### Added
+
+- **Retrowave theme (F-47)** — Third appearance option alongside light and dark: synthwave neon palette (violet background, magenta/cyan accents), horizon grid overlay, Orbitron headings, theme picker in Settings, three-way cycle toggle in the shell, chart colors via CSS variables
 
 ## [0.1.3] - 2026-06-04
 
@@ -171,6 +173,7 @@ First public release — self-hosted finance dashboard for small households.
 
 Next.js 16 · React 19 · TypeScript · PostgreSQL 16 · Prisma 7 · NextAuth v5 · shadcn/ui · Tailwind CSS v4 · Recharts · Vitest (104 unit tests)
 
+[0.1.4]: https://github.com/carkeyuser/financer/releases/tag/v0.1.4
 [0.1.3]: https://github.com/carkeyuser/financer/releases/tag/v0.1.3
 [0.1.2]: https://github.com/carkeyuser/financer/releases/tag/v0.1.2
 [0.1.1]: https://github.com/carkeyuser/financer/releases/tag/v0.1.1

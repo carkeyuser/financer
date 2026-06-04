@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
+import { Geist, Orbitron } from "next/font/google"
+import { APP_THEMES } from "@/lib/constants/themes"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import { QueryProvider } from "@/components/providers/QueryProvider"
@@ -9,6 +10,7 @@ import { sessionLocale } from "@/lib/session-locale"
 import "./globals.css"
 
 const geist = Geist({ subsets: ["latin"] })
+const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" })
 
 export const metadata: Metadata = {
   title: "Finance Dashboard",
@@ -21,10 +23,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={lang} suppressHydrationWarning>
-      <body className={geist.className}>
+      <body className={`${geist.className} ${orbitron.variable}`}>
         <AppProviders>
           <QueryProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              themes={[...APP_THEMES]}
+            >
               {children}
               <Toaster />
             </ThemeProvider>

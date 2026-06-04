@@ -3,7 +3,7 @@
 Feature-Backlog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
 Aktuell offen: **F-34**.
-Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02). **F-46** In-App-Update (2026-06-04).
+Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02). **F-46** In-App-Update (2026-06-04). **F-47** Retrowave-Theme (2026-06-04).
 Erledigte Features stehen im [`archive.md`](archive.md).
 
 ---

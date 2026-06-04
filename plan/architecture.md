@@ -11,7 +11,7 @@ Tech Stack, Projektstruktur und aktuelles Datenmodell.
 | Framework | **Next.js 16 App Router + TypeScript** | SSR/RSC, API Routes, `output: 'standalone'` für Docker |
 | Auth | **NextAuth.js v5 (Auth.js)** + Credentials Provider | Multi-User, kein OAuth-Overhead nötig |
 | Datenbank | **PostgreSQL 16 + Prisma 7** | Sicherer Umgang mit Dezimalzahlen, Migrations-Workflow |
-| UI | **shadcn/ui + Tailwind CSS v4 + next-themes** | Dark/Light Toggle, Radix-Primitives |
+| UI | **shadcn/ui + Tailwind CSS v4 + next-themes** | Light/Dark/Retrowave (`.retrowave` CSS-Variablen, Settings + Zyklus-Toggle) |
 | Charts | **Recharts** | Flexible Komposition, keine Design-Konflikte mit shadcn |
 | Dashboard-Grid | **react-grid-layout** | Drag & Drop + Resize, DB-backed Layout |
 | Data Fetching | **TanStack Query v5** | Client-Cache, optimistische Mutations |

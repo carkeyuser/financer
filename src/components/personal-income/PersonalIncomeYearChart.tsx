@@ -14,12 +14,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { usePersonalIncomeYears } from "@/hooks/usePersonalIncome"
 import { useI18n } from "@/i18n/context"
-
-const SERIES = {
-  gross: "#3b82f6",
-  net: "#22c55e",
-  bonus: "#f59e0b",
-} as const
+import { PERSONAL_INCOME_SERIES } from "@/lib/utils/chart-colors"
 
 interface Props {
   years: number[]
@@ -80,19 +75,19 @@ export function PersonalIncomeYearChart({ years }: Props) {
               <Bar
                 dataKey="gross"
                 name={t("personalIncome.yearRowGross")}
-                fill={SERIES.gross}
+                fill={PERSONAL_INCOME_SERIES.gross}
                 radius={[3, 3, 0, 0]}
               />
               <Bar
                 dataKey="net"
                 name={t("personalIncome.yearRowNet")}
-                fill={SERIES.net}
+                fill={PERSONAL_INCOME_SERIES.net}
                 radius={[3, 3, 0, 0]}
               />
               <Bar
                 dataKey="bonus"
                 name={t("personalIncome.yearRowBonus")}
-                fill={SERIES.bonus}
+                fill={PERSONAL_INCOME_SERIES.bonus}
                 radius={[3, 3, 0, 0]}
               />
             </BarChart>

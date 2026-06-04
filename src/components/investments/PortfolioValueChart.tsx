@@ -11,6 +11,7 @@ import {
   getHistoryFillGranularity,
 } from "@/lib/constants/portfolio-chart-range"
 import { useI18n } from "@/i18n/context"
+import { CHART_GAIN, CHART_LOSS } from "@/lib/utils/chart-colors"
 
 interface Props {
   assets: Asset[]
@@ -36,7 +37,7 @@ export function PortfolioValueChart({ assets, range }: Props) {
   }
 
   const startValue = history[0].totalValue
-  const color = history[history.length - 1].totalValue >= startValue ? "#22c55e" : "#ef4444"
+  const color = history[history.length - 1].totalValue >= startValue ? CHART_GAIN : CHART_LOSS
 
   return (
     <ResponsiveContainer width="100%" height={300}>

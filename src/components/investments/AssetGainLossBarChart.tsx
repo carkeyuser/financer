@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLin
 import type { Asset } from "@/hooks/useAssets"
 import { getTotalGainLoss } from "@/lib/utils/calculations"
 import { useI18n } from "@/i18n/context"
+import { CHART_GAIN, CHART_LOSS, CHART_REFERENCE } from "@/lib/utils/chart-colors"
 
 interface Props {
   assets: Asset[]
@@ -42,10 +43,10 @@ export function AssetGainLossBarChart({ assets }: Props) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           labelFormatter={(_label, payload: any) => payload?.[0]?.payload?.fullName ?? _label}
         />
-        <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="4 4" />
+        <ReferenceLine y={0} stroke={CHART_REFERENCE} strokeDasharray="4 4" />
         <Bar dataKey="gainLoss" name={t("investments.gainLossSeries")} radius={[4, 4, 0, 0]}>
           {data.map((entry, i) => (
-            <Cell key={i} fill={entry.gainLoss >= 0 ? "#22c55e" : "#ef4444"} />
+            <Cell key={i} fill={entry.gainLoss >= 0 ? CHART_GAIN : CHART_LOSS} />
           ))}
         </Bar>
       </BarChart>
