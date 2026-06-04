@@ -11,13 +11,13 @@ RUN addgroup --system --gid 1001 nodejs \
   && apk add --no-cache docker-cli git bash
 
 COPY public ./public
-COPY standalone/ ./
-COPY static ./.next/static
+COPY .next/standalone/ ./
+COPY .next/static ./.next/static
 COPY prisma ./prisma
 COPY prisma.config.ts ./prisma.config.ts
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN test -f server.js && test -f .next/BUILD_ID \
-  && ! test -d src \
+  && ! test -f CHANGELOG.md \
   && chmod +x docker-entrypoint.sh \
   && npm install prisma@7.8.0 dotenv@17.4.2 --omit=dev --no-package-lock \
   && npm cache clean --force \

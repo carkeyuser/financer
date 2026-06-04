@@ -60,17 +60,17 @@ jobs:
 
       - name: Prepare Docker image context
         run: |
-          mkdir -p docker-image-context/standalone docker-image-context/static
+          mkdir -p docker-image-context/.next
           cp -r public docker-image-context/public
-          # -a preserves symlinks; plain cp -r follows them and copies the whole repo into standalone/
-          cp -a .next/standalone/. docker-image-context/standalone/
-          cp -a .next/static/. docker-image-context/static/
+          # cp -r on standalone/* follows symlinks and copies the whole repo; cp -a on the dir preserves them
+          cp -a .next/standalone docker-image-context/.next/
+          cp -a .next/static docker-image-context/.next/
           cp -r prisma docker-image-context/prisma
           cp prisma.config.ts docker-entrypoint.sh Dockerfile.ci package.json docker-image-context/
-          test -f docker-image-context/standalone/server.js
-          test -f docker-image-context/standalone/.next/BUILD_ID
-          if [ -d docker-image-context/standalone/src ]; then
-            echo "ERROR: standalone context contains src/ — symlink copy bug (expected cp -a)"
+          test -f docker-image-context/.next/standalone/server.js
+          test -f docker-image-context/.next/standalone/.next/BUILD_ID
+          if [ -f docker-image-context/.next/standalone/CHANGELOG.md ]; then
+            echo "ERROR: full repo copied into standalone (symlinks were followed — use cp -a on the directory)"
             exit 1
           fi
 
