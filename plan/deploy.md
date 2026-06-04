@@ -191,6 +191,21 @@ Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktivie
 
 **Sicherheit:** Docker-Socket-Zugriff entspricht praktisch Root-Rechten auf dem Host. Nur auf vertrauenswürdigen Self-hosted-Instanzen aktivieren.
 
+**Fehler `Could not find a production build in the ./.next directory` (Restart-Loop):** Der Container nutzt oft **nicht** das GHCR-Standalone-Image, sondern ein altes lokales `finance-app:latest` ohne Build. Prüfen: `docker inspect finance_app --format '{{.Config.Image}}'` → sollte `ghcr.io/carkeyuser/financer:…` sein. Fix:
+
+```bash
+# .env
+FINANCER_DEPLOY_MODE=ghcr
+COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.update.yml
+FINANCER_IMAGE=ghcr.io/carkeyuser/financer:0.1.5
+
+docker compose down
+docker compose pull
+docker compose up -d --force-recreate
+```
+
+Alternativ zuverlässig: `FINANCER_DEPLOY_MODE=build` und `bash scripts/update.sh` (baut auf dem Server mit `Dockerfile`).
+
 **Fehler `dubious ownership` / Exit-Code 128:** Git im App-Container lehnt `/deploy` ab, wenn der Clone auf dem Host einem anderen User gehört (z. B. `root`). Ab `scripts/update.sh` mit `safe.directory` (siehe `main`) — bis `git pull` auf dem Host nachgezogen ist, einmal per SSH im Installationsverzeichnis:
 
 ```bash
