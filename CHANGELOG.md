@@ -5,21 +5,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Docs (F-48)** — Performance/caching decision record: defer Redis for current single-instance setup; document Phase 0 alternatives and optional Redis integration path in `plan/feature-f48-performance-caching-redis.md`
+
 ### Changed
 
 - **CI** — Parallel `quality` (lint/test) and `build` jobs; Docker assembles from pre-built Next.js standalone (`Dockerfile.ci`) instead of running `next build` again (~3–4 min faster on release runs)
 
-## [0.1.4] - 2026-06-04
+## [0.1.5] - 2026-06-04
 
 ### Added
 
-- **Retrowave theme (F-47)** — Third appearance option alongside light and dark: synthwave neon palette (violet background, magenta/cyan accents), horizon grid overlay, Orbitron headings, theme picker in Settings, three-way cycle toggle in the shell, chart colors via CSS variables
 - **Retrowave V2** — Starfield with shooting stars (`RetrowaveAmbience` canvas), glassy neon cards, stronger horizon grid; respects `prefers-reduced-motion`
 - **Local dev bootstrap** — `docker-compose.dev.yml`, `npm run setup:dev` / `db:up`, dev server on port **3001** (avoids WSL hijacking `localhost:3000` on Windows)
 
 ### Changed
 
 - **Prisma seed** — Re-running seed resets `demo` / `demo2` password to `demo1234` (or `SEED_DEMO_PASSWORD`) and clears 2FA on demo accounts for reliable local login
+
+## [0.1.4] - 2026-06-04
+
+### Added
+
+- **Retrowave theme (F-47)** — Third appearance option alongside light and dark: synthwave neon palette (violet background, magenta/cyan accents), horizon grid overlay, Orbitron headings, theme picker in Settings, three-way cycle toggle in the shell, chart colors via CSS variables
 
 ## [0.1.3] - 2026-06-04
 

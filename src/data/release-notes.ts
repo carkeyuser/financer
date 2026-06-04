@@ -8,20 +8,34 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.5",
+    date: "2026-06-04",
+    highlights: {
+      de: [
+        "Retrowave V2: Sternfeld mit Sternschnuppen, Neon-Glow-Cards, tieferes Space-Violet",
+        "Lokales Dev-Setup: npm run setup:dev (demo/demo1234), Dev-Server Port 3001",
+        "Seed: erneutes Ausführen setzt Demo-Passwort demo1234 zurück (2FA aus)",
+      ],
+      en: [
+        "Retrowave V2: starfield with shooting stars, neon glow cards, deeper space-violet palette",
+        "Local dev: npm run setup:dev (demo/demo1234), dev server on port 3001",
+        "Seed: re-run resets demo password to demo1234 and clears demo 2FA",
+      ],
+    },
+  },
+  {
     version: "0.1.4",
     date: "2026-06-04",
     highlights: {
       de: [
         "Retrowave-Theme: drittes Erscheinungsbild (Neon/Synthwave) neben Hell und Dunkel",
-        "Retrowave V2: Sternfeld mit Sternschnuppen, Neon-Glow-Cards, tieferes Space-Violet",
         "Einstellungen: Erscheinungsbild wählen; Sidebar-Toggle wechselt Hell → Dunkel → Retrowave",
-        "Lokales Dev-Setup: npm run setup:dev (demo/demo1234), Dev-Server Port 3001",
+        "Charts nutzen Theme-Farben (--chart-*, --gain/--loss) statt fester Hex-Werte",
       ],
       en: [
         "Retrowave theme: third appearance (neon/synthwave) alongside light and dark",
-        "Retrowave V2: starfield with shooting stars, neon glow cards, deeper space-violet palette",
         "Settings: pick appearance; sidebar toggle cycles light → dark → retrowave",
-        "Local dev: npm run setup:dev (demo/demo1234), dev server on port 3001",
+        "Charts use theme colors (--chart-*, --gain/--loss) instead of hard-coded hex values",
       ],
     },
   },
