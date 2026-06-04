@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **In-app update** — `scripts/update.sh` uses `git -c safe.directory=…` so `git pull` works when `/deploy` is mounted from the host (fixes “dubious ownership”, exit 128)
+
 ### Added
 
 - **Docs (F-48)** — Performance/caching decision record: defer Redis for current single-instance setup; document Phase 0 alternatives and optional Redis integration path in `plan/feature-f48-performance-caching-redis.md`

@@ -49,12 +49,17 @@ compose() {
   docker compose "${compose_files[@]}" "$@"
 }
 
+# In-app update runs inside the app container; /deploy is a host mount (often root-owned).
+git_pull_ff() {
+  echo "→ git pull (Compose/Config) …"
+  git -c safe.directory="$APP_DIR" pull --ff-only
+}
+
 case "$MODE" in
   ghcr)
     echo "→ Deploy-Modus: GHCR (pull + up -d)"
     if [ -d .git ]; then
-      echo "→ git pull (Compose/Config) …"
-      git pull --ff-only
+      git_pull_ff
     fi
     compose pull
     compose up -d
@@ -62,7 +67,7 @@ case "$MODE" in
   build)
     echo "→ Deploy-Modus: Build (git pull + up -d --build)"
     if [ -d .git ]; then
-      git pull --ff-only
+      git_pull_ff
     fi
     compose up -d --build
     ;;
