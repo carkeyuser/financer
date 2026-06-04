@@ -2,7 +2,57 @@
 
 Zwei gleichwertige Update-Pfade — Modus einmalig in `.env` setzen (`FINANCER_DEPLOY_MODE`).
 
-Setze `DEPLOY_DIR` auf dein Installationsverzeichnis (Beispiele unten: `/path/to/financer`).
+Setze `DEPLOY_DIR` auf dein Installationsverzeichnis (Beispiele unten: `/opt/financer`).
+
+---
+
+## Kurz: So pullst du auf dem Server
+
+**Warum nicht nur `docker compose pull && up -d`?** Ein einfaches `docker compose` liest nur [`docker-compose.yml`](../docker-compose.yml). Bei **GHCR** fehlt dann das Prod-Overlay (falsches Image). Bei **In-App-Update** fehlen Socket- und `/deploy`-Mount. Außerdem liegt `update.sh` und die Compose-Dateien im **Git-Clone**, nicht im Container-Image — deshalb immer **`git pull`** (oder `scripts/update.sh`, das das mitmacht).
+
+### Empfohlen (ein Befehl)
+
+```bash
+cd /opt/financer
+bash scripts/update.sh
+```
+
+Das Skript macht: `git pull --ff-only` + die richtigen Compose-Dateien (`prod` bei GHCR, `update` wenn `FINANCER_UPDATE_ENABLED=true`).
+
+### Alternativ: kurze Compose-Befehle
+
+**Einmalig** in `.env` (oder in `~/.bashrc` auf dem Server):
+
+```env
+FINANCER_DEPLOY_MODE=ghcr
+COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.update.yml
+```
+
+`docker-compose.update.yml` nur in `COMPOSE_FILE`, wenn In-App-Update aktiv ist. Sonst:
+
+```env
+COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
+```
+
+**Danach bei jedem Update:**
+
+```bash
+cd /opt/financer
+git pull --ff-only
+docker compose pull
+docker compose up -d
+```
+
+### Wann `git checkout --`?
+
+Nur wenn `git pull` abbricht, weil du **getrackte** Dateien lokal geändert hast (z. B. `docker-compose.update.yml`). Nicht bei normalem Betrieb. **`.env` nie committen** — dort sind Secrets und `FINANCER_*`; Git überschreibt `.env` nicht.
+
+| Situation | Befehl |
+|---|---|
+| Normal (GHCR + In-App-Update) | `bash scripts/update.sh` |
+| Normal (kurz, mit `COMPOSE_FILE`) | `git pull` → `docker compose pull` → `docker compose up -d` |
+| Nur App-Image, Config egal | `docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && … up -d` |
+| `git pull` Konflikt | `git checkout -- <datei>` oder `git stash`, dann `git pull` |
 
 ---
 
@@ -22,9 +72,9 @@ FINANCER_DEPLOY_MODE=build
 | Modus | Wann sinnvoll | Update-Befehl |
 |---|---|---|
 | **build** (Default) | Git-Clone, Entwickler-Server, schnellste Code-Updates von `main` | `git pull && docker compose up -d --build` |
-| **ghcr** | Schwacher Server, kein Build-Tooling gewünscht | `docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && … up -d` |
+| **ghcr** | Schwacher Server, kein Build-Tooling gewünscht | `bash scripts/update.sh` (siehe [Kurz](#kurz-so-pullst-du-auf-dem-server)) |
 
-Beide Modi: `./scripts/update.sh` (liest `FINANCER_DEPLOY_MODE` aus `.env`).
+Beide Modi: [`scripts/update.sh`](../scripts/update.sh) (liest `FINANCER_DEPLOY_MODE` und optional `FINANCER_UPDATE_ENABLED` aus `.env`).
 
 ---
 
@@ -90,21 +140,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 Bei **privatem** GHCR-Paket einmalig: `docker login ghcr.io`
 
-**Update:**
-
-```bash
-cd /path/to/financer
-docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
-
-**Oder:**
-
-```bash
-bash /path/to/financer/scripts/update.sh
-```
-
-(`update.sh` zieht bei `ghcr` optional `git pull` für Compose-/Skript-Änderungen, App-Code kommt aus dem Image.)
+**Update:** [`bash scripts/update.sh`](#kurz-so-pullst-du-auf-dem-server) im Installationsverzeichnis (empfohlen).
 
 ---
 
@@ -144,11 +180,11 @@ Updates aus **Einstellungen** (nur OWNER/ADMIN), ohne SSH. Standard: **deaktivie
    FINANCER_DOCKER_GID=999
    ```
    `FINANCER_DOCKER_GID` = GID der Docker-Gruppe auf dem Host (`getent group docker`).
-2. Compose mit Update-Overlay starten:
+2. Stack starten — am einfachsten nach Änderung an `.env`:
    ```bash
-   docker compose -f docker-compose.yml -f docker-compose.update.yml up -d --build
+   bash scripts/update.sh
    ```
-   Bei GHCR zusätzlich `-f docker-compose.prod.yml`.
+   (bindet `docker-compose.update.yml` automatisch ein, wenn `FINANCER_UPDATE_ENABLED=true`.)
 
 **Ablauf:** Die App führt [`scripts/update.sh`](scripts/update.sh) im gemounteten Host-Verzeichnis `/deploy` aus (gleiche Logik wie manuelles Update). Während `docker compose up` kann die Verbindung abbrechen — die UI wartet danach per Health-Check auf `/auth/login`.
 
