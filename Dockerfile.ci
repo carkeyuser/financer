@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1.4
-# CI-only: assembles the runtime image from a pre-built Next.js standalone (see ci.yml).
-# Local/server builds continue to use Dockerfile (full multi-stage build).
+# Deprecated for CI — GHCR uses multi-stage Dockerfile (see ci.yml). Kept for reference/manual experiments.
 
 FROM node:20-alpine AS runner
 WORKDIR /app

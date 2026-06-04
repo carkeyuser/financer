@@ -11,7 +11,8 @@ fi
 
 if [ ! -f .next/BUILD_ID ]; then
   echo "FEHLER: .next/BUILD_ID fehlt — Image unvollständig (nicht next start nutzen)."
-  echo "  Prüfe: docker compose -f docker-compose.yml -f docker-compose.prod.yml config | grep image"
+  echo "  GHCR: warte auf grünes CI (Dockerfile multi-stage), dann compose pull + up -d --force-recreate"
+  echo "  Oder FINANCER_DEPLOY_MODE=build und bash scripts/update.sh"
   exit 1
 fi
 
