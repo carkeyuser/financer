@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **README** — Preview section with English UI screenshots and per-image feature lists; sidebar/navigation image replaced with English version
+
 ## [0.1.3] - 2026-06-04
 
 ### Added
