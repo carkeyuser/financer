@@ -7,6 +7,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Docker entrypoint** — Fails fast with a clear message when `server.js` or `.next/BUILD_ID` is missing (wrong or incomplete image)
+- **GHCR update** — `update.sh` uses `compose up -d --pull always --force-recreate` so the app container picks up the pulled image
 - **Retrowave ambience** — Starfield animation loop pauses when the tab is hidden (no background `requestAnimationFrame`); star positions scale on resize instead of re-randomizing
 - **In-app update** — `update.sh` resets local edits to tracked Compose overlays before `git pull` (fixes merge abort on `docker-compose.update.yml`)
 - **In-app update** — `scripts/update.sh` uses `git -c safe.directory=…` so `git pull` works when `/deploy` is mounted from the host (fixes “dubious ownership”, exit 128)

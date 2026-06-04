@@ -77,7 +77,7 @@ case "$MODE" in
       git_pull_ff
     fi
     compose pull
-    compose up -d
+    compose up -d --pull always --force-recreate
     ;;
   build)
     echo "→ Deploy-Modus: Build (git pull + up -d --build)"
