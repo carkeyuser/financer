@@ -1,5 +1,10 @@
 node_modules
-.next
+# CI GHCR image needs standalone + static; local dev .next cache stays excluded
+.next/*
+!.next/standalone/
+!.next/standalone/**
+!.next/static/
+!.next/static/**
 .git
 .codegraph
 coverage

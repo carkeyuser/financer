@@ -7,7 +7,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- **GHCR Docker image** — CI uploads `.next/` as artifact and `Dockerfile.ci` `COPY`s standalone directly (no `cp` into context; `cp -r` had followed symlinks and packed the whole repo); asserts `BUILD_ID` and no materialized `docker-compose.yml`
+- **GHCR Docker image** — CI packs `standalone`+`static` via `tar` (`.next` is gitignored and was never uploaded), docker job `COPY`s from `.next/standalone`; `.dockerignore` allows those paths; asserts `BUILD_ID` and no materialized `docker-compose.yml`
 - **Docker entrypoint** — Fails fast with a clear message when `server.js` or `.next/BUILD_ID` is missing (wrong or incomplete image)
 - **GHCR update** — `update.sh` uses `compose up -d --pull always --force-recreate` so the app container picks up the pulled image
 - **Retrowave ambience** — Starfield animation loop pauses when the tab is hidden (no background `requestAnimationFrame`); star positions scale on resize instead of re-randomizing
