@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-04 (Release v0.1.4; Retrowave V2 + Dev-Bootstrap `npm run setup:dev`)
+**Stand:** 2026-06-05 (Release v0.1.5; Retrowave V2 + Dev-Bootstrap)
 
 ---
 
@@ -64,6 +64,7 @@ Self-hosted via Docker auf deinem Server.
 | [`feature-f43-household-month-routine.md`](feature-f43-household-month-routine.md) | F-43 Spezifikation: Monatsroutine + Partner-Status |
 | [`feature-f45-personal-income.md`](feature-f45-personal-income.md) | F-45 Spezifikation: Persönlicher Einkommen-Tab |
 | [`feature-f47-retrowave-theme.md`](feature-f47-retrowave-theme.md) | F-47 Spezifikation: Retrowave-Theme (Light/Dark/Retrowave) |
+| [`feature-f48-performance-caching-redis.md`](feature-f48-performance-caching-redis.md) | F-48 Performance/Caching — optional Redis (zurückgestellt) |
 | [`aenderungen.md`](aenderungen.md) | Änderungs-Backlog (offen) |
 | [`bugs.md`](bugs.md) | Bug-Backlog (offen) |
 | [`archive.md`](archive.md) | Archiv erledigter Backlog-Einträge |
