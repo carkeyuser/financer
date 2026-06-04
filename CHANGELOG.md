@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Deploy** — `scripts/update.sh` includes GHCR + update Compose overlays automatically; `plan/deploy.md` documents short pull workflow (`COMPOSE_FILE` or one `update.sh` command)
+
 ## [0.1.2] - 2026-06-04
 
 ### Added

@@ -27,10 +27,26 @@ read_env() {
   echo "${val:-$default}"
 }
 
+is_truthy() {
+  local v="${1,,}"
+  [[ "$v" == "1" || "$v" == "true" || "$v" == "yes" || "$v" == "on" ]]
+}
+
 MODE="${FINANCER_DEPLOY_MODE:-$(read_env FINANCER_DEPLOY_MODE build)}"
 
-compose_ghcr() {
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml "$@"
+compose_files=(-f docker-compose.yml)
+if [[ "$MODE" == "ghcr" ]]; then
+  compose_files+=(-f docker-compose.prod.yml)
+elif [[ "$MODE" != "build" ]]; then
+  echo "FEHLER: FINANCER_DEPLOY_MODE='$MODE' unbekannt (build|ghcr)"
+  exit 1
+fi
+if is_truthy "$(read_env FINANCER_UPDATE_ENABLED false)"; then
+  compose_files+=(-f docker-compose.update.yml)
+fi
+
+compose() {
+  docker compose "${compose_files[@]}" "$@"
 }
 
 case "$MODE" in
@@ -40,19 +56,15 @@ case "$MODE" in
       echo "→ git pull (Compose/Config) …"
       git pull --ff-only
     fi
-    compose_ghcr pull
-    compose_ghcr up -d
+    compose pull
+    compose up -d
     ;;
   build)
     echo "→ Deploy-Modus: Build (git pull + up -d --build)"
     if [ -d .git ]; then
       git pull --ff-only
     fi
-    docker compose up -d --build
-    ;;
-  *)
-    echo "FEHLER: FINANCER_DEPLOY_MODE='$MODE' unbekannt (build|ghcr)"
-    exit 1
+    compose up -d --build
     ;;
 esac
 
