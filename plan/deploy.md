@@ -52,7 +52,7 @@ Nur wenn `git pull` abbricht, weil du **getrackte** Dateien lokal geändert hast
 | Normal (GHCR + In-App-Update) | `bash scripts/update.sh` |
 | Normal (kurz, mit `COMPOSE_FILE`) | `git pull` → `docker compose pull` → `docker compose up -d` |
 | Nur App-Image, Config egal | `docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && … up -d` |
-| `git pull` Konflikt | `git checkout -- <datei>` oder `git stash`, dann `git pull` |
+| `git pull` Konflikt an `docker-compose.update.yml` | `git checkout -- docker-compose.update.yml` dann `git pull --ff-only` und `bash scripts/update.sh` (ab `main` macht `update.sh` das automatisch) |
 
 ---
 

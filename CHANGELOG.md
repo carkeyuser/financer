@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - **Retrowave ambience** — Starfield animation loop pauses when the tab is hidden (no background `requestAnimationFrame`); star positions scale on resize instead of re-randomizing
+- **In-app update** — `update.sh` resets local edits to tracked Compose overlays before `git pull` (fixes merge abort on `docker-compose.update.yml`)
 - **In-app update** — `scripts/update.sh` uses `git -c safe.directory=…` so `git pull` works when `/deploy` is mounted from the host (fixes “dubious ownership”, exit 128)
 - **Prisma seed (production)** — Re-running seed no longer resets `demo` / `demo2` passwords or clears 2FA when `NODE_ENV=production` unless `SEED_RESET_DEMO=true`; fixed-cost backfill still runs
 - **Local setup script** — `setup-dev.ps1` preserves an existing non-empty `NEXTAUTH_URL` in `.env.local` (LAN/custom URLs)
