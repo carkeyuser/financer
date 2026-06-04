@@ -50,7 +50,22 @@ compose() {
 }
 
 # In-app update runs inside the app container; /deploy is a host mount (often root-owned).
+TRACKED_COMPOSE_OVERLAYS=(docker-compose.update.yml docker-compose.prod.yml)
+
+discard_local_compose_overlays() {
+  local f status
+  for f in "${TRACKED_COMPOSE_OVERLAYS[@]}"; do
+    [ -f "$f" ] || continue
+    status="$(git -c safe.directory="$APP_DIR" status --porcelain -- "$f" 2>/dev/null || true)"
+    if [ -n "$status" ]; then
+      echo "→ Verwerfe lokale Änderungen an $f (Repo-Version für Pull) …"
+      git -c safe.directory="$APP_DIR" checkout -- "$f"
+    fi
+  done
+}
+
 git_pull_ff() {
+  discard_local_compose_overlays
   echo "→ git pull (Compose/Config) …"
   git -c safe.directory="$APP_DIR" pull --ff-only
 }
