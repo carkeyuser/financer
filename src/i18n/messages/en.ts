@@ -151,6 +151,10 @@ export const enMessages = {
     failed: "Update failed",
     notAvailable: "In-app update is not enabled",
     inProgress: "An update is already running",
+    bashMissing:
+      "bash is missing in the app container — pull GHCR image v0.1.1+ and recreate the container.",
+    scriptMissing:
+      "Update script missing under /deploy (run git pull in the install directory).",
   },
   backup: {
     title: "Backup",

@@ -1,4 +1,5 @@
 import { spawn } from "child_process"
+import { existsSync } from "fs"
 import { join } from "path"
 import {
   getDeployMode,
@@ -40,8 +41,11 @@ export function tryAcquireUpdate(): UpdateStartError | null {
     return { code: "rate_limited", message: "Bitte einen Moment warten und erneut versuchen" }
   }
   updateInProgress = true
-  lastSuccessfulStartAt = now
   return null
+}
+
+export function markUpdateRateLimited(): void {
+  lastSuccessfulStartAt = Date.now()
 }
 
 export function releaseUpdateLock(): void {
@@ -59,12 +63,46 @@ export type SpawnUpdateFn = (
   onLine: (stream: "stdout" | "stderr", line: string) => void
 ) => Promise<number>
 
+/** Standalone Node often has a minimal PATH — use absolute bash from the image. */
+export function resolveBashPath(): string {
+  const candidates = [
+    process.env.FINANCER_BASH_PATH,
+    "/bin/bash",
+    "/usr/bin/bash",
+  ].filter((p): p is string => Boolean(p))
+  for (const p of candidates) {
+    if (p === "/bin/bash" || p === "/usr/bin/bash") {
+      if (existsSync(p)) return p
+    } else if (existsSync(p)) {
+      return p
+    }
+  }
+  throw new Error(
+    "bash nicht im App-Container — Image v0.1.1+ pullen und Container neu erstellen"
+  )
+}
+
 const defaultSpawnUpdate: SpawnUpdateFn = (hostDir, onLine) =>
   new Promise((resolve, reject) => {
+    let bashBin: string
+    try {
+      bashBin = resolveBashPath()
+    } catch (err) {
+      reject(err)
+      return
+    }
     const scriptPath = join(hostDir, "scripts", "update.sh")
-    const child = spawn("bash", [scriptPath], {
+    if (!existsSync(scriptPath)) {
+      reject(new Error("Update-Skript fehlt im Deploy-Verzeichnis (/deploy/scripts/update.sh)"))
+      return
+    }
+    const child = spawn(bashBin, [scriptPath], {
       cwd: hostDir,
-      env: { ...process.env, APP_DIR: hostDir },
+      env: {
+        ...process.env,
+        APP_DIR: hostDir,
+        PATH: process.env.PATH ?? "/bin:/usr/bin:/sbin:/usr/local/bin",
+      },
     })
 
     const handleData = (stream: "stdout" | "stderr") => (chunk: Buffer) => {
@@ -113,6 +151,7 @@ export async function runAppUpdate(
       return
     }
 
+    markUpdateRateLimited()
     emit({ type: "complete", data: { ok: true } })
   } finally {
     releaseUpdateLock()

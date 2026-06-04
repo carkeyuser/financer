@@ -149,6 +149,10 @@ export const deMessages = {
     failed: "Update fehlgeschlagen",
     notAvailable: "In-App-Update ist nicht aktiviert",
     inProgress: "Ein Update läuft bereits",
+    bashMissing:
+      "bash fehlt im App-Container — GHCR-Image v0.1.1+ pullen und Container neu erstellen.",
+    scriptMissing:
+      "Update-Skript fehlt unter /deploy (git pull im Installationsverzeichnis).",
   },
   backup: {
     title: "Datensicherung",
