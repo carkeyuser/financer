@@ -107,6 +107,20 @@ i18n: `theme.light`, `theme.dark`, `theme.retrowave`, `settings.appearance` (en/
 
 **Gesamt:** ~2–2,5 Tage
 
+## V2 Redesign (2026-06-04)
+
+Ersetzt die erste Retrowave-Optik app-weit (kein separates Preview-Theme):
+
+| Element | Umsetzung |
+|---|---|
+| **Sternschnuppen** | [`src/components/theme/RetrowaveAmbience.tsx`](../src/components/theme/RetrowaveAmbience.tsx) — Canvas, nur bei `resolvedTheme === "retrowave"`; ~100 Sterne, max. 2 Meteors; pausiert bei `visibilityState === "hidden"` |
+| **Reduced motion** | `prefers-reduced-motion: reduce` → nur statisches Sternfeld, keine Meteors |
+| **Layering** | `body::before` Grid `z-index: -2`; Canvas `fixed z-0`; App-Inhalt `relative z-10` in [`layout.tsx`](../src/app/layout.tsx) |
+| **Tokens** | Tieferes Space-Violet, höhere Chroma für Magenta/Cyan, glassige Cards (`--card` mit Alpha) |
+| **UI-Glow** | `--retrowave-glow-magenta/cyan`; Card `backdrop-filter` + Neon-`box-shadow`; Sidebar/Header-Border-Overrides in `globals.css` |
+
+Light/Dark unverändert.
+
 ## Verweise
 
 - Backlog: [`features.md`](features.md) — F-47

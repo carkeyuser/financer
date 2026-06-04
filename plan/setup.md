@@ -35,18 +35,19 @@ Bedienoberfläche, lokale Entwicklung, Docker-Setup und Teststand.
 
 ```powershell
 npm install
-cp .env.example .env.local
-# DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, AUTH_TRUST_HOST=true eintragen
-
-npx prisma generate
-npx prisma migrate deploy    # alle Migrationen anwenden
-npx prisma db seed           # Demo-User + Fixkosten
+npm run setup:dev            # .env.local (localhost:5432), Docker-DB, migrate, seed demo/demo1234
 npm run dev
 ```
 
+Manuell statt `setup:dev`: `cp .env.example .env.local` — `DATABASE_URL` muss `@localhost:5432` nutzen (nicht `@db`), dann `npm run db:up`, `npx prisma migrate deploy`, `npx prisma db seed`.
+
+### Port 3001 (Windows + WSL)
+
+`npm run dev` nutzt **Port 3001** (`http://localhost:3001`). Unter Windows blockiert oft **WSL** `localhost:3000` — dort läuft nicht Financer (Login: „Ungültige Anmeldedaten“ / Bad Request).
+
 ### Netzwerkzugriff (LAN)
 
-Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. `192.168.x.x:3000`):
+Wenn der Browser die App über eine andere IP aufruft als `NEXTAUTH_URL` (z. B. `192.168.x.x:3001`):
 
 **`next.config.ts`:** `allowedDevOrigins: ["192.168.x.x"]` (eigene LAN-IP eintragen)  
 **`.env.local`:** `AUTH_TRUST_HOST=true`  
@@ -70,7 +71,7 @@ Jede Hauptroute hat `layout.tsx` mit `<AuthGuard>`. Page-Komponenten dürfen `Au
 ### Nützliche Befehle
 
 ```bash
-npm run dev                            # Dev-Server (localhost:3000)
+npm run dev                            # Dev-Server (localhost:3001)
 npm run build                          # Production-Build prüfen
 npm run lint                           # ESLint (flat config, Next.js 16)
 npm run lint:fix                       # ESLint mit --fix

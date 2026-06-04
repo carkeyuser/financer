@@ -14,45 +14,64 @@ import { fixedCostsForHousehold } from "../src/lib/constants/default-fixed-costs
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter })
 
-async function main() {
-  const username1 = "demo"
-  const username2 = "demo2"
+const DEMO_USERNAMES = ["demo", "demo2"] as const
 
-  let user1 = await prisma.user.findUnique({ where: { username: username1 } })
-
-  // Backfill fixed costs when none exist yet
-  if (user1) {
-    const membership = await prisma.householdMember.findFirst({
-      where: { userId: user1.id },
-      orderBy: { joinedAt: "asc" },
+async function resetDemoCredentials(passwordHash: string) {
+  for (const username of DEMO_USERNAMES) {
+    const user = await prisma.user.findUnique({ where: { username } })
+    if (!user) continue
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        twoFactorEnabled: false,
+        twoFactorSecret: null,
+      },
     })
-    if (membership) {
-      const existingCosts = await prisma.fixedCost.count({
-        where: { householdId: membership.householdId },
-      })
-      if (existingCosts === 0) {
-        await prisma.fixedCost.createMany({
-          data: fixedCostsForHousehold(membership.householdId),
-        })
-        console.log(`✓ Default fixed costs added to existing household`)
-      } else {
-        console.log("Demo users and fixed costs already exist — seed skipped.")
-      }
-      return
-    }
+    console.log(`✓ Demo credentials reset: username="${username}"`)
   }
+}
+
+async function backfillFixedCosts(householdId: string) {
+  const existingCosts = await prisma.fixedCost.count({ where: { householdId } })
+  if (existingCosts > 0) return false
+  await prisma.fixedCost.createMany({
+    data: fixedCostsForHousehold(householdId),
+  })
+  console.log(`✓ Default fixed costs added to existing household`)
+  return true
+}
+
+async function main() {
+  const username1 = DEMO_USERNAMES[0]
+  const username2 = DEMO_USERNAMES[1]
 
   const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "demo1234"
   if (!process.env.SEED_DEMO_PASSWORD) {
     console.warn(
-      "⚠ SEED_DEMO_PASSWORD nicht gesetzt — Demo-Passwort ist \"demo1234\" (nur für lokale Entwicklung)."
+      '⚠ SEED_DEMO_PASSWORD nicht gesetzt — Demo-Passwort ist "demo1234" (nur für lokale Entwicklung).'
     )
   }
   const passwordHash = await bcrypt.hash(demoPassword, 12)
 
+  const existingDemo = await prisma.user.findUnique({ where: { username: username1 } })
+
+  if (existingDemo) {
+    await resetDemoCredentials(passwordHash)
+    const membership = await prisma.householdMember.findFirst({
+      where: { userId: existingDemo.id },
+      orderBy: { joinedAt: "asc" },
+    })
+    if (membership) {
+      await backfillFixedCosts(membership.householdId)
+    }
+    console.log("Demo users already exist — passwords reset for local dev login.")
+    return
+  }
+
   const household = await prisma.household.create({ data: { name: "Demo Household" } })
 
-  user1 = await prisma.user.create({
+  const user1 = await prisma.user.create({
     data: {
       name: "User1",
       username: username1,
@@ -81,17 +100,16 @@ async function main() {
   const fixedCosts = fixedCostsForHousehold(household.id)
   await prisma.fixedCost.createMany({ data: fixedCosts })
 
-  // Demo income + payouts for 2024 (fictional round amounts)
   const sampleMonths = [
-    { month: 1,  income1: 3000, income2: 3200, payout: 500 },
-    { month: 2,  income1: 3000, income2: 3200, payout: 500 },
-    { month: 3,  income1: 3000, income2: 3300, payout: 550 },
-    { month: 4,  income1: 3000, income2: 3300, payout: 550 },
-    { month: 5,  income1: 3000, income2: 4000, payout: 800 },
-    { month: 6,  income1: 3000, income2: 4000, payout: 750 },
-    { month: 7,  income1: 3000, income2: 3500, payout: 600 },
-    { month: 8,  income1: 3000, income2: 3300, payout: 550 },
-    { month: 9,  income1: 3500, income2: 3600, payout: 700 },
+    { month: 1, income1: 3000, income2: 3200, payout: 500 },
+    { month: 2, income1: 3000, income2: 3200, payout: 500 },
+    { month: 3, income1: 3000, income2: 3300, payout: 550 },
+    { month: 4, income1: 3000, income2: 3300, payout: 550 },
+    { month: 5, income1: 3000, income2: 4000, payout: 800 },
+    { month: 6, income1: 3000, income2: 4000, payout: 750 },
+    { month: 7, income1: 3000, income2: 3500, payout: 600 },
+    { month: 8, income1: 3000, income2: 3300, payout: 550 },
+    { month: 9, income1: 3500, income2: 3600, payout: 700 },
     { month: 10, income1: 3000, income2: 3300, payout: 500 },
     { month: 12, income1: 3000, income2: 3400, payout: 550 },
   ]
@@ -123,5 +141,8 @@ async function main() {
 }
 
 main()
-  .catch(console.error)
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
   .finally(() => prisma.$disconnect())

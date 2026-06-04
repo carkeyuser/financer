@@ -15,7 +15,8 @@ Personal finance dashboard for a small family/team. Self-hosted via Docker on yo
 ## Commands
 
 ```bash
-npm run dev           # development server (localhost:3000)
+npm run setup:dev     # Docker DB + migrate + seed (demo / demo1234)
+npm run dev           # development server (localhost:3001)
 npm run build         # production build
 npm run lint          # ESLint (flat config)
 npm run lint:fix      # ESLint --fix

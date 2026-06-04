@@ -13,13 +13,15 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
     highlights: {
       de: [
         "Retrowave-Theme: drittes Erscheinungsbild (Neon/Synthwave) neben Hell und Dunkel",
+        "Retrowave V2: Sternfeld mit Sternschnuppen, Neon-Glow-Cards, tieferes Space-Violet",
         "Einstellungen: Erscheinungsbild wählen; Sidebar-Toggle wechselt Hell → Dunkel → Retrowave",
-        "Charts nutzen Theme-Farben (--chart-*, --gain/--loss) statt fester Hex-Werte",
+        "Lokales Dev-Setup: npm run setup:dev (demo/demo1234), Dev-Server Port 3001",
       ],
       en: [
         "Retrowave theme: third appearance (neon/synthwave) alongside light and dark",
+        "Retrowave V2: starfield with shooting stars, neon glow cards, deeper space-violet palette",
         "Settings: pick appearance; sidebar toggle cycles light → dark → retrowave",
-        "Charts use theme colors (--chart-*, --gain/--loss) instead of hard-coded hex values",
+        "Local dev: npm run setup:dev (demo/demo1234), dev server on port 3001",
       ],
     },
   },
