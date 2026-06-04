@@ -8,6 +8,22 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.2",
+    date: "2026-06-04",
+    highlights: {
+      de: [
+        "In-App-Update: Hinweis „kein neues Update“, wenn Version aktuell ist",
+        "Update-Button nur bei neuer GitHub-Version oder git hinter origin/main",
+        "Fix: Update startet zuverlässig (/bin/bash, PATH im Container)",
+      ],
+      en: [
+        "In-app update: “no update available” when you are already current",
+        "Update button only when a newer GitHub release or git behind origin/main",
+        "Fix: update starts reliably (/bin/bash, PATH in container)",
+      ],
+    },
+  },
+  {
     version: "0.1.1",
     date: "2026-06-04",
     highlights: {
