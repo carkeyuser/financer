@@ -7,6 +7,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider"
 import { AppProviders } from "@/components/providers/AppProviders"
 import { auth } from "@/lib/auth"
 import { sessionLocale } from "@/lib/session-locale"
+import { RetrowaveAmbience } from "@/components/theme/RetrowaveAmbience"
 import "./globals.css"
 
 const geist = Geist({ subsets: ["latin"] })
@@ -32,8 +33,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               enableSystem
               themes={[...APP_THEMES]}
             >
-              {children}
-              <Toaster />
+              <RetrowaveAmbience />
+              <div className="relative z-10 min-h-screen">
+                {children}
+                <Toaster />
+              </div>
             </ThemeProvider>
           </QueryProvider>
         </AppProviders>

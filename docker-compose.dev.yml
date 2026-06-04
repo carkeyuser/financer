@@ -1,0 +1,6 @@
+# Local dev overlay: expose PostgreSQL to the host for npm run dev + prisma CLI.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+services:
+  db:
+    ports:
+      - "5432:5432"
