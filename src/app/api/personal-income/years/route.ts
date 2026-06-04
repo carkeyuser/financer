@@ -3,9 +3,10 @@ import { requireSession } from "@/lib/household-auth"
 import { loadPersonalIncomeYearsMatrix } from "@/lib/services/personal-income"
 import {
   PERSONAL_INCOME_MAX_YEARS_SPAN,
-  personalIncomeYearsListQuerySchema,
-  personalIncomeYearsQuerySchema,
+  createPersonalIncomeYearsListQuerySchema,
+  createPersonalIncomeYearsQuerySchema,
 } from "@/lib/validations/personal-income"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function GET(req: NextRequest) {
   const ctx = await requireSession()
@@ -15,7 +16,9 @@ export async function GET(req: NextRequest) {
 
   const yearsParam = req.nextUrl.searchParams.get("years")
   if (yearsParam) {
-    const parsed = personalIncomeYearsListQuerySchema.safeParse({ years: yearsParam })
+    const parsed = createPersonalIncomeYearsListQuerySchema(sessionLocale(ctx.session)).safeParse(
+      { years: yearsParam }
+    )
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
@@ -38,7 +41,7 @@ export async function GET(req: NextRequest) {
       : undefined,
   }
 
-  const parsed = personalIncomeYearsQuerySchema.safeParse(raw)
+  const parsed = createPersonalIncomeYearsQuerySchema(sessionLocale(ctx.session)).safeParse(raw)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }

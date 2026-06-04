@@ -76,6 +76,20 @@ describe("translateApiError", () => {
       "Exchange rates could not be loaded"
     )
   })
+
+  it("translates personal income error codes", () => {
+    expect(mapApiError("YEAR_NOT_PAST", "en")).toBe("Only past calendar years can be added")
+    expect(mapApiError("NO_NET_SALARY", "en")).toBe("Net salary missing — enter net amount first")
+  })
+
+  it("translates nested zod flatten errors", () => {
+    expect(
+      translateApiError(
+        { error: { fieldErrors: { year: ["YEAR_NOT_PAST"] }, formErrors: [] } },
+        "en"
+      )
+    ).toBe("Only past calendar years can be added")
+  })
 })
 
 describe("message key parity", () => {

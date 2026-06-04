@@ -1,135 +1,125 @@
 import type { Locale } from "./locales"
-import { createTranslator } from "./messages"
+import { createTranslator, type MessageKey } from "./messages"
 
-const API_ERROR_MAP: Record<string, { de: string; en: string }> = {
-  "Nicht autorisiert": { de: "Nicht autorisiert", en: "Unauthorized" },
-  "Nicht gefunden": { de: "Nicht gefunden", en: "Not found" },
-  "Keine Berechtigung": { de: "Keine Berechtigung", en: "Forbidden" },
-  "Kein Zugriff auf diesen Haushalt": { de: "Kein Zugriff auf diesen Haushalt", en: "No access to this household" },
-  "Kein Haushalt ausgewählt": { de: "Kein Haushalt ausgewählt", en: "No household selected" },
-  "Menge würde negativ werden": { de: "Menge würde negativ werden", en: "Quantity would become negative" },
-  "Asset nicht gefunden": { de: "Asset nicht gefunden", en: "Asset not found" },
-  "Ungültiges JSON": { de: "Ungültiges JSON", en: "Invalid JSON" },
-  "Ungültiges Backup-Format": { de: "Ungültiges Backup-Format", en: "Invalid backup format" },
-  "Benutzer nicht gefunden": { de: "Benutzer nicht gefunden", en: "User not found" },
-  "Der Eigentümer kann nicht bearbeitet werden": { de: "Der Eigentümer kann nicht bearbeitet werden", en: "The owner cannot be edited" },
-  "Ungültiger Code": { de: "Ungültiger Code", en: "Invalid code" },
-  "Kein Secret vorhanden — zuerst Setup aufrufen": { de: "Kein Secret vorhanden — zuerst Setup aufrufen", en: "No secret — call setup first" },
-  "Code ungültig oder abgelaufen": { de: "Code ungültig oder abgelaufen", en: "Code invalid or expired" },
-  "2FA ist nicht aktiv": { de: "2FA ist nicht aktiv", en: "2FA is not active" },
-  "2FA ist bereits aktiv": { de: "2FA ist bereits aktiv", en: "2FA is already active" },
-  "Ungültige Anfrage": { de: "Ungültige Anfrage", en: "Invalid request" },
-  "Mitglied nicht gefunden": { de: "Mitglied nicht gefunden", en: "Member not found" },
-  "Nur der Eigentümer kann Benutzer anlegen": { de: "Nur der Eigentümer kann Benutzer anlegen", en: "Only the owner can create users" },
-  "Token fehlt": { de: "Token fehlt", en: "Token missing" },
-  "Einladung ungültig oder abgelaufen": { de: "Einladung ungültig oder abgelaufen", en: "Invitation invalid or expired" },
-  "Bitte zuerst anmelden": { de: "Bitte zuerst anmelden", en: "Please sign in first" },
-  "Ungültige Reihenfolge": { de: "Ungültige Reihenfolge", en: "Invalid order" },
-  "Einladung nicht gefunden": { de: "Einladung nicht gefunden", en: "Invitation not found" },
-  "Einladung bereits abgelaufen": { de: "Einladung bereits abgelaufen", en: "Invitation already expired" },
-  "Symbol fehlt": { de: "Symbol fehlt", en: "Symbol missing" },
-  "symbol und from sind erforderlich": { de: "symbol und from sind erforderlich", en: "symbol and from are required" },
-  "Kein Passwort gesetzt": { de: "Kein Passwort gesetzt", en: "No password set" },
-  "Nur der Eigentümer kann Rollen ändern": { de: "Nur der Eigentümer kann Rollen ändern", en: "Only the owner can change roles" },
-  "Die Rolle des Eigentümers kann nicht geändert werden": { de: "Die Rolle des Eigentümers kann nicht geändert werden", en: "The owner's role cannot be changed" },
-  "Du kannst dich nicht selbst entfernen": { de: "Du kannst dich nicht selbst entfernen", en: "You cannot remove yourself" },
-  "Der Eigentümer kann nicht entfernt werden": { de: "Der Eigentümer kann nicht entfernt werden", en: "The owner cannot be removed" },
-  "Du kannst dich nicht selbst löschen": { de: "Du kannst dich nicht selbst löschen", en: "You cannot delete yourself" },
-  "Nur angelegte Tenant-Benutzer können hier gelöscht werden": {
-    de: "Nur angelegte Tenant-Benutzer können hier gelöscht werden",
-    en: "Only provisioned tenant users can be deleted here",
-  },
-  "Haushaltsmitglieder über die Mitgliederverwaltung entfernen": {
-    de: "Haushaltsmitglieder über die Mitgliederverwaltung entfernen",
-    en: "Remove household members via member management",
-  },
-  "Benutzer hat selbst angelegte Tenant-Benutzer — zuerst diese löschen": {
-    de: "Benutzer hat selbst angelegte Tenant-Benutzer — zuerst diese löschen",
-    en: "User has provisioned tenant users — delete those first",
-  },
-  "Benutzername bereits vergeben": { de: "Benutzername bereits vergeben", en: "Username already taken" },
-  Unauthorized: { de: "Nicht autorisiert", en: "Unauthorized" },
-  "User not in household": { de: "Benutzer nicht im Haushalt", en: "User not in household" },
-  "Not found": { de: "Nicht gefunden", en: "Not found" },
-  "widgetId required": { de: "widgetId erforderlich", en: "widgetId required" },
-  "Wechselkurs konnte nicht geladen werden": {
-    de: "Wechselkurs konnte nicht geladen werden",
-    en: "Exchange rate could not be loaded",
-  },
-  "Wechselkurse konnten nicht geladen werden": {
-    de: "Wechselkurse konnten nicht geladen werden",
-    en: "Exchange rates could not be loaded",
-  },
-  "interval muss 1d, 1wk oder 1mo sein": {
-    de: "interval muss 1d, 1wk oder 1mo sein",
-    en: "interval must be 1d, 1wk or 1mo",
-  },
-  "Interest-Position kann nicht bearbeitet werden": {
-    de: "Interest-Position kann nicht bearbeitet werden",
-    en: "Interest position cannot be edited",
-  },
-  "Interest-Position kann nicht gelöscht werden": {
-    de: "Interest-Position kann nicht gelöscht werden",
-    en: "Interest position cannot be deleted",
-  },
-  "Interest ist eine reservierte Dividenden-Position": {
-    de: "Interest ist eine reservierte Dividenden-Position",
-    en: "Interest is a reserved dividend position",
-  },
-  "Keine CSV-Datei hochgeladen": { de: "Keine CSV-Datei hochgeladen", en: "No CSV file uploaded" },
-  "Datei zu groß (max. 5 MB)": { de: "Datei zu groß (max. 5 MB)", en: "File too large (max. 5 MB)" },
-  "Zielbenutzer nicht im Haushalt": {
-    de: "Zielbenutzer nicht im Haushalt",
-    en: "Target user is not in the household",
-  },
-  "Import fehlgeschlagen": { de: "Import fehlgeschlagen", en: "Import failed" },
-  "Bitte einen Moment warten und erneut versuchen": {
-    de: "Bitte einen Moment warten und erneut versuchen",
-    en: "Please wait a moment and try again",
-  },
-  "Ungültiger Request": { de: "Ungültiger Request", en: "Invalid request" },
-  "Vorschau abgelaufen — bitte CSV erneut hochladen": {
-    de: "Vorschau abgelaufen — bitte CSV erneut hochladen",
-    en: "Preview expired — please upload the CSV again",
-  },
-  "Stream ohne Ergebnis": { de: "Stream ohne Ergebnis", en: "Stream ended without result" },
-  "Request failed": { de: "Anfrage fehlgeschlagen", en: "Request failed" },
-  "Löschen fehlgeschlagen": { de: "Löschen fehlgeschlagen", en: "Delete failed" },
-  "Month outside simulation": {
-    de: "Monat liegt außerhalb der Simulation",
-    en: "Month is outside the simulation",
-  },
-  "Aktuelles Passwort ist falsch": {
-    de: "Aktuelles Passwort ist falsch",
-    en: "Current password is incorrect",
-  },
-  NO_NET_SALARY: {
-    de: "Nettogehalt fehlt — zuerst Netto eintragen",
-    en: "Net salary missing — enter net amount first",
-  },
-  INVALID_DATE: { de: "Ungültiges Datum", en: "Invalid date" },
+/** Maps API error strings / codes to i18n message keys (de + en via createTranslator). */
+const API_MESSAGE_KEYS: Record<string, MessageKey> = {
+  "Nicht autorisiert": "errors.unauthorized",
+  Unauthorized: "errors.unauthorized",
+  "Nicht gefunden": "errors.notFound",
+  "Not found": "errors.notFound",
+  "Keine Berechtigung": "errors.forbidden",
+  "Kein Zugriff auf diesen Haushalt": "errors.noHouseholdAccess",
+  "Kein Haushalt ausgewählt": "errors.noHouseholdSelected",
+  "Menge würde negativ werden": "errors.quantityWouldBeNegative",
+  "Asset nicht gefunden": "errors.assetNotFound",
+  "Ungültiges JSON": "errors.invalidJson",
+  "Ungültiges Backup-Format": "errors.invalidBackupFormat",
+  "Benutzer nicht gefunden": "errors.userNotFound",
+  "Der Eigentümer kann nicht bearbeitet werden": "errors.ownerCannotEdit",
+  "Ungültiger Code": "errors.invalidCode",
+  "Kein Secret vorhanden — zuerst Setup aufrufen": "errors.noSecretSetupFirst",
+  "Code ungültig oder abgelaufen": "errors.codeInvalidOrExpired",
+  "2FA ist nicht aktiv": "errors.twoFactorNotActive",
+  "2FA ist bereits aktiv": "errors.twoFactorAlreadyActive",
+  "Ungültige Anfrage": "errors.invalidRequest",
+  "Ungültiger Request": "errors.invalidRequest",
+  "Mitglied nicht gefunden": "errors.memberNotFound",
+  "Nur der Eigentümer kann Benutzer anlegen": "errors.onlyOwnerCanCreateUsers",
+  "Token fehlt": "errors.tokenMissing",
+  "Einladung ungültig oder abgelaufen": "errors.inviteInvalid",
+  "Bitte zuerst anmelden": "errors.pleaseLoginFirst",
+  "Ungültige Reihenfolge": "errors.invalidOrder",
+  "Einladung nicht gefunden": "errors.inviteNotFound",
+  "Einladung bereits abgelaufen": "errors.inviteExpired",
+  "Symbol fehlt": "errors.symbolMissing",
+  "symbol und from sind erforderlich": "errors.symbolRequired",
+  "Kein Passwort gesetzt": "errors.noPasswordSet",
+  "Nur der Eigentümer kann Rollen ändern": "errors.onlyOwnerCanChangeRoles",
+  "Die Rolle des Eigentümers kann nicht geändert werden": "errors.ownerRoleCannotChange",
+  "Du kannst dich nicht selbst entfernen": "errors.cannotRemoveSelf",
+  "Der Eigentümer kann nicht entfernt werden": "errors.ownerCannotRemove",
+  "Du kannst dich nicht selbst löschen": "errors.cannotDeleteSelf",
+  "Nur angelegte Tenant-Benutzer können hier gelöscht werden": "errors.provisionedTenantDeleteOnly",
+  "Haushaltsmitglieder über die Mitgliederverwaltung entfernen": "errors.removeMembersViaManagement",
+  "Benutzer hat selbst angelegte Tenant-Benutzer — zuerst diese löschen":
+    "errors.deleteProvisionedTenantsFirst",
+  "Benutzername bereits vergeben": "errors.usernameTaken",
+  "User not in household": "errors.userNotInHousehold",
+  "widgetId required": "errors.widgetIdRequired",
+  "Wechselkurs konnte nicht geladen werden": "errors.fxRateLoadFailed",
+  "Wechselkurse konnten nicht geladen werden": "errors.fxRatesLoadFailed",
+  "interval muss 1d, 1wk oder 1mo sein": "errors.intervalInvalid",
+  "Interest-Position kann nicht bearbeitet werden": "errors.interestCannotEdit",
+  "Interest-Position kann nicht gelöscht werden": "errors.interestCannotDelete",
+  "Interest ist eine reservierte Dividenden-Position": "errors.interestReservedDividend",
+  "Keine CSV-Datei hochgeladen": "errors.noCsvUploaded",
+  "Datei zu groß (max. 5 MB)": "errors.fileTooLarge",
+  "Zielbenutzer nicht im Haushalt": "errors.targetUserNotInHousehold",
+  "Import fehlgeschlagen": "errors.importFailed",
+  "Bitte einen Moment warten und erneut versuchen": "errors.waitAndRetry",
+  "Vorschau abgelaufen — bitte CSV erneut hochladen": "errors.previewExpired",
+  "Stream ohne Ergebnis": "errors.streamNoResult",
+  "Request failed": "errors.requestFailed",
+  "Löschen fehlgeschlagen": "errors.deleteFailed",
+  "Month outside simulation": "errors.monthOutsideSimulation",
+  "Aktuelles Passwort ist falsch": "errors.currentPasswordIncorrect",
+  "Registrierung ist deaktiviert": "errors.registrationDisabled",
+  "Unbekannte Benutzernamen im Backup (kein Haushaltsmitglied)": "errors.backupUnknownUsernames",
+  "Benachrichtigungen konnten nicht geladen werden": "errors.notificationsLoadFailed",
+  "Snapshots konnten nicht geladen werden": "errors.snapshotsLoadFailed",
+  "Briefing konnte nicht geladen werden": "errors.briefingLoadFailed",
+  "Ungültiger Schritt": "errors.invalidChecklistStep",
+  "year und month erforderlich": "errors.yearMonthRequired",
+  NO_NET_SALARY: "errors.noNetSalary",
+  INVALID_DATE: "errors.invalidDate",
+  YEAR_NOT_PAST: "validation.personalIncomeYearNotPast",
+  FROM_AFTER_TO: "validation.personalIncomeFromAfterTo",
+  YEARS_SPAN_TOO_LARGE: "validation.personalIncomeYearsSpanTooLarge",
+}
+
+function extractFirstErrorMessage(error: unknown): string | null {
+  if (error == null) return null
+  if (typeof error === "string") return error
+  if (typeof error !== "object") return null
+
+  const o = error as Record<string, unknown>
+
+  if (typeof o.error === "string") return o.error
+
+  if (o.error && typeof o.error === "object") {
+    const nested = extractFirstErrorMessage(o.error)
+    if (nested) return nested
+  }
+
+  if (o.fieldErrors && typeof o.fieldErrors === "object") {
+    for (const msgs of Object.values(o.fieldErrors as Record<string, string[]>)) {
+      if (Array.isArray(msgs) && typeof msgs[0] === "string") return msgs[0]
+    }
+  }
+
+  if (Array.isArray(o.formErrors) && typeof o.formErrors[0] === "string") {
+    return o.formErrors[0]
+  }
+
+  return null
 }
 
 export function mapApiError(message: string, locale: Locale): string {
-  const mapped = API_ERROR_MAP[message]
-  if (mapped) return locale === "en" ? mapped.en : mapped.de
+  const t = createTranslator(locale)
+  const key = API_MESSAGE_KEYS[message]
+  if (key) {
+    if (message === "YEARS_SPAN_TOO_LARGE") {
+      return t(key, { max: 30 })
+    }
+    return t(key)
+  }
   return message
 }
 
 export function translateApiError(error: unknown, locale: Locale): string {
-  const t = createTranslator(locale)
-  if (typeof error === "string") return mapApiError(error, locale)
-  if (error && typeof error === "object") {
-    if ("error" in error) {
-      const err = (error as { error: unknown }).error
-      if (typeof err === "string") return mapApiError(err, locale)
-      if (err && typeof err === "object") {
-        const first = Object.values(err as Record<string, string[]>)[0]
-        if (Array.isArray(first) && first[0]) return mapApiError(first[0], locale)
-      }
-    }
-  }
-  return t("errors.generic")
+  const msg = extractFirstErrorMessage(error)
+  if (msg) return mapApiError(msg, locale)
+  return createTranslator(locale)("errors.generic")
 }
 
 export function translateFieldErrors(

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireSession } from "@/lib/household-auth"
 import { loadPersonalIncomeYearSummary } from "@/lib/services/personal-income"
-import { personalIncomeSummaryQuerySchema } from "@/lib/validations/personal-income"
+import { createPersonalIncomeSummaryQuerySchema } from "@/lib/validations/personal-income"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function GET(req: NextRequest) {
   const ctx = await requireSession()
@@ -12,7 +13,9 @@ export async function GET(req: NextRequest) {
   const raw = {
     year: parseInt(req.nextUrl.searchParams.get("year") ?? String(new Date().getFullYear()), 10),
   }
-  const parsed = personalIncomeSummaryQuerySchema.safeParse(raw)
+  const parsed = createPersonalIncomeSummaryQuerySchema(sessionLocale(ctx.session)).safeParse(
+    raw
+  )
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }

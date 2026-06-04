@@ -18,7 +18,7 @@ import { useI18n } from "@/i18n/context"
 import { usePersonalIncomeYearsContext } from "./PersonalIncomeYearsContext"
 
 export function PersonalIncomeAddYearButton() {
-  const { t } = useI18n()
+  const { t, translateApiError } = useI18n()
   const { years, currentYear, addPastYear, isAddingYear } = usePersonalIncomeYearsContext()
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState(String(currentYear - 6))
@@ -41,27 +41,7 @@ export function PersonalIncomeAddYearButton() {
       toast.success(t("personalIncome.addYearSuccess", { year }))
       setOpen(false)
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "error" in err) {
-        const apiError = (err as { error: unknown }).error
-        if (apiError === "YEAR_NOT_PAST") {
-          toast.error(t("personalIncome.addYearInvalid", { max: maxPastYear }))
-          return
-        }
-        if (
-          typeof apiError === "object" &&
-          apiError !== null &&
-          "fieldErrors" in apiError &&
-          typeof (apiError as { fieldErrors?: { year?: string[] } }).fieldErrors?.year?.[0] ===
-            "string"
-        ) {
-          const msg = (apiError as { fieldErrors: { year: string[] } }).fieldErrors.year[0]
-          if (msg === "YEAR_NOT_PAST") {
-            toast.error(t("personalIncome.addYearInvalid", { max: maxPastYear }))
-            return
-          }
-        }
-      }
-      toast.error(t("personalIncome.addYearFailed"))
+      toast.error(translateApiError(err))
     }
   }
 

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireSession } from "@/lib/household-auth"
 import { upsertPersonalIncomeMonth, loadPersonalIncomeYearSummary } from "@/lib/services/personal-income"
-import { personalIncomeMonthUpsertSchema } from "@/lib/validations/personal-income"
+import { createPersonalIncomeMonthUpsertSchema } from "@/lib/validations/personal-income"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function PUT(req: NextRequest) {
   const ctx = await requireSession()
@@ -16,7 +17,9 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Ungültiges JSON" }, { status: 400 })
   }
 
-  const parsed = personalIncomeMonthUpsertSchema.safeParse(body)
+  const parsed = createPersonalIncomeMonthUpsertSchema(sessionLocale(ctx.session)).safeParse(
+    body
+  )
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }

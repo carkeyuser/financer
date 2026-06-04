@@ -1,9 +1,26 @@
 import { z } from "zod"
+import type { Locale } from "@/i18n/locales"
+import { createTranslator } from "@/i18n/messages"
 
 export const PERSONAL_INCOME_MAX_YEARS_SPAN = 30
 
-export const yearSchema = z.number().int().min(2000).max(2100)
-const monthSchema = z.number().int().min(1).max(12)
+function yearField(locale: Locale) {
+  const t = createTranslator(locale)
+  return z
+    .number({ invalid_type_error: t("validation.yearInvalid") })
+    .int({ message: t("validation.yearInvalid") })
+    .min(2000, { message: t("validation.yearMin") })
+    .max(2100, { message: t("validation.yearMax") })
+}
+
+function monthField(locale: Locale) {
+  const t = createTranslator(locale)
+  return z
+    .number({ invalid_type_error: t("validation.monthInvalid") })
+    .int({ message: t("validation.monthInvalid") })
+    .min(1, { message: t("validation.monthInvalid") })
+    .max(12, { message: t("validation.monthInvalid") })
+}
 
 const optionalAmount = z
   .number()
@@ -12,80 +29,123 @@ const optionalAmount = z
   .optional()
   .transform((v) => (v === undefined ? undefined : v))
 
-export const personalIncomeMonthUpsertSchema = z.object({
-  year: yearSchema,
-  month: monthSchema,
-  grossSalary: optionalAmount,
-  netSalary: optionalAmount,
-  monthBonus: optionalAmount,
-  note: z.string().max(2000).nullable().optional(),
-})
-
-export const personalIncomeBonusCreateSchema = z.object({
-  date: z.string().min(1),
-  amount: z.number().positive(),
-  label: z.string().min(1).max(200),
-  note: z.string().max(2000).nullable().optional(),
-})
-
-export const personalIncomeSyncHouseholdSchema = z.object({
-  year: yearSchema,
-  month: monthSchema,
-})
-
-export const personalIncomeYearsQuerySchema = z
-  .object({
-    from: yearSchema.optional(),
-    to: yearSchema.optional(),
+export function createPersonalIncomeMonthUpsertSchema(locale: Locale) {
+  return z.object({
+    year: yearField(locale),
+    month: monthField(locale),
+    grossSalary: optionalAmount,
+    netSalary: optionalAmount,
+    monthBonus: optionalAmount,
+    note: z.string().max(2000).nullable().optional(),
   })
-  .superRefine((data, ctx) => {
-    const currentYear = new Date().getFullYear()
-    const toYear = data.to ?? currentYear
-    const fromYear = data.from ?? toYear - 4
-    if (fromYear > toYear) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "FROM_AFTER_TO" })
-    }
-    if (toYear - fromYear + 1 > PERSONAL_INCOME_MAX_YEARS_SPAN) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "YEARS_SPAN_TOO_LARGE" })
-    }
+}
+
+export function createPersonalIncomeBonusCreateSchema(locale: Locale) {
+  const t = createTranslator(locale)
+  return z.object({
+    date: z.string().min(1, { message: t("validation.dateRequired") }),
+    amount: z.number().positive({ message: t("validation.amountPositive") }),
+    label: z.string().min(1, { message: t("validation.labelRequired") }).max(200),
+    note: z.string().max(2000).nullable().optional(),
   })
+}
 
-export const personalIncomeYearsListQuerySchema = z.object({
-  years: z
-    .string()
-    .min(1)
-    .transform((s) =>
-      s
-        .split(",")
-        .map((y) => parseInt(y.trim(), 10))
-        .filter((y) => !Number.isNaN(y))
-    )
-    .pipe(
-      z
-        .array(yearSchema)
-        .min(1)
-        .max(PERSONAL_INCOME_MAX_YEARS_SPAN, { message: "YEARS_SPAN_TOO_LARGE" })
-    ),
-})
-
-export const personalIncomeSummaryQuerySchema = z.object({
-  year: yearSchema,
-})
-
-export const personalIncomeTrackYearSchema = z
-  .object({
-    year: yearSchema,
+export function createPersonalIncomeSyncHouseholdSchema(locale: Locale) {
+  return z.object({
+    year: yearField(locale),
+    month: monthField(locale),
   })
-  .superRefine((data, ctx) => {
-    const currentYear = new Date().getFullYear()
-    if (data.year >= currentYear) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "YEAR_NOT_PAST",
-        path: ["year"],
-      })
-    }
-  })
+}
 
-export type PersonalIncomeMonthUpsertInput = z.infer<typeof personalIncomeMonthUpsertSchema>
-export type PersonalIncomeBonusCreateInput = z.infer<typeof personalIncomeBonusCreateSchema>
+export function createPersonalIncomeYearsQuerySchema(locale: Locale) {
+  const t = createTranslator(locale)
+  return z
+    .object({
+      from: yearField(locale).optional(),
+      to: yearField(locale).optional(),
+    })
+    .superRefine((data, ctx) => {
+      const currentYear = new Date().getFullYear()
+      const toYear = data.to ?? currentYear
+      const fromYear = data.from ?? toYear - 4
+      if (fromYear > toYear) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.personalIncomeFromAfterTo"),
+        })
+      }
+      if (toYear - fromYear + 1 > PERSONAL_INCOME_MAX_YEARS_SPAN) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.personalIncomeYearsSpanTooLarge", {
+            max: PERSONAL_INCOME_MAX_YEARS_SPAN,
+          }),
+        })
+      }
+    })
+}
+
+export function createPersonalIncomeYearsListQuerySchema(locale: Locale) {
+  const t = createTranslator(locale)
+  return z.object({
+    years: z
+      .string()
+      .min(1)
+      .transform((s) =>
+        s
+          .split(",")
+          .map((y) => parseInt(y.trim(), 10))
+          .filter((y) => !Number.isNaN(y))
+      )
+      .pipe(
+        z
+          .array(yearField(locale))
+          .min(1, { message: t("validation.personalIncomeYearsRequired") })
+          .max(PERSONAL_INCOME_MAX_YEARS_SPAN, {
+            message: t("validation.personalIncomeYearsSpanTooLarge", {
+              max: PERSONAL_INCOME_MAX_YEARS_SPAN,
+            }),
+          })
+      ),
+  })
+}
+
+export function createPersonalIncomeSummaryQuerySchema(locale: Locale) {
+  return z.object({
+    year: yearField(locale),
+  })
+}
+
+export function createPersonalIncomeTrackYearSchema(locale: Locale) {
+  const t = createTranslator(locale)
+  return z
+    .object({
+      year: yearField(locale),
+    })
+    .superRefine((data, ctx) => {
+      const currentYear = new Date().getFullYear()
+      if (data.year >= currentYear) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.personalIncomeYearNotPast"),
+          path: ["year"],
+        })
+      }
+    })
+}
+
+/** @deprecated Use createPersonalIncomeMonthUpsertSchema(locale) in API routes */
+export const personalIncomeMonthUpsertSchema = createPersonalIncomeMonthUpsertSchema("de")
+export const personalIncomeBonusCreateSchema = createPersonalIncomeBonusCreateSchema("de")
+export const personalIncomeSyncHouseholdSchema = createPersonalIncomeSyncHouseholdSchema("de")
+export const personalIncomeYearsQuerySchema = createPersonalIncomeYearsQuerySchema("de")
+export const personalIncomeYearsListQuerySchema = createPersonalIncomeYearsListQuerySchema("de")
+export const personalIncomeSummaryQuerySchema = createPersonalIncomeSummaryQuerySchema("de")
+export const personalIncomeTrackYearSchema = createPersonalIncomeTrackYearSchema("de")
+
+export type PersonalIncomeMonthUpsertInput = z.infer<
+  ReturnType<typeof createPersonalIncomeMonthUpsertSchema>
+>
+export type PersonalIncomeBonusCreateInput = z.infer<
+  ReturnType<typeof createPersonalIncomeBonusCreateSchema>
+>

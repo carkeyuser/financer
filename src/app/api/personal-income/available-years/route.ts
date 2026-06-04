@@ -4,7 +4,8 @@ import {
   listPersonalIncomeAvailableYears,
   trackPersonalIncomeYear,
 } from "@/lib/services/personal-income"
-import { personalIncomeTrackYearSchema } from "@/lib/validations/personal-income"
+import { createPersonalIncomeTrackYearSchema } from "@/lib/validations/personal-income"
+import { sessionLocale } from "@/lib/session-locale"
 
 export async function GET() {
   const ctx = await requireSession()
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => null)
-  const parsed = personalIncomeTrackYearSchema.safeParse(body)
+  const parsed = createPersonalIncomeTrackYearSchema(sessionLocale(ctx.session)).safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }

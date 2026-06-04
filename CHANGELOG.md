@@ -7,6 +7,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **i18n** — API/Zod errors map to `errors.*` / `validation.*` message keys; `translateApiError` unwraps nested flatten payloads; personal-income validation is locale-aware
 - **CI** — Doc-only pushes/PRs (`**.md`, `plan/**`, `release-notes.ts`, `LICENSE`) skip workflow; `v*` tag pushes always run
 
 ## [0.1.0] - 2026-06-04
