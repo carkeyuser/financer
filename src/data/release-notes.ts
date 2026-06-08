@@ -8,6 +8,18 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.8",
+    date: "2026-06-08",
+    highlights: {
+      de: [
+        "Fix: In-App-Update git pull bei root-owned Working Tree (Docker-Git + docker inspect Mount)",
+      ],
+      en: [
+        "Fix: in-app update git pull when working tree is root-owned (Docker git + docker inspect mount)",
+      ],
+    },
+  },
+  {
     version: "0.1.7",
     date: "2026-06-08",
     highlights: {

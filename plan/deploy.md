@@ -222,9 +222,16 @@ bash scripts/update.sh
 
 **Fehler `FETCH_HEAD: Permission denied` / Exit-Code 1:** Der App-Container läuft als `nextjs` (UID **1001**), das Git-Repo auf dem Host oft als **root** (Clone/SSH-Updates). `git pull` kann `.git/FETCH_HEAD` nicht schreiben.
 
-- **Sofort:** `chown -R 1001:1001 /opt/financer/.git` (Pfad = dein `FINANCER_HOST_APP_DIR`)
-- **Ab v0.1.7:** `update.sh` führt `git pull` automatisch via `alpine/git` als root aus, wenn der Prozess nicht-root ist und `FINANCER_HOST_MOUNT` + Docker-Socket verfügbar sind (`docker-compose.update.yml` setzt `FINANCER_HOST_MOUNT` aus der Host-`.env`).
-- **Hinweis:** Jeder `git pull` als root per SSH kann `.git` wieder root-owned machen — dann erneut chown oder In-App-Update mit neuem Skript nutzen.
+- **Sofort (SSH als root):**
+  ```bash
+  cd /opt/financer
+  git fetch origin && git reset --hard origin/main
+  chown -R 1001:1001 /opt/financer
+  bash scripts/update.sh
+  ```
+  Nur `.git` chown reicht oft nicht — auch getrackte Dateien im Working Tree müssen für uid 1001 beschreibbar sein (oder `git pull` läuft als root via Docker).
+- **Ab v0.1.7:** `update.sh` führt `git pull` via `alpine/git` als root aus, wenn der Prozess nicht-root ist (In-App-Update). Host-Pfad: `FINANCER_HOST_MOUNT`, `.env` (`FINANCER_HOST_APP_DIR`) oder `docker inspect finance_app` Mount `/deploy`.
+- **Hinweis:** Jeder `git pull`/`reset` als root per SSH setzt Dateien wieder auf root — dann erneut `chown -R 1001:1001` oder In-App-Update mit aktuellem `update.sh`.
 - **`install.sh`:** Setzt `.git`-Ownership auf 1001:1001, wenn `FINANCER_UPDATE_ENABLED=true` und Install als root.
 
 ---
