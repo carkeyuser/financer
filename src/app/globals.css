@@ -254,3 +254,34 @@
 .react-grid-item:hover .react-resizable-handle.react-resizable-handle-se:hover {
   opacity: 0.8;
 }
+
+/* F-51 Ambient kiosk */
+.ambient-clock {
+  text-shadow:
+    0 0 24px oklch(0.72 0.32 330 / 55%),
+    0 0 48px oklch(0.76 0.17 200 / 35%);
+}
+
+.ambient-ticker {
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ambient-ticker-track {
+  animation: ambient-ticker 45s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-ticker-track {
+    animation: none;
+  }
+}
+
+@keyframes ambient-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

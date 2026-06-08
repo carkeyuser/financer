@@ -1,7 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { useTheme } from "next-themes"
+import { Monitor } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -50,6 +53,14 @@ export function AppearanceCard() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="mt-6 pt-4 border-t space-y-2">
+          <p className="text-sm font-medium">{t("settings.ambientKiosk")}</p>
+          <p className="text-xs text-muted-foreground">{t("ambient.openKioskDescription")}</p>
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/ambient" />}>
+            <Monitor className="h-4 w-4" />
+            {t("ambient.openKiosk")}
+          </Button>
         </div>
       </CardContent>
     </Card>

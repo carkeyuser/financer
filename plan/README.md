@@ -17,7 +17,7 @@ Das Dashboard ist ein frei konfigurierbares Widget-Grid (11 Widget-Typen). Die H
 
 Self-hosted via Docker auf deinem Server.
 
-**Stand:** 2026-06-05 (GHCR-Image: CI `cp -a` für Standalone; Release v0.1.5)
+**Stand:** 2026-06-08 (F-51 Ambient-Kiosk; Release v0.1.5)
 
 ---
 
@@ -32,7 +32,7 @@ Self-hosted via Docker auf deinem Server.
 | **5** Multi-User | ✅ erledigt | Invites, accept-invite, Switcher, Rollen, User anlegen, 2FA (TOTP) |
 | **6** Haushaltskasse | ✅ erledigt | Ausgaben raus, Haushaltskasse + Simulationen (F-33) |
 | **7** EUR-Konvertierung | ✅ erledigt | Alle Investment-Werte in € via Yahoo Forex; FX-Fehler → 503 statt falscher EUR-Werte |
-| **8** Feature-Backlog | 🟡 teilweise offen | Kalender F-34; F-47 Retrowave-Theme ✅; F-31 Install ✅; Daily-Habit F-40–F-44 ✅; F-45 Einkommen ✅; F-46 In-App-Update ✅ |
+| **8** Feature-Backlog | 🟡 teilweise offen | Kalender F-34; F-47 Retrowave ✅; F-51 Ambient-Kiosk ✅; F-31 Install ✅; Daily-Habit F-40–F-44 ✅; F-45 Einkommen ✅; F-46 In-App-Update ✅ |
 | **12** Persönliches Einkommen | ✅ erledigt | Tab `/einkommen`, privat pro User, HK-Sync, Jahresvergleich (F-45) |
 | **9** Datensicherung | ✅ erledigt | Backup-Export + Restore inkl. Dividenden & Simulationen |
 | **D-01** Docker Compose production-ready | ✅ erledigt | Kein offener PG-Port, dediziertes Netzwerk, Deploy-Guide in `README.md`. Container-Start: `prisma db push` (Produktions-DB ohne Migrationshistorie) |

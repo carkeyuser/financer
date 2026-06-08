@@ -3,6 +3,7 @@
 import { useTheme } from "next-themes"
 import { Sun, Moon, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useMounted } from "@/hooks/useMounted"
 import { useI18n } from "@/i18n/context"
 import {
   cycleTheme,
@@ -19,9 +20,10 @@ function resolveToggleTheme(theme: string | undefined, resolvedTheme: string | u
 }
 
 export function ThemeToggle() {
+  const mounted = useMounted()
   const { theme, resolvedTheme, setTheme } = useTheme()
   const { t } = useI18n()
-  const activeTheme = resolveToggleTheme(theme, resolvedTheme)
+  const activeTheme = mounted ? resolveToggleTheme(theme, resolvedTheme) : "light"
   const labelKey = themeLabelKey(activeTheme)
 
   return (
@@ -29,7 +31,12 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(cycleTheme(activeTheme))}
-      aria-label={t("common.themeToggleTo", { theme: t(labelKey) })}
+      aria-label={
+        mounted
+          ? t("common.themeToggleTo", { theme: t(labelKey) })
+          : t("common.themeToggle")
+      }
+      suppressHydrationWarning
     >
       <Sun
         className={cn(

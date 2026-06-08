@@ -6,6 +6,7 @@ Archiv erledigter Feature-, Änderungs- und Bug-Backlog-Einträge. Offene Punkte
 
 | # | Bereich | Beschreibung | Status |
 |---|---|---|---|
+| F-51 | App / UI | **Ambient-Kiosk:** Route `/ambient`, Vollbild ohne Sidebar, Retrowave erzwungen, 3 rotierende Panels (Uhr+Stimmung, Portfolio-Puls, HK-Routine), Ticker-Tape, Esc/Space-Steuerung; Einstieg Sidebar + Settings | ✅ erledigt 2026-06-08 |
 | F-47 | App / UI | **Retrowave-Theme:** `.retrowave` CSS-Tokens, Settings `AppearanceCard`, Zyklus-Toggle, Chart-Farben via CSS-Vars, Horizon-Grid + Orbitron-Überschriften | ✅ erledigt 2026-06-04 |
 | F-46 | DevOps / Einstellungen | **In-App-Update:** `/settings` UpdateCard; `GET /api/version`; `POST /api/admin/update` (NDJSON); `scripts/update.sh`; opt-in `docker-compose.update.yml` | ✅ erledigt 2026-06-04 |
 | F-01 | Investments | Bearbeiten-Funktion: `PUT /api/assets/[id]` + `AssetEditDialog.tsx` | ✅ erledigt 2026-05-23 |

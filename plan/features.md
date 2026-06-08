@@ -3,7 +3,8 @@
 Feature-Backlog des Projekts. Architektur, Projektstand und Querverweise starten in [`README.md`](README.md).
 
 Aktuell offen: **F-34**.
-Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02). **F-46** In-App-Update (2026-06-04). **F-47** Retrowave-Theme (2026-06-04).
+Zurückgestellt (Doku): **F-48** Performance/Caching — optional Redis, siehe [`feature-f48-performance-caching-redis.md`](feature-f48-performance-caching-redis.md).
+Erledigt: **F-31** One-Click-Install (2026-06-03). Daily-Habit **F-40**–**F-44** (2026-06-01). **F-45** Persönliches Einkommen (2026-06-02). **F-46** In-App-Update (2026-06-04). **F-47** Retrowave-Theme (2026-06-04). **F-51** Ambient-Kiosk (2026-06-08).
 Erledigte Features stehen im [`archive.md`](archive.md).
 
 ---
@@ -14,6 +15,7 @@ Erledigte Features stehen im [`archive.md`](archive.md).
 |---|---|---|---|
 | F-31 | DevOps | One-Click-Installation unter Docker | ✅ erledigt 2026-06-03 |
 | F-34 | Dashboard | Marktkalender-Abdeckung erweitern (DE/ETF, manuelle Termine) | 🟨 offen |
+| F-48 | Architektur / Performance | Caching-Strategie; optional Redis bei Skalierung — [Spec](feature-f48-performance-caching-redis.md) | ⏸ zurückgestellt |
 | F-40 | Dashboard | „Heute“-Briefing — kuratierte Tagesübersicht | ✅ erledigt 2026-06-01 |
 | F-41 | Dashboard / Investments | Täglicher Vermögens-Snapshot | ✅ erledigt 2026-06-01 |
 | F-42 | App | Notification Bell (Glocke + Inbox) | ✅ erledigt 2026-06-01 |
@@ -21,6 +23,7 @@ Erledigte Features stehen im [`archive.md`](archive.md).
 | F-44 | Dashboard | „Dein Kalender“ — nur Depot-relevante Termine | ✅ erledigt 2026-06-01 |
 | F-45 | App | Persönlicher Einkommen-Tab (`/einkommen`) — Brutto/Netto/Boni, HK-Sync, Jahresvergleich | ✅ erledigt 2026-06-02 |
 | F-46 | DevOps / Einstellungen | Admin: Version anzeigen, Update mit Status-Log + Neustart-Countdown | ✅ erledigt 2026-06-04 |
+| F-51 | App / UI | Ambient-Kiosk — Vollbild `/ambient`, Retrowave, rotierende Panels + Ticker | ✅ erledigt 2026-06-08 |
 
 **Priorisierung (Daily-Habit):** F-40 → F-41 → F-42 → F-43 → F-44
 
@@ -111,6 +114,26 @@ Während des Updates: Buttons sperren, klare Meldung dass die App kurz nicht err
 - [x] i18n de/en; Vitest für Auth-Gate und Status-Aggregation (Mock Update-Prozess)
 
 **Umsetzung:** `UpdateCard`, `GET /api/version`, `POST /api/admin/update`, [`docker-compose.update.yml`](../docker-compose.update.yml), [`plan/deploy.md`](deploy.md).
+
+---
+
+## F-48 — Performance & Caching (optional Redis)
+
+| | |
+|---|---|
+| **Bereich** | Architektur / DevOps / Performance |
+| **Status** | ⏸ zurückgestellt (Entscheidung 2026-06-05) |
+| **Spezifikation** | [`feature-f48-performance-caching-redis.md`](feature-f48-performance-caching-redis.md) |
+
+### Kurzfassung
+
+Für den **aktuellen** Betrieb (1 Next.js-Container, 1–2 Haushalte, PostgreSQL) lohnt sich **kein Redis**. Engpässe liegen bei **Yahoo/Nasdaq**, nicht bei PG. Bereits vorhanden: TanStack Query (Client), In-Memory-TTL (FX, ISIN, TR-Preview), persistierte Kurse/Snapshots in der DB.
+
+**Vor Redis (Phase 0):** Kurse primär aus DB; serverseitiger TTL-Cache pro Symbol; gezieltes Profiling.
+
+**Redis erst bei:** mehreren App-Instanzen, vielen Nutzern, Job-Queues (BullMQ) oder geteiltem TR-Preview über Restarts.
+
+Vollständige Analyse, Trigger, Key-Schema und Compose-Skizze → Spec-Datei oben.
 
 ---
 
@@ -401,6 +424,7 @@ Marktkalender **nutzerzentriert**: nur Termine zu Tickern im Depot (+ optional W
 |---|---|---|---|
 | F-31 | DevOps | One-Click-Installation unter Docker (siehe oben) | ✅ erledigt 2026-06-03 |
 | F-34 | Dashboard | Marktkalender DE/ETF, manuelle Termine (siehe oben) | 🟨 offen |
+| F-48 | Architektur | Performance/Caching; optional Redis — [Spec](feature-f48-performance-caching-redis.md) | ⏸ zurückgestellt |
 | F-40 | Dashboard | **Heute-Briefing:** Aggregation Portfolio, Top/Flop, Kalender, Haushalt, Dividenden; API `/api/today`; seit letztem Besuch | 🟨 offen |
 | F-41 | Dashboard | **Vermögens-Snapshot:** `PortfolioDailySnapshot` täglich; Widget „seit gestern“ + Sparkline — [Spec](feature-f41-portfolio-snapshot.md) | 🟨 offen |
 | F-42 | App | **Notification Bell:** Glocke, Badge, Inbox, `Notification`-Modell, Generator, API read/mark-all; kein Push MVP | 🟨 offen |
