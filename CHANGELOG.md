@@ -18,6 +18,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Ambient kiosk (F-51)** — Full-screen `/ambient` mode: Retrowave theme, rotating panels (clock + market mood, portfolio pulse, household month routine), scrolling position ticker; Space/tap to advance, Esc to exit; sidebar and Settings entry
+- **Theme toggle hydration** — Defer theme-dependent icon/label until client mount; ambient kiosk applies Retrowave via DOM class without overwriting stored theme preference
 - **Docs (F-48)** — Performance/caching decision record: defer Redis for current single-instance setup; document Phase 0 alternatives and optional Redis integration path in `plan/feature-f48-performance-caching-redis.md`
 - **Dev tooling** — `npm run verify:demo` checks DB demo users, password hash, and 2FA flags after seed/setup
 

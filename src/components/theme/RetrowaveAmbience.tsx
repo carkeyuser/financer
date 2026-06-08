@@ -1,7 +1,8 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { useEffect, useRef, useSyncExternalStore } from "react"
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { isAmbientKioskActive } from "@/lib/ambient/kiosk-theme"
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -144,7 +145,18 @@ export function RetrowaveAmbience() {
     () => false
   )
 
-  const active = mounted && resolvedTheme === "retrowave"
+  const [kioskActive, setKioskActive] = useState(false)
+
+  useEffect(() => {
+    const el = document.documentElement
+    const sync = () => setKioskActive(isAmbientKioskActive())
+    sync()
+    const obs = new MutationObserver(sync)
+    obs.observe(el, { attributes: true, attributeFilter: ["data-ambient-kiosk", "class"] })
+    return () => obs.disconnect()
+  }, [])
+
+  const active = mounted && (resolvedTheme === "retrowave" || kioskActive)
 
   useEffect(() => {
     if (!active) return
