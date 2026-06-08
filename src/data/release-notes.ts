@@ -8,6 +8,18 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.10",
+    date: "2026-06-08",
+    highlights: {
+      de: [
+        "Fix: In-App-Update Compose-Projektname (financer statt deploy) — kein finance_db-Konflikt mehr",
+      ],
+      en: [
+        "Fix: in-app update compose project name (financer not deploy) — no finance_db name conflict",
+      ],
+    },
+  },
+  {
     version: "0.1.9",
     date: "2026-06-08",
     highlights: {

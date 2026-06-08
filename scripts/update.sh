@@ -50,28 +50,6 @@ if is_truthy "$(read_env FINANCER_UPDATE_ENABLED false)"; then
   compose_files+=(-f docker-compose.update.yml)
 fi
 
-compose() {
-  if docker compose version >/dev/null 2>&1; then
-    docker compose "${compose_files[@]}" "$@"
-    return
-  fi
-
-  local host_mount
-  host_mount="$(resolve_host_mount)"
-  if ! is_host_mount_path "$host_mount"; then
-    echo "FEHLER: docker compose Plugin fehlt und Host-Pfad für Fallback unbekannt" >&2
-    return 1
-  fi
-
-  echo "→ docker compose via ${COMPOSE_CLI_IMAGE} …"
-  docker run --rm \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "${host_mount}:${GIT_CONTAINER_DIR}:rw" \
-    -w "${GIT_CONTAINER_DIR}" \
-    "${COMPOSE_CLI_IMAGE}" \
-    compose "${compose_files[@]}" "$@"
-}
-
 # In-app update runs inside the app container as nextjs (uid 1001); host clone is often root-owned.
 ALPINE_GIT_IMAGE="alpine/git:2.45.2"
 COMPOSE_CLI_IMAGE="${FINANCER_COMPOSE_CLI_IMAGE:-docker.io/docker:27-cli}"
@@ -108,6 +86,64 @@ resolve_host_mount() {
   fi
 
   echo ""
+}
+
+# cwd /deploy in the app container would default project name "deploy" — must match host (/opt/financer → financer).
+resolve_compose_project_name() {
+  if [ -n "${COMPOSE_PROJECT_NAME:-}" ]; then
+    echo "$COMPOSE_PROJECT_NAME"
+    return
+  fi
+
+  local from_env host_mount
+  from_env="$(read_env COMPOSE_PROJECT_NAME "")"
+  if [ -n "$from_env" ]; then
+    echo "$from_env"
+    return
+  fi
+
+  host_mount="$(resolve_host_mount)"
+  if is_host_mount_path "$host_mount"; then
+    basename "$host_mount"
+    return
+  fi
+
+  if [ "$APP_DIR" != "/deploy" ]; then
+    basename "$APP_DIR"
+    return
+  fi
+
+  echo "financer"
+}
+
+compose_project_args() {
+  echo "-p" "$(resolve_compose_project_name)"
+}
+
+compose() {
+  local project_args
+  project_args=($(compose_project_args))
+
+  if docker compose version >/dev/null 2>&1; then
+    docker compose "${project_args[@]}" "${compose_files[@]}" "$@"
+    return
+  fi
+
+  local host_mount
+  host_mount="$(resolve_host_mount)"
+  if ! is_host_mount_path "$host_mount"; then
+    echo "FEHLER: docker compose Plugin fehlt und Host-Pfad für Fallback unbekannt" >&2
+    return 1
+  fi
+
+  echo "→ docker compose via ${COMPOSE_CLI_IMAGE} (Projekt: $(resolve_compose_project_name)) …"
+  docker run --rm \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "${host_mount}:${GIT_CONTAINER_DIR}:rw" \
+    -w "${GIT_CONTAINER_DIR}" \
+    -e "COMPOSE_PROJECT_NAME=$(resolve_compose_project_name)" \
+    "${COMPOSE_CLI_IMAGE}" \
+    compose "${project_args[@]}" "${compose_files[@]}" "$@"
 }
 
 should_use_docker_git() {

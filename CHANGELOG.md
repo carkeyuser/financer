@@ -5,6 +5,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-06-08
+
+### Fixed
+
+- **In-app update** — `update.sh` always passes `-p` compose project name from the host deploy path (e.g. `financer`), fixing container name conflicts when cwd is `/deploy`
+
 ## [0.1.9] - 2026-06-08
 
 ### Fixed
