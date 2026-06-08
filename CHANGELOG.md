@@ -5,6 +5,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-06-08
+
 ### Fixed
 
 - **GHCR Docker image** — CI docker job builds with multi-stage `Dockerfile` (same as server `build` mode) instead of `Dockerfile.ci` artifact assembly, which followed `.next/standalone` symlinks and produced broken images without `.next/BUILD_ID`
@@ -15,11 +17,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **In-app update** — `scripts/update.sh` uses `git -c safe.directory=…` so `git pull` works when `/deploy` is mounted from the host (fixes “dubious ownership”, exit 128)
 - **Prisma seed (production)** — Re-running seed no longer resets `demo` / `demo2` passwords or clears 2FA when `NODE_ENV=production` unless `SEED_RESET_DEMO=true`; fixed-cost backfill still runs
 - **Local setup script** — `setup-dev.ps1` preserves an existing non-empty `NEXTAUTH_URL` in `.env.local` (LAN/custom URLs)
+- **Theme toggle hydration** — Defer theme-dependent icon/label until client mount; ambient kiosk applies Retrowave via DOM class without overwriting stored theme preference
 
 ### Added
 
-- **Ambient kiosk (F-51)** — Full-screen `/ambient` mode: Retrowave theme, rotating panels (clock + market mood, portfolio pulse, household month routine), scrolling position ticker; Space/tap to advance, Esc to exit; sidebar and Settings entry
-- **Theme toggle hydration** — Defer theme-dependent icon/label until client mount; ambient kiosk applies Retrowave via DOM class without overwriting stored theme preference
+- **Ambient kiosk (F-51)** — Full-screen `/ambient` mode: Retrowave theme, seven rotating panels (clock, portfolio, top/flop, calendar, dividends, household checklist, household finance), scrolling position ticker; Space/tap to advance, arrow keys, Esc to exit; sidebar and Settings entry
 - **Docs (F-48)** — Performance/caching decision record: defer Redis for current single-instance setup; document Phase 0 alternatives and optional Redis integration path in `plan/feature-f48-performance-caching-redis.md`
 - **Dev tooling** — `npm run verify:demo` checks DB demo users, password hash, and 2FA flags after seed/setup
 
