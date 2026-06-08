@@ -220,6 +220,13 @@ git pull --ff-only
 bash scripts/update.sh
 ```
 
+**Fehler `FETCH_HEAD: Permission denied` / Exit-Code 1:** Der App-Container läuft als `nextjs` (UID **1001**), das Git-Repo auf dem Host oft als **root** (Clone/SSH-Updates). `git pull` kann `.git/FETCH_HEAD` nicht schreiben.
+
+- **Sofort:** `chown -R 1001:1001 /opt/financer/.git` (Pfad = dein `FINANCER_HOST_APP_DIR`)
+- **Ab v0.1.7:** `update.sh` führt `git pull` automatisch via `alpine/git` als root aus, wenn der Prozess nicht-root ist und `FINANCER_HOST_MOUNT` + Docker-Socket verfügbar sind (`docker-compose.update.yml` setzt `FINANCER_HOST_MOUNT` aus der Host-`.env`).
+- **Hinweis:** Jeder `git pull` als root per SSH kann `.git` wieder root-owned machen — dann erneut chown oder In-App-Update mit neuem Skript nutzen.
+- **`install.sh`:** Setzt `.git`-Ownership auf 1001:1001, wenn `FINANCER_UPDATE_ENABLED=true` und Install als root.
+
 ---
 
 ## Pfad & SSH

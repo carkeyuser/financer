@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-06-08
+
+### Fixed
+
+- **In-app update** — `update.sh` runs `git pull` via `alpine/git` as root when the process is non-root and `.git` is host-owned (fixes `FETCH_HEAD: Permission denied` from the app container as uid 1001)
+- **In-app update** — `FINANCER_HOST_MOUNT` in `docker-compose.update.yml` supplies the host path for nested `docker -v` during git operations
+- **Install** — When `FINANCER_UPDATE_ENABLED=true`, `install.sh` chowns `.git` to uid 1001 for container-writable git metadata
+
 ## [0.1.6] - 2026-06-08
 
 ### Fixed

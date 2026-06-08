@@ -250,6 +250,23 @@ setup_env() {
   prompt_nextauth_url
 }
 
+is_env_truthy() {
+  local v="${1,,}"
+  [[ "$v" == "1" || "$v" == "true" || "$v" == "yes" || "$v" == "on" ]]
+}
+
+# App container runs as uid 1001 (nextjs); in-app update needs writable .git
+fix_in_app_update_git_permissions() {
+  local dir enabled
+  dir="$(pwd)"
+  enabled="$(read_env_value FINANCER_UPDATE_ENABLED false)"
+  if is_env_truthy "$enabled" && [[ -d "$dir/.git" ]] && [[ "$(id -u)" -eq 0 ]]; then
+    log "In-App-Update aktiv — .git für Container-User (1001) freigeben …"
+    chown -R 1001:1001 "$dir/.git"
+    ok ".git Ownership angepasst"
+  fi
+}
+
 wait_for_db() {
   local user db i
   user="$(read_env_value POSTGRES_USER financeuser)"
@@ -311,6 +328,7 @@ main() {
   require_root_hint
 
   setup_env
+  fix_in_app_update_git_permissions
   start_stack
   wait_for_db
   wait_for_app
