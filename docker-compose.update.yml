@@ -5,6 +5,8 @@ services:
   app:
     environment:
       FINANCER_UPDATE_ENABLED: ${FINANCER_UPDATE_ENABLED:-false}
+      # Host path for nested docker -v (update.sh git pull as root); from .env before override below
+      FINANCER_HOST_MOUNT: ${FINANCER_HOST_APP_DIR}
       # Host clone is mounted at /deploy — app must use container path, not FINANCER_HOST_APP_DIR from .env
       FINANCER_HOST_APP_DIR: /deploy
       FINANCER_DEPLOY_MODE: ${FINANCER_DEPLOY_MODE:-build}

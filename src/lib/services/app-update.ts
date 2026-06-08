@@ -1,5 +1,5 @@
 import { spawn } from "child_process"
-import { existsSync } from "fs"
+import { accessSync, constants, existsSync } from "fs"
 import { join } from "path"
 import {
   getDeployMode,
@@ -60,6 +60,21 @@ export function markUpdateRateLimited(): void {
 
 export function releaseUpdateLock(): void {
   updateInProgress = false
+}
+
+function warnIfGitNotWritable(hostDir: string, emit: (event: AppUpdateEvent) => void): void {
+  const gitDir = join(hostDir, ".git")
+  if (!existsSync(gitDir)) return
+  try {
+    accessSync(gitDir, constants.W_OK)
+  } catch {
+    emit({
+      type: "log",
+      level: "info",
+      message:
+        "→ Hinweis: .git nicht beschreibbar — update.sh nutzt Docker-Git (root), falls konfiguriert. Siehe plan/deploy.md",
+    })
+  }
 }
 
 /** Test-only reset */
@@ -144,6 +159,7 @@ export async function runAppUpdate(
 
   try {
     emit({ type: "log", level: "info", message: `→ Starte Update in ${hostDir} …` })
+    warnIfGitNotWritable(hostDir, emit)
 
     const exitCode = await spawnUpdate(hostDir, (stream, line) => {
       emit({

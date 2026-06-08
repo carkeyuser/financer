@@ -49,25 +49,63 @@ compose() {
   docker compose "${compose_files[@]}" "$@"
 }
 
-# In-app update runs inside the app container; /deploy is a host mount (often root-owned).
+# In-app update runs inside the app container as nextjs (uid 1001); host .git is often root-owned.
+ALPINE_GIT_IMAGE="alpine/git:2.45.2"
+GIT_CONTAINER_DIR="/deploy"
 TRACKED_COMPOSE_OVERLAYS=(docker-compose.update.yml docker-compose.prod.yml)
+
+resolve_host_mount() {
+  if [ -n "${FINANCER_HOST_MOUNT:-}" ]; then
+    echo "$FINANCER_HOST_MOUNT"
+    return
+  fi
+  read_env FINANCER_HOST_APP_DIR ""
+}
+
+should_use_docker_git() {
+  local host_mount=$1
+  [ "$(id -u)" -ne 0 ] \
+    && [ -n "$host_mount" ] \
+    && [ -S /var/run/docker.sock ]
+}
+
+git_in_deploy() {
+  local host_mount
+  host_mount="$(resolve_host_mount)"
+  if should_use_docker_git "$host_mount"; then
+    docker run --rm -u root \
+      -v "${host_mount}:${GIT_CONTAINER_DIR}:rw" \
+      -w "${GIT_CONTAINER_DIR}" \
+      "${ALPINE_GIT_IMAGE}" \
+      -c "safe.directory=${GIT_CONTAINER_DIR}" \
+      "$@"
+  else
+    git -c "safe.directory=${APP_DIR}" "$@"
+  fi
+}
 
 discard_local_compose_overlays() {
   local f status
   for f in "${TRACKED_COMPOSE_OVERLAYS[@]}"; do
     [ -f "$f" ] || continue
-    status="$(git -c safe.directory="$APP_DIR" status --porcelain -- "$f" 2>/dev/null || true)"
+    status="$(git_in_deploy status --porcelain -- "$f" 2>/dev/null || true)"
     if [ -n "$status" ]; then
       echo "→ Verwerfe lokale Änderungen an $f (Repo-Version für Pull) …"
-      git -c safe.directory="$APP_DIR" checkout -- "$f"
+      git_in_deploy checkout -- "$f"
     fi
   done
 }
 
 git_pull_ff() {
+  local host_mount
+  host_mount="$(resolve_host_mount)"
   discard_local_compose_overlays
-  echo "→ git pull (Compose/Config) …"
-  git -c safe.directory="$APP_DIR" pull --ff-only
+  if should_use_docker_git "$host_mount"; then
+    echo "→ git pull via Docker (root, Berechtigung .git) …"
+  else
+    echo "→ git pull (Compose/Config) …"
+  fi
+  git_in_deploy pull --ff-only
 }
 
 case "$MODE" in
