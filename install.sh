@@ -255,15 +255,15 @@ is_env_truthy() {
   [[ "$v" == "1" || "$v" == "true" || "$v" == "yes" || "$v" == "on" ]]
 }
 
-# App container runs as uid 1001 (nextjs); in-app update needs writable .git
+# App container runs as uid 1001 (nextjs); in-app update needs writable clone (not only .git)
 fix_in_app_update_git_permissions() {
   local dir enabled
   dir="$(pwd)"
   enabled="$(read_env_value FINANCER_UPDATE_ENABLED false)"
   if is_env_truthy "$enabled" && [[ -d "$dir/.git" ]] && [[ "$(id -u)" -eq 0 ]]; then
-    log "In-App-Update aktiv — .git für Container-User (1001) freigeben …"
-    chown -R 1001:1001 "$dir/.git"
-    ok ".git Ownership angepasst"
+    log "In-App-Update aktiv — Deploy-Verzeichnis für Container-User (1001) freigeben …"
+    chown -R 1001:1001 "$dir"
+    ok "Ownership angepasst (uid 1001)"
   fi
 }
 

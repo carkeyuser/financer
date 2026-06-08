@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **In-app update** — `update.sh` resolves the host `/deploy` bind path via `docker inspect` when env is missing; always uses root Docker git from non-root processes; retries after direct `git pull` permission failures
+
+### Changed
+
+- **Install** — `chown -R 1001:1001` on the full deploy directory when in-app update is enabled (not only `.git`)
+
 ## [0.1.7] - 2026-06-08
 
 ### Fixed
