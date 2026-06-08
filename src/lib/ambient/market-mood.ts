@@ -24,5 +24,5 @@ export function deriveMarketMood(
   return "mixed"
 }
 
-export const AMBIENT_PANEL_COUNT = 3
+export const AMBIENT_PANEL_COUNT = 7
 export const AMBIENT_PANEL_ROTATION_MS = 12_000

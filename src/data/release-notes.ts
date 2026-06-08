@@ -8,6 +8,24 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.6",
+    date: "2026-06-08",
+    highlights: {
+      de: [
+        "Ambient-Kiosk (/ambient): Vollbild-Retrowave mit 7 rotierenden Panels und Positions-Ticker",
+        "Tablet/Monitor-Modus: Uhr, Portfolio, Top/Flop, Kalender, Dividenden, Haushaltskasse",
+        "Theme-Fix: kein Hydration-Warnung mehr; Ambient überschreibt gespeichertes Theme nicht",
+        "GHCR/Deploy-Fixes, npm run verify:demo, F-48 Performance-Doku (Redis zurückgestellt)",
+      ],
+      en: [
+        "Ambient kiosk (/ambient): full-screen Retrowave with 7 rotating panels and position ticker",
+        "Kiosk mode for tablet/second monitor: clock, portfolio, top/flop, calendar, dividends, household",
+        "Theme fix: no hydration warning; ambient does not overwrite your saved theme preference",
+        "GHCR/deploy fixes, npm run verify:demo, F-48 performance notes (Redis deferred)",
+      ],
+    },
+  },
+  {
     version: "0.1.5",
     date: "2026-06-04",
     highlights: {
