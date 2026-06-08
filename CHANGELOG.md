@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-06-08
+
+### Fixed
+
+- **In-app update** — App image includes `docker-cli-compose`; `update.sh` falls back to `docker:27-cli compose` when the compose plugin is missing (fixes `unknown shorthand flag: 'f' in -f`)
+
+## [0.1.8] - 2026-06-08
+
 ### Fixed
 
 - **In-app update** — `update.sh` resolves the host `/deploy` bind path via `docker inspect` when env is missing; always uses root Docker git from non-root processes; retries after direct `git pull` permission failures
