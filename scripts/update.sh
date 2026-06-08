@@ -51,11 +51,30 @@ if is_truthy "$(read_env FINANCER_UPDATE_ENABLED false)"; then
 fi
 
 compose() {
-  docker compose "${compose_files[@]}" "$@"
+  if docker compose version >/dev/null 2>&1; then
+    docker compose "${compose_files[@]}" "$@"
+    return
+  fi
+
+  local host_mount
+  host_mount="$(resolve_host_mount)"
+  if ! is_host_mount_path "$host_mount"; then
+    echo "FEHLER: docker compose Plugin fehlt und Host-Pfad für Fallback unbekannt" >&2
+    return 1
+  fi
+
+  echo "→ docker compose via ${COMPOSE_CLI_IMAGE} …"
+  docker run --rm \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "${host_mount}:${GIT_CONTAINER_DIR}:rw" \
+    -w "${GIT_CONTAINER_DIR}" \
+    "${COMPOSE_CLI_IMAGE}" \
+    compose "${compose_files[@]}" "$@"
 }
 
 # In-app update runs inside the app container as nextjs (uid 1001); host clone is often root-owned.
 ALPINE_GIT_IMAGE="alpine/git:2.45.2"
+COMPOSE_CLI_IMAGE="${FINANCER_COMPOSE_CLI_IMAGE:-docker.io/docker:27-cli}"
 GIT_CONTAINER_DIR="/deploy"
 APP_CONTAINER_NAME="${FINANCER_APP_CONTAINER:-finance_app}"
 TRACKED_COMPOSE_OVERLAYS=(docker-compose.update.yml docker-compose.prod.yml)

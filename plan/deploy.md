@@ -220,6 +220,10 @@ git pull --ff-only
 bash scripts/update.sh
 ```
 
+- **Ab v0.1.9:** App-Image enthält `docker-cli-compose`; `update.sh` nutzt sonst `docker:27-cli compose` als Fallback (Fehler `unknown shorthand flag: 'f' in -f`).
+
+**Fehler `unknown shorthand flag: 'f' in -f` / Exit-Code 125:** Im App-Container fehlte das Docker-Compose-Plugin — `docker compose -f …` schlug fehl. Ab v0.1.9 behoben (Plugin im Image + Fallback in `update.sh`). Bis das Image da ist: einmal per SSH `git pull && bash scripts/update.sh`.
+
 **Fehler `FETCH_HEAD: Permission denied` / Exit-Code 1:** Der App-Container läuft als `nextjs` (UID **1001**), das Git-Repo auf dem Host oft als **root** (Clone/SSH-Updates). `git pull` kann `.git/FETCH_HEAD` nicht schreiben.
 
 - **Sofort (SSH als root):**

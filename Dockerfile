@@ -24,7 +24,7 @@ ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs \
-  && apk add --no-cache docker-cli git bash
+  && apk add --no-cache docker-cli docker-cli-compose git bash
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

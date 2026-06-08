@@ -8,6 +8,18 @@ export const RELEASES_URL = "https://github.com/carkeyuser/financer/releases"
 
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: "0.1.9",
+    date: "2026-06-08",
+    highlights: {
+      de: [
+        "Fix: In-App-Update docker compose im Container (Plugin + Fallback-Image)",
+      ],
+      en: [
+        "Fix: in-app update docker compose in container (compose plugin + fallback image)",
+      ],
+    },
+  },
+  {
     version: "0.1.8",
     date: "2026-06-08",
     highlights: {
