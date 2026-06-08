@@ -1,6 +1,6 @@
 {
   "name": "claude_finance",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "scripts": {
     "db:up": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db",

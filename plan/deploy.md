@@ -222,6 +222,14 @@ bash scripts/update.sh
 
 - **Ab v0.1.9:** App-Image enthält `docker-cli-compose`; `update.sh` nutzt sonst `docker:27-cli compose` als Fallback (Fehler `unknown shorthand flag: 'f' in -f`).
 
+**Fehler `container name "/finance_db" is already in use` / Projekt `deploy_*`:** In-App-Update lief mit Compose-Projekt **`deploy`** (Mount-Pfad `/deploy`) statt **`financer`**. Ab v0.1.10 setzt `update.sh` immer `-p <basename des Host-Pfads>`. Aufräumen nach fehlgeschlagenem Lauf:
+
+```bash
+docker network rm deploy_finance_net 2>/dev/null || true
+docker volume rm deploy_postgres_data 2>/dev/null || true   # nur wenn leer/neu angelegt
+cd /opt/financer && git pull --ff-only && bash scripts/update.sh
+```
+
 **Fehler `unknown shorthand flag: 'f' in -f` / Exit-Code 125:** Im App-Container fehlte das Docker-Compose-Plugin — `docker compose -f …` schlug fehl. Ab v0.1.9 behoben (Plugin im Image + Fallback in `update.sh`). Bis das Image da ist: einmal per SSH `git pull && bash scripts/update.sh`.
 
 **Fehler `FETCH_HEAD: Permission denied` / Exit-Code 1:** Der App-Container läuft als `nextjs` (UID **1001**), das Git-Repo auf dem Host oft als **root** (Clone/SSH-Updates). `git pull` kann `.git/FETCH_HEAD` nicht schreiben.
